@@ -134,7 +134,7 @@ const FOOTER_HTML = `
                 </div>
             </div>
             <div class="mt-8 text-center">
-                <p class="text-[#B9C0CA] text-sm">© 2026 Immoral Group SLU. Todos los derechos reservados.</p>
+                <p class="text-[#B9C0CA] text-sm">© 2026 Immoral Group SLU.</p>
             </div>
         </div>
     </div>
