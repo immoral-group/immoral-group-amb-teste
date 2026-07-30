@@ -454,17 +454,71 @@
     <section class="relative w-full bg-black pb-32 pt-12 md:pt-0 z-20">
         <div class="w-full relative z-10">
             <!-- Grid superior: Imagen y Texto introductorio -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-start mb-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start mb-20">
 
-                <!-- Columna Izquierda: Imagen Circular (Superpuesta) -->
-                <!-- md:-mt-48 sube la imagen para que pise la sección negra anterior -->
-                <div class="relative -mt-32 md:-ml-12 z-30 flex justify-center md:justify-start">
-                    <img src="imgs/circulo-equipo.png" alt="Equipo Immoral"
-                        class="w-full max-w-[750px] drop-shadow-2xl hover:scale-105 transition-transform duration-500">
+                <!-- Columna Izquierda: Red de Nodos "Equipo Conectado" -->
+                <!-- Contenida dentro de la sección negra, sin invadir la franja gris anterior -->
+                <div class="relative z-10 w-full flex justify-center md:justify-start">
+                    <!-- Desktop/tablet: red de nodos con física (Matter.js) -->
+                    <div id="equipo-network" class="hidden md:block w-full h-[480px] xl:h-[560px]"></div>
+
+                    <!-- Móvil: versión ligera sin física, solo CSS. Estructura "hub": centro + satélites, igual que en desktop -->
+                    <div class="block md:hidden w-full h-[360px] relative overflow-hidden" aria-hidden="true">
+                        <!-- Rejilla estática de fondo: fija, nunca se mueve (como en desktop) -->
+                        <div class="absolute inset-0" style="background-image: radial-gradient(circle, rgba(255,255,255,0.25) 1px, transparent 1.5px); background-size: 34px 34px;"></div>
+
+                        <!-- El clúster entero (líneas + nodos) flota junto, como un solo bloque -->
+                        <div class="absolute inset-0 cluster-drift">
+                        <!-- Líneas primero: quedan debajo de los nodos -->
+                        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <!-- Líneas del centro a cada satélite -->
+                            <line x1="48" y1="47" x2="82" y2="47" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="77" y2="64" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="65" y2="76" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="48" y2="81" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="31" y2="76" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="19" y2="64" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="14" y2="47" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="19" y2="30" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="31" y2="18" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="48" y2="13" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="65" y2="18" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <line x1="48" y1="47" x2="77" y2="30" stroke="#FFFFFF" stroke-width="0.4" opacity="0.35" />
+                            <!-- Líneas entre satélites vecinos: red secundaria -->
+                            <line x1="82" y1="47" x2="77" y2="64" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="77" y1="64" x2="65" y2="76" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="65" y1="76" x2="48" y2="81" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="48" y1="81" x2="31" y2="76" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="31" y1="76" x2="19" y2="64" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="19" y1="64" x2="14" y2="47" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="14" y1="47" x2="19" y2="30" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="19" y1="30" x2="31" y2="18" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="31" y1="18" x2="48" y2="13" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="48" y1="13" x2="65" y2="18" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="65" y1="18" x2="77" y2="30" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                            <line x1="77" y1="30" x2="82" y2="47" stroke="#FFFFFF" stroke-width="0.3" opacity="0.2" />
+                        </svg>
+                        <!-- Nodo central: el "equipo" -->
+                        <span class="node-dot" style="left:47%; top:45%; width:13px; height:13px; background:#FFFFFF; box-shadow:0 0 6px #FFFFFF;"></span>
+                        <!-- Satélites conectados al centro -->
+                        <span class="node-dot" style="left:81%; top:45%; width:7px; height:7px; background:#FFFFFF; box-shadow:0 0 3px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:76%; top:62%; width:5px; height:5px; background:#FFFFFF; box-shadow:0 0 2px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:64%; top:74%; width:8px; height:8px; background:#FFFFFF; box-shadow:0 0 3px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:47%; top:79%; width:6px; height:6px; background:#FFFFFF; box-shadow:0 0 2px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:30%; top:74%; width:6px; height:6px; background:#FFFFFF; box-shadow:0 0 3px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:18%; top:62%; width:5px; height:5px; background:#FFFFFF; box-shadow:0 0 2px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:13%; top:45%; width:7px; height:7px; background:#FFFFFF; box-shadow:0 0 3px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:18%; top:28%; width:6px; height:6px; background:#FFFFFF; box-shadow:0 0 2px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:30%; top:16%; width:8px; height:8px; background:#FFFFFF; box-shadow:0 0 3px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:47%; top:11%; width:5px; height:5px; background:#FFFFFF; box-shadow:0 0 2px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:64%; top:16%; width:6px; height:6px; background:#FFFFFF; box-shadow:0 0 3px #FFFFFF;"></span>
+                        <span class="node-dot" style="left:76%; top:28%; width:5px; height:5px; background:#FFFFFF; box-shadow:0 0 2px #FFFFFF;"></span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Columna Derecha: Texto -->
-                <div class="reveal-group pt-10 md:pt-20 pl-12 pr-6">
+                <div class="reveal-group pt-10 md:pt-20 pl-0 md:pl-2 pr-6">
                     <h2 class="text-3xl md:text-5xl font-black text-white mb-8 tracking-tight">
                         Así nació la idea:
                     </h2>

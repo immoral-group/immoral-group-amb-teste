@@ -1077,6 +1077,25 @@ html {
         animation: blob-intense 10s infinite;
     }
 
+    /* Equipo Conectado - Fallback móvil (sin física). El glow (box-shadow) se define inline por nodo. */
+    .node-dot {
+        position: absolute;
+        border-radius: 9999px;
+    }
+
+    /* El clúster entero (líneas + nodos) flota junto, como un solo bloque rígido, igual que en desktop */
+    @keyframes cluster-drift {
+        0%   { transform: translate(-6%, -4%); }
+        25%  { transform: translate(5%, -6%); }
+        50%  { transform: translate(7%, 3%); }
+        75%  { transform: translate(-4%, 6%); }
+        100% { transform: translate(-6%, -4%); }
+    }
+
+    .cluster-drift {
+        animation: cluster-drift 16s ease-in-out infinite;
+    }
+
 /* Brands Carousel - Infinite Scroll Animation */
 @keyframes scroll-brands {
     0% {
