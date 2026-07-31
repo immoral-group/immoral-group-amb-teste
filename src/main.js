@@ -4,6 +4,8 @@ import { initHeroAnimation } from './hero-animation.js';
 import { initFAQAccordion } from './faq-accordion.js';
 import { initCookieBanner } from './cookie-banner.js';
 import { initFooter } from './footer.js';
+import { renderTeamMembers } from './team.js';
+import { renderJobOpenings } from './jobOpenings.js';
 import { initHablemosHover } from './hablemos-hover.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -419,13 +421,17 @@ function initCarousel() {
 }
 
 // --- 7. TEAM CAROUSEL ---
-function initTeamCarousel() {
+async function initTeamCarousel() {
     const carouselRight = document.querySelector('.team-carousel-container-right');
     const trackRight = document.querySelector('.team-carousel-track-right');
     const carouselLeft = document.querySelector('.team-carousel-container-left');
     const trackLeft = document.querySelector('.team-carousel-track-left');
 
     if (!carouselRight || !trackRight || !carouselLeft || !trackLeft) return;
+
+    // El equipo se carga dinámicamente desde Supabase (SPEC-08) antes de
+    // arrancar la animación, para que scrollWidth ya refleje el contenido real.
+    await renderTeamMembers(trackRight, trackLeft);
 
     let currentPositionRight = 0;
     const speedRight = 0.8;
@@ -450,6 +456,13 @@ function initTeamCarousel() {
 
     animateTeamCarouselRight();
     animateTeamCarouselLeft();
+}
+
+// --- 7.5. OFERTAS ACTIVAS (equipo.html) ---
+function initJobOpenings() {
+    const grid = document.getElementById('job-openings-grid');
+    if (!grid) return;
+    renderJobOpenings(grid);
 }
 
 // --- 8. PORTFOLIO CAROUSEL (Fixed Drag & Touch) ---
@@ -1869,6 +1882,7 @@ function initAll() {
     initSimpleTestimonials();
     initCarousel();
     initTeamCarousel();
+    initJobOpenings();
     initPortfolioCarousel();
     initTestimonialsCarousel();
     initStackingCards();
