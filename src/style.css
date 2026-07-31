@@ -1129,6 +1129,18 @@ html {
     animation: scroll-up 25s linear infinite;
 }
 
+/* Iconos minimalistas: aparición con desenfoque + opacidad al entrar en viewport (sin animación en loop) */
+.fade-in-up {
+    opacity: 0;
+    filter: blur(8px);
+    transition: opacity 0.9s ease, filter 0.9s ease;
+}
+
+.fade-in-up.visible {
+    opacity: 1;
+    filter: blur(0);
+}
+
 .services-scroll-container:hover {
     animation-play-state: paused;
 }
