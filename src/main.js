@@ -1292,6 +1292,235 @@ function initHeroPhysics() {
     startPhysics();
 }
 
+// --- 14b. EQUIPO NETWORK (rejilla fija + foco que la recorre, "Nuestra Historia") ---
+// Réplica del motion graphic de referencia: una rejilla de puntos fija (nunca se mueve) y un
+// "foco" invisible que recorre TODA la rejilla en bucle; los puntos que quedan cerca del foco
+// crecen y se conectan a él, los que se alejan vuelven a su tamaño mínimo. Es matemática pura
+// (sin física ni colisiones), por eso ya no usa Matter.js para esta sección.
+let networkFrameId = null;
+let networkCanvas = null;
+let networkResizeHandler = null;
+let networkMouseCleanup = null;
+let networkObserver = null;
+
+function initEquipoNetwork() {
+    const container = document.getElementById('equipo-network');
+
+    // --- CLEANUP ---
+    if (networkObserver) {
+        networkObserver.disconnect();
+        networkObserver = null;
+    }
+    if (networkFrameId) {
+        cancelAnimationFrame(networkFrameId);
+        networkFrameId = null;
+    }
+    if (networkResizeHandler) {
+        window.removeEventListener('resize', networkResizeHandler);
+        networkResizeHandler = null;
+    }
+    if (networkMouseCleanup) {
+        networkMouseCleanup();
+        networkMouseCleanup = null;
+    }
+    if (networkCanvas) {
+        networkCanvas.remove();
+        networkCanvas = null;
+    }
+
+    // En móvil no se anima con JS: el fallback CSS del HTML ya cubre esa vista
+    if (!container || window.innerWidth < 768) return;
+
+    container.innerHTML = '';
+
+    async function startNetwork() {
+        const currentContainer = document.getElementById('equipo-network');
+        if (!currentContainer) return;
+
+        let attempts = 0;
+        while ((currentContainer.clientWidth === 0 || currentContainer.clientHeight === 0) && attempts < 50) {
+            await new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
+            attempts++;
+        }
+        if (currentContainer.clientWidth === 0 || currentContainer.clientHeight === 0) {
+            console.warn('Equipo Network: Container has no dimensions after waiting.');
+            return;
+        }
+
+        let w = currentContainer.clientWidth;
+        let h = currentContainer.clientHeight;
+
+        const canvas = document.createElement('canvas');
+        canvas.style.width = '100%';
+        canvas.style.height = '100%';
+        canvas.style.display = 'block';
+        canvas.style.opacity = '0';
+        canvas.style.transition = 'opacity 1s ease';
+        currentContainer.appendChild(canvas);
+        networkCanvas = canvas;
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+        }
+        resizeCanvas();
+        requestAnimationFrame(() => { canvas.style.opacity = '1'; });
+
+        // Puntos de la rejilla: pequeños, fijos, cubren todo el contenedor. Se recalculan si cambia el tamaño.
+        const GRID_SPACING = Math.min(w, h) / 9;
+        const DOT_RADIUS = 1.6;
+        const ACTIVE_RADIUS_MAX = 6.5;
+        const CORE_RADIUS = 8;
+        const ACTIVATION_RADIUS = GRID_SPACING * 3.2;
+        const HOVER_RADIUS = 46;
+        const HOVER_BOOST = 1.7;
+
+        // Margen mínimo respecto al borde superior: sin esto, la primera fila de puntos cae justo en el
+        // borde del contenedor y se ve como si asomara "por debajo" de la foto de la sección de arriba.
+        const TOP_MARGIN = 24;
+
+        let gridPoints = [];
+        function buildGrid() {
+            const points = [];
+            const offsetX = (w % GRID_SPACING) / 2;
+            let offsetY = (h % GRID_SPACING) / 2;
+            if (offsetY < TOP_MARGIN) offsetY += GRID_SPACING;
+            for (let gx = offsetX; gx < w; gx += GRID_SPACING) {
+                for (let gy = offsetY; gy < h; gy += GRID_SPACING) {
+                    points.push({ x: gx, y: gy, displayScale: 1 });
+                }
+            }
+            return points;
+        }
+        gridPoints = buildGrid();
+
+        // Seguimiento propio del ratón (coordenadas CSS puras).
+        // 'liveMouse' solo vale mientras el ratón está encima (para el boost puntual de hover).
+        // 'stickyMouse' guarda la ÚLTIMA posición conocida y nunca se resetea al salir el ratón:
+        // así el foco se queda "congelado" ahí en vez de volver a moverse solo.
+        const liveMouse = { x: -9999, y: -9999 };
+        const stickyMouse = { x: w / 2, y: h / 2 };
+        let hasInteracted = false;
+        const handleMouseMove = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            liveMouse.x = e.clientX - rect.left;
+            liveMouse.y = e.clientY - rect.top;
+            stickyMouse.x = liveMouse.x;
+            stickyMouse.y = liveMouse.y;
+            hasInteracted = true;
+        };
+        const handleMouseLeave = () => { liveMouse.x = -9999; liveMouse.y = -9999; };
+        currentContainer.addEventListener('mousemove', handleMouseMove);
+        currentContainer.addEventListener('mouseleave', handleMouseLeave);
+        networkMouseCleanup = () => {
+            currentContainer.removeEventListener('mousemove', handleMouseMove);
+            currentContainer.removeEventListener('mouseleave', handleMouseLeave);
+        };
+
+        // El foco persigue al ratón (con inercia, no salto instantáneo). Antes del primer contacto
+        // recorre un camino lento tipo Lissajous; en cuanto el usuario mueve el ratón por encima, el
+        // foco lo sigue, y si el ratón sale de la sección, se queda quieto justo en su última posición.
+        const FOCUS_EASE = 0.07;
+        const focusPos = { x: w / 2, y: h / 2 };
+
+        function draw(now) {
+            const t = now / 1000;
+            let targetX, targetY;
+            if (hasInteracted) {
+                // Sigue al ratón mientras se mueve, y se queda fijo en su última posición al salir
+                targetX = stickyMouse.x;
+                targetY = stickyMouse.y;
+            } else {
+                // Antes del primer contacto: recorrido lento por defecto
+                targetX = w / 2 + Math.sin(t * 0.05) * (w * 0.32) + Math.sin(t * 0.021) * (w * 0.14);
+                targetY = h / 2 + Math.cos(t * 0.037) * (h * 0.32) + Math.cos(t * 0.017) * (h * 0.1);
+            }
+            focusPos.x += (targetX - focusPos.x) * FOCUS_EASE;
+            focusPos.y += (targetY - focusPos.y) * FOCUS_EASE;
+            const focusX = focusPos.x, focusY = focusPos.y;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // 1) Líneas del foco a los puntos cercanos: quedan debajo de los puntos
+            ctx.save();
+            gridPoints.forEach(p => {
+                const dx = p.x - focusX, dy = p.y - focusY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < ACTIVATION_RADIUS) {
+                    const proximity = 1 - dist / ACTIVATION_RADIUS;
+                    ctx.globalAlpha = proximity * 0.4;
+                    ctx.strokeStyle = '#FFFFFF';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(focusX, focusY);
+                    ctx.lineTo(p.x, p.y);
+                    ctx.stroke();
+                }
+            });
+            ctx.restore();
+
+            // 2) Puntos de la rejilla: crecen cuando el foco pasa cerca, y un poco más al pasar el ratón
+            gridPoints.forEach(p => {
+                const dx = p.x - focusX, dy = p.y - focusY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const proximity = dist < ACTIVATION_RADIUS ? (1 - dist / ACTIVATION_RADIUS) : 0;
+
+                const hdx = p.x - liveMouse.x, hdy = p.y - liveMouse.y;
+                const hdist = Math.sqrt(hdx * hdx + hdy * hdy);
+                const hoverT = hdist < HOVER_RADIUS ? (1 - hdist / HOVER_RADIUS) : 0;
+
+                const targetRadius = DOT_RADIUS + proximity * (ACTIVE_RADIUS_MAX - DOT_RADIUS);
+                const targetScale = 1 + hoverT * (HOVER_BOOST - 1);
+                p.displayScale += (targetScale - p.displayScale) * 0.25;
+
+                ctx.globalAlpha = 0.22 + proximity * 0.78;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, targetRadius * p.displayScale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // 3) El foco en sí: el punto más brillante, el "centro del equipo"
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowColor = '#FFFFFF';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(focusX, focusY, CORE_RADIUS, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            networkFrameId = requestAnimationFrame(draw);
+        }
+        networkFrameId = requestAnimationFrame(draw);
+
+        networkResizeHandler = () => {
+            if (!currentContainer) return;
+            w = currentContainer.clientWidth;
+            h = currentContainer.clientHeight;
+            resizeCanvas();
+            gridPoints = buildGrid();
+        };
+        window.addEventListener('resize', networkResizeHandler);
+    }
+
+    // Arranque perezoso: solo cuando la sección entra en viewport (mismo mecanismo que initScrollAnimations)
+    networkObserver = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                startNetwork();
+                obs.disconnect();
+                networkObserver = null;
+            }
+        });
+    }, { threshold: 0.2 });
+    networkObserver.observe(container);
+}
+
 // --- 15. SCROLL ANIMATIONS ---
 function initScrollAnimations() {
     const observerOptions = {
@@ -1662,6 +1891,7 @@ function initAll() {
     initModals();
     initCalendly();
     initHeroPhysics();
+    initEquipoNetwork();
     initImmoralEcosystem();
     initCounters();
     initScrollAnimations();
