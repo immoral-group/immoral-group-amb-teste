@@ -26,6 +26,7 @@ const ICONS = {
   users: '<path d="M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M2.5 19.5c0-3 2.9-5.5 6.5-5.5s6.5 2.5 6.5 5.5"/><path d="M16 7.5a2.5 2.5 0 1 1 0-5"/><path d="M14.5 14.5c2.8.4 4.9 2.4 4.9 5"/>',
   briefcase: '<rect x="2.5" y="7" width="15" height="10" rx="1.5"/><path d="M7 7V5.5A1.5 1.5 0 0 1 8.5 4h3A1.5 1.5 0 0 1 13 5.5V7"/><path d="M2.5 11.5h15"/>',
   usercog: '<path d="M8 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M2 18c0-2.8 2.7-5 6-5s6 2.2 6 5"/><circle cx="16" cy="15.5" r="2.3"/><path d="M16 12.3v.7M16 17.9v.7M18.6 15.5h-.7M14.1 15.5h-.7M17.9 13.6l-.5.5M14.6 17.4l-.5.5M17.9 17.4l-.5-.5M14.6 13.6l-.5-.5"/>',
+  logs: '<path d="M4.5 2.5h8l4 4v10.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-14a.5.5 0 0 1 .5-.5Z"/><path d="M12.5 2.5V6a.5.5 0 0 0 .5.5h3.5"/><path d="M6.5 10.5h6M6.5 13.5h6M6.5 7.5h3"/>',
 };
 
 function icon(name) {
@@ -43,6 +44,7 @@ export function renderShell(root, { activeHref, email, role, isAdmin }) {
   const navItems = [
     { href: '/admin', label: 'Equipo', icon: 'users' },
     { href: '/ofertas', label: 'Ofertas activas', icon: 'briefcase' },
+    { href: '/logs', label: 'Logs', icon: 'logs' },
   ];
   if (isAdmin) {
     navItems.push({ href: '/roles', label: 'Roles', icon: 'usercog' });

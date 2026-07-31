@@ -10,6 +10,7 @@ export default defineConfig({
                 admin: resolve(__dirname, 'admin.html'),
                 roles: resolve(__dirname, 'roles.html'),
                 ofertas: resolve(__dirname, 'ofertas.html'),
+                logs: resolve(__dirname, 'logs.html'),
                 manifesto: resolve(__dirname, 'manifesto.html'),
                 contacto: resolve(__dirname, 'contacto.html'),
                 'casos-de-exito': resolve(__dirname, 'casos-de-exito.html'),

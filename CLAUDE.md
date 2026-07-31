@@ -14,6 +14,12 @@ Al terminar una tarea:
 
 Esta regla existe para que cualquier persona o agente que retome el proyecto — incluido tras un merge — sepa qué se hizo, cuándo y por qué, sin depender de leer el historial completo de commits o de preguntar.
 
+**Importante — esto no es un log de acciones de usuarios del panel.** No registra qué persona añadió o borró una fila desde `/admin` o `/ofertas` (eso no se audita en esta app). Es exclusivamente un changelog del *desarrollo del sitio*: qué cambió en el código y por qué, escrito por el agente que hizo el cambio.
+
+### El changelog es visible en `/logs`
+
+`.claude/TASK-LOG.md` se renderiza en vivo en la página `/logs` del panel interno (`src/logs.js`, vía `src/changelog.js`) — cualquier persona autenticada en el panel puede leer el historial de cambios del sitio sin salir de él. Para que el renderizado no se rompa, cada entrada nueva debe seguir el mismo formato markdown simple que ya usa el archivo: encabezado `## fecha — título`, párrafos en negrita con `**Qué:**`/`**Por qué:**`/`**Afecta:**`, y separador `---` entre entradas. No uses tablas ni markdown anidado — el renderizador de `/logs` es deliberadamente simple (sin librería de markdown) y solo soporta encabezados, negrita, código inline con backticks, enlaces, listas y párrafos.
+
 ## Otros contextos de este repo
 
 - [`.claude/project-context.md`](.claude/project-context.md) — estructura del sitio, convenciones de URLs, deuda técnica conocida.
