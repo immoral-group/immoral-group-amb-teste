@@ -2,6 +2,9 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+    server: {
+        host: '127.0.0.1', // evita que quede escuchando solo en IPv6 (::1)
+    },
     build: {
         rollupOptions: {
             input: {

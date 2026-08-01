@@ -2,9 +2,12 @@ import './style.css'
 import { initLoader } from './loader.js';
 import { initHeroAnimation } from './hero-animation.js';
 import { initFAQAccordion } from './faq-accordion.js';
-import { initCookieBanner } from './cookie-banner.js';
 import { initFooter } from './footer.js';
 import { initHablemosHover } from './hablemos-hover.js';
+import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
+import { initHomeBlackhole } from './home-blackhole.js';
+import { initMarbleReveal } from './marble-reveal.js';
+import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -20,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try { initHeroAnimation(); } catch (e) { console.error("Error in initHeroAnimation:", e); }
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
+    try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
 
     try {
         console.log("Attaching contact form listener...");
@@ -1629,10 +1633,12 @@ function initEmailHero() {
     if (!section) return;
 
     const bg1 = section.querySelector('.bg-image-1');
-    const bg2 = section.querySelector('.bg-image-2');
-    if (!bg1 || !bg2) return;
+    if (!bg1) return;
 
-    const tl = gsap.timeline({
+    // Una sola montaña que se acerca (zoom) a medida que se hace scroll por la sección.
+    gsap.to(bg1, {
+        scale: 1.6,
+        ease: "none",
         scrollTrigger: {
             trigger: section,
             start: "top top",
@@ -1640,21 +1646,6 @@ function initEmailHero() {
             scrub: true,
         }
     });
-
-    tl.to(bg1, {
-        opacity: 0,
-        scale: 1.1,
-        duration: 1,
-        ease: "none"
-    }, 0)
-        .to(bg2, {
-            opacity: 1,
-            scale: 1,
-            duration: 1,
-            ease: "none"
-        }, 0);
-
-    gsap.set(bg2, { scale: 1.1 });
 }
 
 // --- SERVICES CAROUSEL ---
@@ -1878,6 +1869,9 @@ function initAll() {
     initCalendly();
     initHeroPhysics();
     initEquipoNetwork();
+    try { initPublicidadMediosCubes(); } catch (e) { console.error("Error in initPublicidadMediosCubes:", e); }
+    try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
+    try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
     initImmoralEcosystem();
     initCounters();
     initScrollAnimations();
@@ -1887,9 +1881,14 @@ function initAll() {
     initGestionHero();
     initEmailHero();
     initServicesCarousel();
+    try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
     initDesignAccordion();
 
-    try { initCookieBanner(); } catch (e) { console.error("Error in initCookieBanner:", e); }
+    // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,
+    // solo falla esta promesa — no tumba el resto de main.js como pasaba antes.
+    import('./bottom-panel.js')
+        .then(({ initBottomPanel }) => initBottomPanel())
+        .catch((e) => console.error("Error in initBottomPanel:", e));
     try { initFooter(); } catch (e) { console.error("Error in initFooter:", e); }
     try { initHablemosHover('#hablemos-cta-btn', '#hablemos-video'); } catch (e) { console.error("Error in initHablemosHover:", e); }
 }
