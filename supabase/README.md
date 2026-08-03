@@ -1,6 +1,6 @@
 # Supabase — panel interno de equipo (SPEC-08)
 
-Este proyecto Supabase se usa **solo** para el panel interno de `/admin`, `/ofertas` y `/roles`, y para servir los listados de `/equipo` (personas y ofertas activas). El resto de la web sigue siendo HTML estático.
+Este proyecto Supabase se usa **solo** para el panel interno de `/admin`, `/ofertas`, `/logos` y `/roles`, y para servir los listados de `/equipo` (personas y ofertas activas) y la barra de logos de partners de la home. El resto de la web sigue siendo HTML estático.
 
 ## Pasos para dejarlo operativo (Dashboard → tu proyecto)
 
@@ -11,12 +11,14 @@ Ejecutar en este orden, en **SQL Editor → New query**, pegando el contenido co
 3. `migrations/0003_auth_hook_domain_restriction.sql` — crea la función que restringe el login a `@immoral.es` / `@immoral.marketing`.
 4. `migrations/0004_job_openings.sql` — tabla y RLS de las ofertas activas mostradas en `/equipo`.
 5. `migrations/0005_job_openings_seed.sql` — carga las 2 ofertas actuales de `equipo.html`.
+6. `migrations/0006_partner_logos.sql` — tabla, RLS y bucket de Storage de la barra de logos de la home.
+7. `migrations/0007_partner_logos_seed.sql` — carga los 22 logos actuales (13 previos + 9 nuevos) desde `/imgs/barra-logos/`.
 
 ## Pasos manuales en el Dashboard (no se pueden hacer por SQL)
 
-6. **Activar el Auth Hook:** Authentication → Hooks → "Before User Created" → seleccionar `public.restrict_email_domain` → Save.
-7. **Habilitar login con Google:** Authentication → Providers → Google → activar y pegar el Client ID / Client Secret de un proyecto en Google Cloud Console (OAuth consent screen + credenciales tipo "Web application", con el Redirect URI que Supabase indica en esa misma pantalla).
-8. **Crear el primer admin:** inicia sesión una vez en `/admin` con tu cuenta `@immoral.es` (email/contraseña o Google) para que se cree tu fila en `profiles` con rol `usuario` por defecto. Luego, en SQL Editor, ejecuta:
+8. **Activar el Auth Hook:** Authentication → Hooks → "Before User Created" → seleccionar `public.restrict_email_domain` → Save.
+9. **Habilitar login con Google:** Authentication → Providers → Google → activar y pegar el Client ID / Client Secret de un proyecto en Google Cloud Console (OAuth consent screen + credenciales tipo "Web application", con el Redirect URI que Supabase indica en esa misma pantalla).
+10. **Crear el primer admin:** inicia sesión una vez en `/admin` con tu cuenta `@immoral.es` (email/contraseña o Google) para que se cree tu fila en `profiles` con rol `usuario` por defecto. Luego, en SQL Editor, ejecuta:
    ```sql
    update public.profiles set app_role = 'admin' where email = 'tu-email@immoral.es';
    ```

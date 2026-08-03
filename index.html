@@ -510,65 +510,12 @@
         </div>
 
         <!-- LOGOS CAROUSEL (Partners/Clientes) - Infinite Scroll -->
-        <div
+        <div id="partner-logos-section"
             class="relative mt-16 xl:absolute xl:bottom-10 xl:left-0 xl:mt-0 w-full z-30 flex justify-center px-6 sm:px-12">
             <div
                 class="w-full max-w-[1400px] overflow-hidden relative [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-                <div class="brands-carousel flex items-center gap-16 animate-scroll-brands py-4">
-                    <!-- Primera copia de logos -->
-                    <img src="/imgs/brands/Figma_Logo_0.svg" alt="Figma"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/Freepik_id07UrLimP_1.svg" alt="Freepik"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/LinkedIn_Logo_0.svg" alt="LinkedIn"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/N8n.io_Logo_0.svg" alt="n8n"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/TikTok_Logo_0.svg" alt="TikTok"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/Meta_id0D-m9C5l_0.svg" alt="Meta"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/google.svg" alt="Google"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/spotify.svg" alt="Spotify"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/active.svg" alt="ActiveCampaign"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/clickup.svg" alt="ClickUp"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/analytics.png" alt="Analytics"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/heygen.png" alt="HeyGen"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/wordpress.svg" alt="WordPress"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <!-- Segunda copia de logos (para el loop infinito) -->
-                    <img src="/imgs/brands/Figma_Logo_0.svg" alt="Figma"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/Freepik_id07UrLimP_1.svg" alt="Freepik"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/LinkedIn_Logo_0.svg" alt="LinkedIn"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/N8n.io_Logo_0.svg" alt="n8n"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/TikTok_Logo_0.svg" alt="TikTok"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/Meta_id0D-m9C5l_0.svg" alt="Meta"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/google.svg" alt="Google"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/spotify.svg" alt="Spotify"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/active.svg" alt="ActiveCampaign"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/clickup.svg" alt="ClickUp"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/analytics.png" alt="Analytics"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/heygen.png" alt="HeyGen"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
-                    <img src="/imgs/brands/wordpress.svg" alt="WordPress"
-                        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />
+                <div id="partner-logos-track" class="brands-carousel flex items-center gap-16 animate-scroll-brands py-4">
+                    <!-- Se rellena dinámicamente desde Supabase (tabla partner_logos) vía src/partnerLogos.js -->
                 </div>
             </div>
         </div>
