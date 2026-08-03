@@ -623,37 +623,42 @@
         </div>
     </section>
 
-    <!-- How We Do It - Accordion Section -->
-    <section class="min-h-screen bg-black flex flex-col md:flex-row relative z-10 overflow-hidden" id="como-lo-hacemos">
+    <!-- How We Do It - Scroll-driven capability showcase -->
+    <style>
+        @keyframes chlh-spin {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        .chlh-ring-spin {
+            animation: chlh-spin 30s linear infinite;
+        }
+    </style>
+    <section id="como-lo-hacemos" class="bg-black relative z-10 overflow-hidden">
+        <div id="chlh-pin" class="w-full min-h-screen flex flex-col justify-center px-6 md:px-16 xl:px-24 py-20 md:py-0">
+            <div class="flex flex-col md:flex-row items-center gap-10 md:gap-8 w-full max-w-7xl mx-auto">
 
-        <!-- Panel 1: Análisis & Estrategia Visual -->
-        <article
-            class="accord-panel relative flex-grow-[6] md:w-[64%] w-full transition-all duration-700 ease-in-out cursor-pointer group border-b md:border-b-0 md:border-r border-white/10 overflow-hidden active"
-            onclick="toggleAccordion(this, 1)">
-            <div
-                class="absolute inset-0 z-0 opacity-100 transition-opacity duration-700 bg-[url('/imgs/design-1.webp')] bg-cover bg-center">
-            </div>
-            <div
-                class="absolute inset-0 z-10 bg-[#2f80ed]/90 transition-all duration-700 backdrop-blur-sm group-[.active]:backdrop-blur-0 mix-blend-multiply">
-            </div>
-            <div class="absolute inset-0 z-10 bg-[#2f80ed]/80 transition-all duration-700"></div>
-
-            <!-- Active Content -->
-            <div
-                class="relative z-20 h-full p-8 md:p-14 flex flex-col pointer-events-none group-[.active]:pointer-events-auto">
-                <div class="expanded-content transition-opacity duration-500 delay-300 opacity-100">
-                    <h2 class="text-4xl md:text-6xl font-black text-white leading-tight xl:mt-32">
-                        Cómo lo hacemos
+                <!-- Left: badge + title -->
+                <div class="w-full md:w-[320px] xl:w-[380px] flex-shrink-0 flex flex-col justify-center">
+                    <div class="flex items-center gap-6 mb-4">
+                        <span id="chlh-badge" class="text-xl md:text-2xl font-black text-white/40">01</span>
+                        <div class="w-12 h-px bg-white/20"></div>
+                    </div>
+                    <h2 id="chlh-title" class="text-2xl md:text-4xl font-black text-white leading-tight">
+                        Auditoría &<br>Análisis Inteligente
                     </h2>
                 </div>
-                <div class="flex-grow"></div>
-                <div
-                    class="expanded-content transition-opacity duration-500 delay-300 max-w-xl mb-4 md:mb-0 relative z-30 opacity-100">
-                    <h3 class="text-3xl md:text-5xl font-light text-white mb-6">
-                        Auditoría &<br> Análisis Inteligente
-                    </h3>
-                    <div class="w-12 h-1 bg-white mb-8"></div>
-                    <p class="text-lg md:text-xl text-white font-light leading-relaxed">
+
+                <!-- Right: circle + description -->
+                <div class="flex-1 w-full relative flex items-center justify-center min-h-[360px] md:min-h-[560px]">
+                    <svg viewBox="0 0 400 400"
+                        class="chlh-ring-spin absolute w-[340px] h-[340px] md:w-[480px] md:h-[480px] xl:w-[560px] xl:h-[560px] pointer-events-none"
+                        style="left:50%; top:50%;">
+                        <circle id="chlh-ring" cx="200" cy="200" r="170" fill="none" stroke="#ffffff" stroke-width="12"
+                            stroke-linecap="round" stroke-dasharray="500 40 488.4 40" stroke-dashoffset="0"
+                            transform="rotate(-90 200 200)" />
+                    </svg>
+                    <p id="chlh-description"
+                        class="relative z-10 text-white/80 text-sm md:text-base font-light leading-relaxed max-w-[260px] md:max-w-xs text-center">
                         Analizamos tu marca como un sastre mide a su cliente: con precisión, sin margen de error.
                         Utilizamos smart data con inteligencia artificial para encontrar las oportunidades clave para tu
                         negocio.
@@ -661,170 +666,27 @@
                 </div>
             </div>
 
-            <!-- Collapsed Content (Vertical) -->
-            <div
-                class="collapsed-content absolute inset-x-0 bottom-0 md:bottom-[30%] pointer-events-none flex justify-center py-6 opacity-0 transition-opacity duration-500 z-20">
-                <div class="transform md:-rotate-90 md:origin-center whitespace-nowrap">
-                    <h3 class="text-lg md:text-xl font-bold text-white text-center md:text-left">Auditoría &<br>
-                        Análisis Inteligente
-                    </h3>
+            <!-- Pills + progress -->
+            <div class="w-full max-w-7xl mx-auto mt-10 md:mt-16">
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <button type="button"
+                        class="chlh-pill pointer-events-none px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-white text-black">Auditoría
+                        & Análisis Inteligente</button>
+                    <button type="button"
+                        class="chlh-pill pointer-events-none px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-[#1f1f1f] text-white">Planificación
+                        Estratégica Automatizada</button>
+                    <button type="button"
+                        class="chlh-pill pointer-events-none px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-[#1f1f1f] text-white">Ejecución
+                        & Optimización en Tiempo Real</button>
+                    <button type="button"
+                        class="chlh-pill pointer-events-none px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-[#1f1f1f] text-white">Adaptación
+                        & Escalamiento Inteligente</button>
+                </div>
+                <div class="w-32 h-1 rounded-full bg-white/10 overflow-hidden">
+                    <div id="chlh-progress-fill" class="h-full bg-white/70 rounded-full" style="width:0%"></div>
                 </div>
             </div>
-
-            <!-- Number -->
-            <div
-                class="absolute z-20 transition-all duration-700 ease-in-out 
-                        bottom-0 right-4 md:right-1/2 md:translate-x-1/2 scale-75
-                        group-[.active]:bottom-4 group-[.active]:right-4 md:group-[.active]:bottom-8 md:group-[.active]:right-8 md:group-[.active]:translate-x-0 md:group-[.active]:scale-100">
-                <span class="text-[6rem] md:text-9xl font-black text-white leading-none tracking-tighter">1</span>
-            </div>
-        </article>
-
-        <!-- Panel 2: Conceptualización & Diseño -->
-        <article
-            class="accord-panel relative flex-grow md:w-[12%] w-full transition-all duration-700 ease-in-out cursor-pointer group border-b md:border-b-0 md:border-r border-white/10 overflow-hidden"
-            onclick="toggleAccordion(this, 2)">
-            <div
-                class="absolute inset-0 z-0 opacity-0 group-[.active]:opacity-100 transition-opacity duration-700 bg-[url('/imgs/design-1.webp')] bg-cover bg-center">
-            </div>
-            <div class="absolute inset-0 z-10 bg-[#111111] group-[.active]:bg-[#111111]/90 transition-all duration-700">
-            </div>
-
-            <div
-                class="relative z-20 h-full p-8 md:p-14 flex flex-col pointer-events-none group-[.active]:pointer-events-auto">
-                <div class="expanded-content transition-opacity duration-500 delay-300 opacity-0 hidden">
-                    <h2 class="text-4xl md:text-6xl font-black text-white leading-tight xl:mt-32">
-                        Cómo lo hacemos
-                    </h2>
-                </div>
-                <div class="flex-grow"></div>
-                <div
-                    class="expanded-content transition-opacity duration-500 delay-300 max-w-xl mb-4 md:mb-0 relative z-30 opacity-0 hidden">
-                    <h3 class="text-3xl md:text-5xl font-light text-white mb-6">Planificación Estratégica<br>
-                        Automatizada</h3>
-                    <div class="w-12 h-1 bg-white mb-8"></div>
-                    <p class="text-lg md:text-xl text-white font-light leading-relaxed">
-                        Diseñamos una estrategia a medida, combinando inteligentemente el mix de medios entre Paid
-                        Social, Search, Native, Display y Video, con tecnología predictiva para que cada euro rinda al
-                        máximo.
-                    </p>
-                </div>
-            </div>
-
-            <div
-                class="collapsed-content absolute inset-x-0 bottom-0 md:bottom-[30%] pointer-events-none flex justify-center py-6 opacity-100 transition-opacity duration-500 z-20">
-                <div class="transform md:-rotate-90 md:origin-center whitespace-nowrap">
-                    <h3 class="text-lg md:text-xl font-bold text-white text-center md:text-left">Planificación
-                        Estratégica<br> Automatizada
-                    </h3>
-                </div>
-            </div>
-
-            <div
-                class="absolute z-20 transition-all duration-700 ease-in-out 
-                        bottom-0 right-4 md:right-1/2 md:translate-x-1/2 scale-75
-                        group-[.active]:bottom-4 group-[.active]:right-4 md:group-[.active]:bottom-8 md:group-[.active]:right-8 md:group-[.active]:translate-x-0 md:group-[.active]:scale-100">
-                <span class="text-[6rem] md:text-9x font-black text-white leading-none tracking-tighter">2</span>
-            </div>
-        </article>
-
-        <!-- Panel 3: Producción & Edición -->
-        <article
-            class="accord-panel relative flex-grow md:w-[12%] w-full transition-all duration-700 ease-in-out cursor-pointer group border-b md:border-b-0 md:border-r border-white/10 overflow-hidden"
-            onclick="toggleAccordion(this, 3)">
-            <div
-                class="absolute inset-0 z-0 opacity-0 group-[.active]:opacity-100 transition-opacity duration-700 bg-[url('/imgs/design-1.webp')] bg-cover bg-center">
-            </div>
-            <div class="absolute inset-0 z-10 bg-white group-[.active]:bg-white/90 transition-all duration-700"></div>
-
-            <div
-                class="relative z-20 h-full p-8 md:p-14 flex flex-col pointer-events-none group-[.active]:pointer-events-auto">
-                <div class="expanded-content transition-opacity duration-500 delay-300 opacity-0 hidden">
-                    <h2 class="text-4xl md:text-6xl font-black text-black leading-tight xl:mt-32">
-                        Cómo lo hacemos
-                    </h2>
-                </div>
-                <div class="flex-grow"></div>
-                <div
-                    class="expanded-content transition-opacity duration-500 delay-300 max-w-xl mb-4 md:mb-0 relative z-30 opacity-0 hidden">
-                    <h3 class="text-3xl md:text-5xl font-light text-black mb-6">Ejecución & Optimización<br> en Tiempo
-                        Real
-                    </h3>
-                    <div class="w-12 h-1 bg-black mb-8"></div>
-                    <p class="text-lg md:text-xl text-black font-light leading-relaxed">
-                        Cada campaña es un traje a medida. Ajustamos y optimizamos a mano, combinando nuestra
-                        experiencia con el poder del análisis de datos y la IA. No dejamos que los algoritmos decidan
-                        por sí solos: analizamos, interpretamos y tomamos decisiones estratégicas en tiempo real para
-                        maximizar cada euro invertido.
-                    </p>
-                </div>
-            </div>
-
-            <div
-                class="collapsed-content absolute inset-x-0 bottom-0 md:bottom-[30%] pointer-events-none flex justify-center py-6 opacity-100 transition-opacity duration-500 z-20">
-                <div class="transform md:-rotate-90 md:origin-center whitespace-nowrap">
-                    <h3 class="text-lg md:text-xl font-bold text-black text-center md:text-left">Ejecución &
-                        Optimización<br> en Tiempo Real
-                    </h3>
-                </div>
-            </div>
-
-            <div
-                class="absolute z-20 transition-all duration-700 ease-in-out 
-                        bottom-0 right-4 md:right-1/2 md:translate-x-1/2 scale-75
-                        group-[.active]:bottom-4 group-[.active]:right-4 md:group-[.active]:bottom-8 md:group-[.active]:right-8 md:group-[.active]:translate-x-0 md:group-[.active]:scale-100">
-                <span class="text-[6rem] md:text-9x font-black text-black leading-none tracking-tighter">3</span>
-            </div>
-        </article>
-
-        <!-- Panel 4: Optimización (Cyan) -->
-        <article
-            class="accord-panel relative flex-grow md:w-[12%] w-full transition-all duration-700 ease-in-out cursor-pointer group border-b md:border-b-0 md:border-r border-white/10 overflow-hidden"
-            onclick="toggleAccordion(this, 4)">
-            <div
-                class="absolute inset-0 z-0 opacity-0 group-[.active]:opacity-100 transition-opacity duration-700 bg-[url('/imgs/design-1.webp')] bg-cover bg-center">
-            </div>
-            <div class="absolute inset-0 z-10 bg-[#65fefa] group-[.active]:bg-[#65fefa]/90 transition-all duration-700">
-            </div>
-
-            <div
-                class="relative z-20 h-full p-8 md:p-14 flex flex-col pointer-events-none group-[.active]:pointer-events-auto">
-                <div class="expanded-content transition-opacity duration-500 delay-300 opacity-0 hidden">
-                    <h2 class="text-4xl md:text-6xl font-black text-black leading-tight xl:mt-32">
-                        Cómo lo hacemos
-                    </h2>
-                </div>
-                <div class="flex-grow"></div>
-                <div
-                    class="expanded-content transition-opacity duration-500 delay-300 max-w-xl mb-4 md:mb-0 relative z-30 opacity-0 hidden">
-                    <h3 class="text-3xl md:text-5xl font-light text-black mb-6">Adaptación & Escalamiento<br>
-                        Inteligente</h3>
-                    <div class="w-12 h-1 bg-black mb-8"></div>
-                    <p class="text-lg md:text-xl text-black font-light leading-relaxed">
-                        El mercado cambia constantemente y nosotros nos anticipamos. No dejamos que la IA tome el
-                        control, la usamos como nuestra aliada para detectar patrones, descubrir oportunidades y escalar
-                        campañas con precisión quirúrgica. Cada ajuste está debidamente meditado. No optimizamos en
-                        piloto automático.
-                    </p>
-                </div>
-            </div>
-
-            <div
-                class="collapsed-content absolute inset-x-0 bottom-0 md:bottom-[30%] pointer-events-none flex justify-center py-6 opacity-100 transition-opacity duration-500 z-20">
-                <div class="transform md:-rotate-90 md:origin-center whitespace-nowrap">
-                    <h3 class="text-lg md:text-xl font-bold text-black text-center md:text-left">Adaptación &
-                        Escalamiento<br>
-                        Inteligente</h3>
-                </div>
-            </div>
-
-            <div
-                class="absolute z-20 transition-all duration-700 ease-in-out 
-                        bottom-0 right-4 md:right-1/2 md:translate-x-1/2 scale-75
-                        group-[.active]:bottom-4 group-[.active]:right-4 md:group-[.active]:bottom-8 md:group-[.active]:right-8 md:group-[.active]:translate-x-0 md:group-[.active]:scale-100">
-                <span class="text-[6rem] md:text-9x font-black text-black leading-none tracking-tighter">4</span>
-            </div>
-        </article>
+        </div>
     </section>
 
 

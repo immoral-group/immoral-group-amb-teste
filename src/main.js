@@ -10,6 +10,7 @@ import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
+import { initComoLoHacemosMedios } from './como-lo-hacemos-medios.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -1897,6 +1898,7 @@ function initAll() {
     initServicesCarousel();
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
     initDesignAccordion();
+    try { initComoLoHacemosMedios(); } catch (e) { console.error("Error in initComoLoHacemosMedios:", e); }
 
     // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,
     // solo falla esta promesa — no tumba el resto de main.js como pasaba antes.

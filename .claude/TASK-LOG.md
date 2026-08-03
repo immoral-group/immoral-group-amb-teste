@@ -57,3 +57,15 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 **Por qué:** petición explícita del usuario de actualizar el vídeo de la home. El vídeo mobile (`home-video2-mobile.mp4`) se dejó sin tocar a petición suya.
 
 **Afecta:** `index.html` (línea del hero de escritorio, ahora apunta a `home-video2.webm`), `public/imgs/home-video2.webm` (nuevo). El `home-video2.mp4` original queda sin usar en `public/imgs/`, igual que el patrón ya existente con `design-hover-3` (mp4 + webm, solo se referencia el webm).
+
+---
+
+## 2026-08-03 — Sección "Cómo lo hacemos" scroll-driven en Publicidad en Medios
+
+**Qué:** sustituida la sección `#como-lo-hacemos` de `publicidad-en-medios.html` (acordeón horizontal de 4 paneles clicables, compartido vía clase `.accord-panel` y `window.toggleAccordion` en `src/main.js`) por un componente nuevo de scroll pineado (GSAP `ScrollTrigger`, `pin` + `scrub`), inspirado en el patrón de "Our strategic advantages" de `omc.com/about`. Al hacer scroll, el badge numérico, el título de dos líneas, la descripción y el anillo SVG (rotación + `stroke-dashoffset` + blur/opacity) cambian entre los 4 pasos, con una barra de progreso y 4 pills indicadoras (no clicables, solo indicador) resaltando el paso activo. El copy reutiliza literalmente el texto que ya existía en la sección (mismos 4 títulos y descripciones), sin inventar contenido nuevo. Nuevo módulo `src/como-lo-hacemos-medios.js` (`initComoLoHacemosMedios`), importado y llamado desde `src/main.js` sin tocar la lógica compartida del acordeón (que sigue intacta para las demás páginas que aún la usan, p. ej. `diseno-de-marca.html`).
+
+**Por qué:** petición explícita del usuario tras pedir que se analizara y replicara la interacción de scroll de `omc.com/about`, empezando por esta página como piloto.
+
+**Afecta:** `publicidad-en-medios.html`, `src/main.js`, `src/como-lo-hacemos-medios.js` (nuevo).
+
+**Nota técnica:** verificado con servidor Vite local; el `node_modules` de este worktree estaba incompleto (faltaban `gsap`, `three`, `@supabase/supabase-js`) y se reinstaló con `npm install` — no relacionado con este cambio. La animación del anillo (GSAP `gsap.to`) depende del ticker de `requestAnimationFrame`; se verificó forzando el ticker manualmente en un entorno de previsualización sin compositing activo, confirmando que el pin, el cambio de texto/pills/progreso y la interpolación del anillo funcionan correctamente.
