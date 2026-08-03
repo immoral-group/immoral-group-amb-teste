@@ -1,15 +1,15 @@
-export function initCookieBanner() {
+export function initBottomPanel() {
     if (localStorage.getItem('cookie_consent') === 'true') return;
-    if (document.getElementById('cookie-banner')) return;
+    if (document.getElementById('site-bottom-panel')) return;
 
     const gradient = document.createElement('div');
-    gradient.id = 'cookie-banner-gradient';
+    gradient.id = 'site-bottom-panel-gradient';
     gradient.setAttribute('aria-hidden', 'true');
     gradient.className = 'fixed inset-x-0 bottom-0 z-[190] h-48 sm:h-64 xl:h-80 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none opacity-0 transition-opacity duration-500 ease-out';
     document.body.appendChild(gradient);
 
     const banner = document.createElement('div');
-    banner.id = 'cookie-banner';
+    banner.id = 'site-bottom-panel';
     banner.setAttribute('role', 'dialog');
     banner.setAttribute('aria-live', 'polite');
     banner.setAttribute('aria-label', 'Aviso de cookies');
@@ -25,9 +25,9 @@ export function initCookieBanner() {
                     </p>
                 </div>
                 <div class="flex flex-wrap gap-2 shrink-0 w-full xl:w-auto">
-                    <button type="button" id="cookie-banner-reject" class="flex-1 xl:flex-none border border-gray-600 text-gray-300 px-4 py-2 rounded-full text-xs font-bold hover:border-gray-400 hover:text-white transition-colors whitespace-nowrap">Rechazar opcionales</button>
-                    <a href="cookies.html" id="cookie-banner-settings" class="flex-1 xl:flex-none text-center border border-gray-600 text-gray-300 px-4 py-2 rounded-full text-xs font-bold hover:border-gray-400 hover:text-white transition-colors whitespace-nowrap">Personalizar</a>
-                    <button type="button" id="cookie-banner-accept" class="flex-1 xl:flex-none bg-blue-500 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-blue-600 transition-colors whitespace-nowrap">Aceptar todas</button>
+                    <button type="button" id="site-bottom-panel-reject" class="flex-1 xl:flex-none border border-gray-600 text-gray-300 px-4 py-2 rounded-full text-xs font-bold hover:border-gray-400 hover:text-white transition-colors whitespace-nowrap">Rechazar opcionales</button>
+                    <a href="cookies.html" id="site-bottom-panel-settings" class="flex-1 xl:flex-none text-center border border-gray-600 text-gray-300 px-4 py-2 rounded-full text-xs font-bold hover:border-gray-400 hover:text-white transition-colors whitespace-nowrap">Personalizar</a>
+                    <button type="button" id="site-bottom-panel-accept" class="flex-1 xl:flex-none bg-blue-500 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-blue-600 transition-colors whitespace-nowrap">Aceptar todas</button>
                 </div>
             </div>
             <video
@@ -67,6 +67,6 @@ export function initCookieBanner() {
         closeBanner();
     }
 
-    banner.querySelector('#cookie-banner-accept').addEventListener('click', () => savePreferences(true, true));
-    banner.querySelector('#cookie-banner-reject').addEventListener('click', () => savePreferences(false, false));
+    banner.querySelector('#site-bottom-panel-accept').addEventListener('click', () => savePreferences(true, true));
+    banner.querySelector('#site-bottom-panel-reject').addEventListener('click', () => savePreferences(false, false));
 }
