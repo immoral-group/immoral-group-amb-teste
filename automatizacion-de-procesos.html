@@ -677,89 +677,155 @@
             </div>
         </section>
 
-        <!-- Section: Cómo lo hacemos / Process -->
-        <section class="bg-black py-24 px-6 md:px-12 relative z-10">
-            <div class="mx-auto px-12 xl:px-24">
-                <h2 class="text-5xl md:text-6xl font-black text-white mb-20 tracking-tight">
-                    Cómo lo hacemos
-                </h2>
+        <!-- Section: Cómo lo hacemos / Process - Scroll-driven capability showcase -->
+        <style>
+            @keyframes chlh-spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            .chlh-ring-style {
+                transform-origin: 200px 200px;
+            }
+            .chlh-spin-slow { animation: chlh-spin 30s linear infinite; }
+            .chlh-spin-slow-rev { animation: chlh-spin 26s linear infinite reverse; }
+            .chlh-spin-fast { animation: chlh-spin 6s linear infinite; }
+            @keyframes chlh-glow-drift {
+                0%, 100% { stroke-dashoffset: -10; }
+                50% { stroke-dashoffset: 10; }
+            }
+            .chlh-glow-drift { animation: chlh-glow-drift 4.5s ease-in-out infinite; }
+        </style>
+        <section id="como-lo-hacemos" class="bg-black relative z-10 overflow-hidden">
+            <div id="chlh-pin" class="w-full min-h-screen flex flex-col justify-center px-6 md:px-10 xl:px-12 py-20 md:py-0">
+                <span
+                    class="absolute top-8 left-6 md:top-12 md:left-10 xl:left-12 text-white/50 font-black text-xl md:text-2xl xl:text-3xl uppercase tracking-widest">Cómo
+                    lo hacemos</span>
+                <div class="flex flex-col md:flex-row items-center gap-10 md:gap-6 w-full max-w-[1600px] mx-auto">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-32 md:gap-12">
-                    <!-- Step 1 -->
-                    <div class="flex flex-col gap-6 group">
-                        <div class="w-full aspect-square relative overflow-hidden rounded-2xl">
-                            <!-- Placeholder for Image/SVG -->
-                            <img src="/imgs/auto-flecha-1.svg" alt="Paso 1"
-                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <!-- Left: badge + title + progress -->
+                    <div class="w-full md:w-[380px] xl:w-[460px] flex-shrink-0 flex flex-col justify-center">
+                        <div class="flex items-center gap-6 mb-4">
+                            <span id="chlh-badge" class="text-2xl md:text-3xl font-black text-white/40">01</span>
+                            <div class="w-12 h-px bg-white/20"></div>
                         </div>
-                        <div class="space-y-4">
-                            <h3 class="text-2xl font-bold text-white leading-tight">
-                                Inmersión en la empresa
-                                <br />& análisis de procesos
-                            </h3>
-                            <p class="text-gray-400 font-light leading-relaxed text-sm">
-                                Estudiamos en detalle cómo funciona tu negocio, detectamos
-                                puntos de fricción y diseñamos un mapa de optimización.
-                            </p>
+                        <h2 id="chlh-title" class="text-3xl md:text-4xl xl:text-5xl font-black text-white leading-tight mb-6">
+                            Inmersión en&nbsp;la&nbsp;empresa &amp;&nbsp;análisis de&nbsp;procesos
+                        </h2>
+                        <div class="w-32 h-1 rounded-full bg-white/10 overflow-hidden">
+                            <div id="chlh-progress-fill" class="h-full bg-white/70 rounded-full" style="width:0%"></div>
                         </div>
                     </div>
 
-                    <!-- Step 2 -->
-                    <div class="flex flex-col gap-6 group">
-                        <div class="w-full aspect-square relative overflow-hidden rounded-2xl">
-                            <img src="/imgs/auto-flecha-2.svg" alt="Paso 2"
-                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        </div>
-                        <div class="space-y-4">
-                            <h3 class="text-2xl font-bold text-white leading-tight">
-                                Diseño de estrategia &
-                                <br />roadmap de automatización
-                            </h3>
-                            <p class="text-gray-400 font-light leading-relaxed text-sm">
-                                Proponemos soluciones basadas en automatización, inteligencia
-                                artificial e integración de sistemas.
-                            </p>
-                        </div>
-                    </div>
+                    <!-- Right: circle + description -->
+                    <div class="flex-1 w-full relative flex items-center justify-center min-h-[360px] md:min-h-[520px] xl:min-h-[620px]">
+                        <svg viewBox="0 0 400 400" overflow="visible"
+                            class="absolute w-[320px] h-[320px] md:w-[540px] md:h-[540px] xl:w-[640px] xl:h-[640px] pointer-events-none"
+                            style="left:50%; top:50%; transform:translate(-50%,-50%);">
+                            <defs>
+                                <filter id="chlh-blur" x="-100%" y="-100%" width="300%" height="300%">
+                                    <feGaussianBlur stdDeviation="11" />
+                                </filter>
+                            </defs>
 
-                    <!-- Step 3 -->
-                    <div class="flex flex-col gap-6 group">
-                        <div class="w-full aspect-square relative overflow-hidden rounded-2xl">
-                            <img src="/imgs/auto-flecha-3.svg" alt="Paso 3"
-                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        </div>
-                        <div class="space-y-4">
-                            <h3 class="text-2xl font-bold text-white leading-tight">
-                                Implementación de
-                                <br />herramientas &
-                                <br />optimización de workflows
-                            </h3>
-                            <p class="text-gray-400 font-light leading-relaxed text-sm">
-                                Automatizamos tareas, conectamos plataformas y
-                                optimizamos los procesos con IA.
-                            </p>
-                        </div>
-                    </div>
+                            <!-- Estilo 1: anillo con difuminado solo donde termina cada trazo (no en todo el anillo) -->
+                            <g id="chlh-style-0" class="chlh-ring-style chlh-spin-slow">
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#ffffff" stroke-width="12"
+                                    stroke-linecap="round" stroke-dasharray="500 40 488.14 40"
+                                    transform="rotate(-90 200 200)" />
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#ffffff" stroke-width="18"
+                                    stroke-linecap="round" stroke-dasharray="16 1052.14"
+                                    transform="rotate(-93.4 200 200)" filter="url(#chlh-blur)" opacity="0.4"
+                                    class="chlh-glow-drift" style="animation-delay:0s" />
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#ffffff" stroke-width="18"
+                                    stroke-linecap="round" stroke-dasharray="16 1052.14"
+                                    transform="rotate(75.1 200 200)" filter="url(#chlh-blur)" opacity="0.4"
+                                    class="chlh-glow-drift" style="animation-delay:-1.1s" />
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#ffffff" stroke-width="18"
+                                    stroke-linecap="round" stroke-dasharray="16 1052.14"
+                                    transform="rotate(88.6 200 200)" filter="url(#chlh-blur)" opacity="0.4"
+                                    class="chlh-glow-drift" style="animation-delay:-2.3s" />
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#ffffff" stroke-width="18"
+                                    stroke-linecap="round" stroke-dasharray="16 1052.14"
+                                    transform="rotate(253.2 200 200)" filter="url(#chlh-blur)" opacity="0.4"
+                                    class="chlh-glow-drift" style="animation-delay:-3.4s" />
+                            </g>
 
-                    <!-- Step 4 -->
-                    <div class="flex flex-col gap-6 group">
-                        <div class="w-full aspect-square relative overflow-hidden rounded-2xl">
-                            <img src="/imgs/auto-flecha-4.svg" alt="Paso 4"
-                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
-                        </div>
-                        <div class="space-y-4">
-                            <h3 class="text-2xl font-bold text-white leading-tight">
-                                Monitorización &
-                                <br />evolución constante
-                            </h3>
-                            <p class="text-gray-400 font-light leading-relaxed text-sm">
-                                Cada solución se ajusta en tiempo real según datos, rendimiento y
-                                necesidades emergentes.
-                            </p>
-                        </div>
-                    </div>
+                            <!-- Estilo 2: puntos pequeños en movimiento, azul de marca -->
+                            <g id="chlh-style-1" class="chlh-ring-style chlh-spin-slow" style="opacity:0">
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#2f80ed" stroke-width="13"
+                                    stroke-linecap="round" stroke-dasharray="4 27.35" transform="rotate(-90 200 200)" />
+                            </g>
 
+                            <!-- Estilo 3: 2 arcos concéntricos finos girando en direcciones opuestas -->
+                            <g id="chlh-style-2" class="chlh-ring-style" style="opacity:0">
+                                <g class="chlh-spin-slow" style="transform-origin:200px 200px">
+                                    <circle cx="200" cy="200" r="168" fill="none" stroke="#ffffff" stroke-width="4"
+                                        stroke-linecap="round" stroke-dasharray="494.2 39.55 482.4 39.55" opacity="1"
+                                        transform="rotate(-90 200 200)" />
+                                </g>
+                                <g class="chlh-spin-slow-rev" style="transform-origin:200px 200px">
+                                    <circle cx="200" cy="200" r="152" fill="none" stroke="#ffffff" stroke-width="4"
+                                        stroke-linecap="round" stroke-dasharray="447.1 35.78 436.4 35.78" opacity="0.6"
+                                        transform="rotate(-30 200 200)" />
+                                </g>
+                            </g>
+
+                            <!-- Estilo 4: arcos cortos girando rápido, dibujando el círculo constantemente -->
+                            <g id="chlh-style-3" class="chlh-ring-style chlh-spin-fast" style="opacity:0">
+                                <circle cx="200" cy="200" r="170" fill="none" stroke="#ffffff" stroke-width="10"
+                                    stroke-linecap="round" stroke-dasharray="142 214" transform="rotate(-90 200 200)" />
+                            </g>
+                        </svg>
+                        <p id="chlh-description"
+                            class="relative z-10 text-white/85 text-base leading-relaxed max-w-[210px] md:max-w-[370px] xl:max-w-[440px] text-center">
+                            Estudiamos en detalle cómo funciona tu negocio, detectamos puntos de fricción y diseñamos un
+                            mapa de optimización.
+                        </p>
+                    </div>
                 </div>
+
+                <!-- Pills -->
+                <div class="w-full max-w-[1600px] mx-auto mt-10 md:mt-16">
+                    <div class="flex flex-wrap gap-3">
+                        <button type="button"
+                            class="chlh-pill cursor-pointer px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-white text-black">Inmersión
+                            en la empresa & análisis de procesos</button>
+                        <button type="button"
+                            class="chlh-pill cursor-pointer px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-[#1f1f1f] text-white">Diseño
+                            de estrategia & roadmap de automatización</button>
+                        <button type="button"
+                            class="chlh-pill cursor-pointer px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-[#1f1f1f] text-white">Implementación
+                            de herramientas & optimización de workflows</button>
+                        <button type="button"
+                            class="chlh-pill cursor-pointer px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-[#1f1f1f] text-white">Monitorización
+                            & evolución constante</button>
+                    </div>
+                </div>
+
+                <script type="application/json" id="chlh-steps-data">
+                    [
+                        {
+                            "badge": "01",
+                            "title": "Inmersión en&nbsp;la&nbsp;empresa &amp;&nbsp;análisis de&nbsp;procesos",
+                            "description": "Estudiamos en detalle cómo funciona tu negocio, detectamos puntos de fricción y diseñamos un mapa de optimización."
+                        },
+                        {
+                            "badge": "02",
+                            "title": "Diseño de&nbsp;estrategia &amp;&nbsp;roadmap de&nbsp;automatización",
+                            "description": "Proponemos soluciones basadas en automatización, inteligencia artificial e integración de sistemas."
+                        },
+                        {
+                            "badge": "03",
+                            "title": "Implementación de&nbsp;herramientas &amp;&nbsp;optimización de&nbsp;workflows",
+                            "description": "Automatizamos tareas, conectamos plataformas y optimizamos los procesos con IA."
+                        },
+                        {
+                            "badge": "04",
+                            "title": "Monitorización &amp;&nbsp;evolución constante",
+                            "description": "Cada solución se ajusta en tiempo real según datos, rendimiento y necesidades emergentes."
+                        }
+                    ]
+                </script>
             </div>
         </section>
 
