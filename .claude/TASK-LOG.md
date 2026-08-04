@@ -328,3 +328,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `casos-de-exito.html` únicamente.
 
 **Verificado en local:** `npm run build` sin errores; enlace con `href`/`target="_blank"`/`rel="noopener noreferrer"` correctos; contador sigue actualizándose (`sr-only`) al aplicar un filtro (`Mostrando 8 de 19 casos`); sin errores de consola.
+
+---
+
+## 2026-08-04 — Logo real de Behance en el CTA de Casos de éxito
+
+**Qué:** se sustituyó el icono de Behance dibujado a mano (un `<svg>` inline) en la barra CTA de `casos-de-exito.html` por el logo oficial que el usuario dejó en `public/imgs/barra-logos/Behance_Logo_0.svg` (wordmark completo, ya en blanco). Se ajustó el texto de la barra ("...nuestro Behance" → "...nuestro perfil") para no repetir la palabra "Behance" dos veces, ya que ahora la muestra el propio logo.
+
+**Por qué:** petición explícita del usuario tras subir el archivo del logo real.
+
+**Afecta:** `casos-de-exito.html` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; el logo carga correctamente (`naturalWidth: 300`, sin 404); sin errores de consola.
