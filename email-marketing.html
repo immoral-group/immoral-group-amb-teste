@@ -33,7 +33,7 @@
     <!-- Menu oscuro -->
     <nav
         class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100] top-0">
-        <a href="index.html">
+        <a href="index.html" aria-label="Immoral — ir al inicio">
             <div><img src="/imgs/Menues/logo-menu-claro.png" alt=""></div>
         </a>
         <div>
@@ -347,13 +347,9 @@
 
         <!-- Sticky Background Container -->
         <div class="sticky top-0 left-0 w-full h-screen overflow-hidden -z-10 bg-black">
-            <!-- Background 1 -->
-            <img src="imgs/mail-bg-3.webp" alt="Background 1"
+            <!-- Background (se acerca con el scroll, ver initEmailHero en main.js) -->
+            <img src="imgs/mail-bg-3.webp" alt="Background"
                 class="bg-image-1 absolute inset-0 w-full h-full object-cover origin-center">
-
-            <!-- Background 2 -->
-            <img src="imgs/mail-bg-4.webp" alt="Background 2"
-                class="bg-image-2 absolute inset-0 w-full h-full object-cover origin-center opacity-0">
 
             <!-- Gradient Overlay (Optional, for text readability) -->
             <div class="absolute inset-0 bg-black/0 pointer-events-none"></div>
@@ -404,8 +400,8 @@
     </section>
 
     <!-- Services Section - ¿Qué podemos hacer por tí? -->
-    <section class="relative bg-white py-20 md:py-32 overflow-hidden">
-        <div class="w-full mx-auto px-6 md:px-12 lg:px-24">
+    <section id="email-services-marble" class="relative bg-white py-20 md:py-32 overflow-hidden">
+        <div class="relative z-10 w-full mx-auto px-6 md:px-12 lg:px-24">
             <div class="grid lg:grid-cols-2 gap-12 lg:gap-64 items-center">
 
                 <!-- Left Side - Text Content -->

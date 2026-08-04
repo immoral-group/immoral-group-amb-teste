@@ -2,11 +2,18 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
 export default defineConfig({
+    server: {
+        host: '127.0.0.1', // evita que quede escuchando solo en IPv6 (::1)
+    },
     build: {
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
                 equipo: resolve(__dirname, 'equipo.html'),
+                admin: resolve(__dirname, 'admin.html'),
+                roles: resolve(__dirname, 'roles.html'),
+                ofertas: resolve(__dirname, 'ofertas.html'),
+                logs: resolve(__dirname, 'logs.html'),
                 manifesto: resolve(__dirname, 'manifesto.html'),
                 contacto: resolve(__dirname, 'contacto.html'),
                 'casos-de-exito': resolve(__dirname, 'casos-de-exito.html'),

@@ -1,9 +1,9 @@
 # PROJECT-CONSTITUTION.md
 
 **Proyecto:** immoral-group (landing corporativa de Immoral Group)
-**Versión de Constitution del proyecto:** 1.0
+**Versión de Constitution del proyecto:** 2.0
 **Hereda de:** BRIANSPEC-CONSTITUTION.md v1.1
-**Última actualización:** 2026-07-13
+**Última actualización:** 2026-07-29
 **Owner del proyecto:** David Navarrete
 
 > Este archivo define las decisiones fundacionales específicas de este proyecto. Hereda y complementa los principios globales de `BRIANSPEC-CONSTITUTION.md` — nunca los contradice.
@@ -13,7 +13,7 @@
 ## 1. Descripción del proyecto
 
 **Tipo de proyecto:** web-app
-*(Landing web estática multi-página — sin backend propio, sin CMS, sin framework de metadata dinámica.)*
+*(Landing web estática multi-página — sin framework de metadata dinámica. Desde SPEC-08 (2026-07-29), la sección "Equipo" incorpora un panel interno con login y una base de datos (Supabase) para gestionar quién aparece en `/equipo`; el resto del sitio sigue siendo HTML estático sin backend propio ni CMS.)*
 
 **Qué problema resuelve:**
 Es la web corporativa de Immoral Group, agencia de marketing y crecimiento digital. Presenta los servicios de la agencia, el equipo, la historia, los casos de éxito de clientes y los canales de contacto. Su función es de escaparate comercial y de captación — no procesa transacciones ni datos de usuario más allá de un formulario de contacto.
@@ -51,7 +51,7 @@ HTML5, CSS3 (Tailwind CSS), JavaScript (ES modules). Node.js como entorno de bui
 ### Servicios y plataformas
 
 - **Vercel** como plataforma de despliegue y hosting (`vercel.json` presente: `cleanUrls: true`, `trailingSlash: false`).
-- Sin base de datos. Sin CMS. Sin backend propio más allá de la función serverless de `/api` para el formulario de contacto.
+- **Supabase** (desde SPEC-08) — base de datos (Postgres), autenticación (email/contraseña y Google OAuth) y Storage, usados exclusivamente por el panel interno de administración (`/admin`, `/roles`) y la sección `/equipo`. El resto del sitio sigue sin CMS y sin backend propio más allá de la función serverless de `/api` para el formulario de contacto.
 
 ### Justificación del stack
 
@@ -72,6 +72,8 @@ Ninguno específico de este proyecto en el momento de creación de esta Constitu
 ### APIs de terceros
 
 - **Resend** — envío de emails transaccionales desde el formulario de contacto.
+- **Supabase** (desde SPEC-08) — BBDD, Auth y Storage del panel interno de administración.
+- **Google OAuth** (desde SPEC-08) — proveedor de login social para el panel interno, configurado dentro de Supabase Auth.
 
 ---
 
@@ -89,7 +91,9 @@ Ninguno específico de este proyecto en el momento de creación de esta Constitu
 
 ## 5. Agentes de construcción de este proyecto
 
-Los agentes universales (SPEC-AGENT, REVIEW-AGENT, SECURITY-AGENT) vienen del sistema BrianSpec y operan en cualquier proyecto (ver `.brianspec/agents.md`). Este proyecto, al ser una landing estática sin backend propio ni base de datos, no requiere agentes de construcción especializados adicionales (no hay BACKEND-AGENT ni DB-AGENT declarados). Los cambios de código de esta ronda (metadata, JSON-LD, robots/llms.txt, canonical, jerarquía de encabezados) se implementan directamente sobre los archivos `.html` estáticos.
+Los agentes universales (SPEC-AGENT, REVIEW-AGENT, SECURITY-AGENT) vienen del sistema BrianSpec y operan en cualquier proyecto (ver `.brianspec/agents.md`). Para las specs 01–07 (metadata, JSON-LD, robots/llms.txt, canonical, jerarquía de encabezados), el proyecto no requirió agentes especializados adicionales — los cambios se implementaron directamente sobre los archivos `.html` estáticos.
+
+Desde SPEC-08 (panel interno + Supabase), sí aplican responsabilidades de **DB-AGENT** (esquema, RLS, migraciones de Supabase) y **BACKEND-AGENT** (integración del cliente Supabase, lógica de autenticación y roles) además del trabajo de frontend, acotadas exclusivamente a las páginas y datos del panel interno (`/admin`, `/roles`, `/equipo`). El resto del sitio sigue sin necesitar estos agentes.
 
 ---
 
@@ -119,7 +123,12 @@ No hay suite de tests automatizados en este proyecto. La verificación de cambio
 
 ## 7. Modelo de datos
 
-No aplica. El sitio no tiene base de datos ni modelo de datos persistente. El contenido vive directamente en el HTML de cada página.
+El sitio no tiene modelo de datos persistente propio — el contenido vive directamente en el HTML de cada página, **excepto** la sección `/equipo` y el panel interno de administración desde SPEC-08, que usan dos tablas en Supabase (Postgres):
+
+- **`team_members`** — personas mostradas en `/equipo` (nombre, cargo, foto, fila, posición, `is_active`).
+- **`profiles`** — rol de cada usuario que ha iniciado sesión en el panel (`admin` / `usuario`), enlazada 1:1 con `auth.users` de Supabase Auth.
+
+Ver detalle completo de columnas, relaciones y políticas RLS en `specs/08-panel-admin-equipo.md`.
 
 ---
 
@@ -137,7 +146,7 @@ Vercel despliega automáticamente cada push a `main` (producción) y genera prev
 
 ### Variables de entorno
 
-No se han identificado variables de entorno relevantes para las specs de esta ronda (SPEC-01 a SPEC-05 son cambios estáticos de HTML). El formulario de contacto usa una API key de Resend gestionada como variable de entorno en Vercel (fuera del alcance de esta Constitution, no se modifica en esta ronda).
+El formulario de contacto usa una API key de Resend gestionada como variable de entorno en Vercel. Desde SPEC-08, se añaden `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` (clave pública `anon`, no secreta — la seguridad la dan las políticas RLS, no la opacidad de esta clave), definidas en `.env` local (excluido de git) y en Vercel. Las credenciales del proveedor Google OAuth se configuran directamente en el dashboard de Supabase Auth, no viven como variable de entorno en este repo.
 
 ---
 
@@ -192,6 +201,7 @@ Las enmiendas al `BRIANSPEC-CONSTITUTION.md` global siguen su propio proceso, de
 | Versión | Fecha | Cambio | Autor |
 |---|---|---|---|
 | 1.0 | 2026-07-13 | Versión inicial — inicialización de BrianSpec en el repo `immoral-group`, a partir de la auditoría SEO en vivo contra `https://immoral.es` (ClickUp `knvz4-82755` / `knvz4-241875`). | David Navarrete |
+| 2.0 | 2026-07-29 | Cambio mayor de stack: se incorpora Supabase (BBDD, Auth y Storage) y Google OAuth para un panel interno de administración con login y roles (`admin`/`usuario`), acotado a la sección `/equipo` (`SPEC-08`). El resto del sitio sigue siendo HTML estático sin backend propio ni CMS. Actualizadas secciones 1, 2, 3, 5, 7 y 8. | Gregory Jaques |
 
 ---
 

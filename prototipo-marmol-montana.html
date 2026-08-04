@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prototipo - Mármol Montaña</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            background: #e8e6e1;
+        }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #relief-layer {
+            z-index: 1;
+        }
+
+        #marble-mask {
+            z-index: 2;
+        }
+
+        .label {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #333;
+            font-family: system-ui, sans-serif;
+            font-size: 13px;
+            opacity: 0.7;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="label">Prototipo — mueve el mouse; el trazo aparece y se desvanece, tipo acuarela</div>
+    <canvas id="relief-layer"></canvas>
+    <canvas id="marble-mask"></canvas>
+
+    <script type="module">
+        const reliefCanvas = document.getElementById('relief-layer');
+        const reliefCtx = reliefCanvas.getContext('2d');
+        const maskCanvas = document.getElementById('marble-mask');
+        const maskCtx = maskCanvas.getContext('2d');
+
+        // ---------- capa "relieve": la foto de la montaña tallada en un solo tono de
+        // mármol crema — sin emboss duro ni ruido fotográfico, luz suave y difusa,
+        // como un bajorrelieve de piedra pálida. ----------
+        const mountainImg = new Image();
+        mountainImg.src = '/imgs/mail-bg-4.webp';
+        let paleReliefCanvas = null;
+
+        // Tono único de mármol (crema cálido) sobre el que se modula la luz/sombra.
+        const MARBLE_R = 238, MARBLE_G = 232, MARBLE_B = 221;
+        const TONE_RANGE = 60; // cuánto se aclara/oscurece respecto al tono base
+        const GRADIENT_STEP = 3; // muestreo del gradiente: a mayor valor, transiciones más suaves
+        const GRAIN = 2.5; // ruido fino de grano de mármol/papel
+
+        function buildPaleRelief() {
+            const w = 960, h = Math.round(960 * (mountainImg.naturalHeight / mountainImg.naturalWidth));
+
+            // 1) dibujo base
+            const src = document.createElement('canvas');
+            src.width = w; src.height = h;
+            const sctx = src.getContext('2d');
+            sctx.drawImage(mountainImg, 0, 0, w, h);
+            const srcData = sctx.getImageData(0, 0, w, h).data;
+
+            const lum = new Float32Array(w * h);
+            for (let i = 0, p = 0; i < srcData.length; i += 4, p++) {
+                lum[p] = srcData[i] * 0.299 + srcData[i + 1] * 0.587 + srcData[i + 2] * 0.114;
+            }
+
+            const out = sctx.createImageData(w, h);
+            const od = out.data;
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const xm = Math.max(0, x - GRADIENT_STEP), xp = Math.min(w - 1, x + GRADIENT_STEP);
+                    const ym = Math.max(0, y - GRADIENT_STEP), yp = Math.min(h - 1, y + GRADIENT_STEP);
+                    const gx = lum[y * w + xp] - lum[y * w + xm];
+                    const gy = lum[yp * w + x] - lum[ym * w + x];
+                    let delta = (gx + gy) * 0.9;
+                    delta = Math.max(-TONE_RANGE, Math.min(TONE_RANGE, delta));
+                    delta += (Math.random() - 0.5) * GRAIN;
+                    const idx = (y * w + x) * 4;
+                    od[idx] = Math.max(0, Math.min(255, MARBLE_R + delta));
+                    od[idx + 1] = Math.max(0, Math.min(255, MARBLE_G + delta));
+                    od[idx + 2] = Math.max(0, Math.min(255, MARBLE_B + delta));
+                    od[idx + 3] = 255;
+                }
+            }
+            sctx.putImageData(out, 0, 0);
+
+            paleReliefCanvas = src;
+            drawRelief();
+        }
+        mountainImg.addEventListener('load', buildPaleRelief);
+
+        function drawRelief() {
+            if (!paleReliefCanvas) return;
+            reliefCtx.imageSmoothingEnabled = true;
+            reliefCtx.drawImage(paleReliefCanvas, 0, 0, reliefCanvas.width, reliefCanvas.height);
+        }
+
+        function resize() {
+            const w = window.innerWidth, h = window.innerHeight;
+            reliefCanvas.width = w; reliefCanvas.height = h;
+            maskCanvas.width = w; maskCanvas.height = h;
+            drawRelief();
+        }
+
+        // ---------- pinceladas tipo acuarela: aparecen suave y se desvanecen solas ----------
+        const STROKE_RADIUS = 130;
+        const FADE_IN_MS = 220;
+        const HOLD_MS = 300;
+        const FADE_OUT_MS = 1400;
+        const LIFESPAN = FADE_IN_MS + HOLD_MS + FADE_OUT_MS;
+        const MIN_SPAWN_INTERVAL = 22; // ms entre trazos, para un trazo continuo prolijo
+
+        let strokes = [];
+        let lastSpawn = 0;
+        let lastPointer = null;
+
+        function spawnStroke(x, y, t) {
+            strokes.push({ x, y, born: t });
+        }
+
+        function handlePointer(e) {
+            const now = performance.now();
+            const x = e.clientX, y = e.clientY;
+            if (lastPointer && now - lastSpawn < MIN_SPAWN_INTERVAL) {
+                lastPointer = { x, y };
+                return;
+            }
+            if (lastPointer) {
+                const dx = x - lastPointer.x, dy = y - lastPointer.y;
+                const dist = Math.hypot(dx, dy);
+                const steps = Math.max(1, Math.min(8, Math.round(dist / 18)));
+                for (let i = 1; i <= steps; i++) {
+                    spawnStroke(lastPointer.x + dx * (i / steps), lastPointer.y + dy * (i / steps), now);
+                }
+            } else {
+                spawnStroke(x, y, now);
+            }
+            lastPointer = { x, y };
+            lastSpawn = now;
+        }
+
+        function strokeAlpha(age) {
+            if (age < FADE_IN_MS) return age / FADE_IN_MS;
+            if (age < FADE_IN_MS + HOLD_MS) return 1;
+            const t = age - FADE_IN_MS - HOLD_MS;
+            return Math.max(0, 1 - t / FADE_OUT_MS);
+        }
+
+        function drawMask(now) {
+            maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+            // cubierta inicial: blanco liso — el relieve vive debajo, no en esta capa.
+            maskCtx.globalCompositeOperation = 'source-over';
+            maskCtx.fillStyle = '#ffffff';
+            maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
+
+            strokes = strokes.filter((s) => now - s.born < LIFESPAN);
+
+            maskCtx.globalCompositeOperation = 'destination-out';
+            for (const s of strokes) {
+                const alpha = strokeAlpha(now - s.born);
+                if (alpha <= 0) continue;
+                const g = maskCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, STROKE_RADIUS);
+                g.addColorStop(0, `rgba(0,0,0,${alpha})`);
+                g.addColorStop(0.65, `rgba(0,0,0,${alpha * 0.7})`);
+                g.addColorStop(1, 'rgba(0,0,0,0)');
+                maskCtx.fillStyle = g;
+                maskCtx.beginPath();
+                maskCtx.arc(s.x, s.y, STROKE_RADIUS, 0, Math.PI * 2);
+                maskCtx.fill();
+            }
+        }
+
+        function animate() {
+            drawMask(performance.now());
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('pointermove', handlePointer);
+        window.addEventListener('resize', resize);
+
+        resize();
+        animate();
+    </script>
+</body>
+
+</html>

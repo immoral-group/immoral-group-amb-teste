@@ -1,14 +1,26 @@
 User-agent: GPTBot
 Allow: /
 Disallow: /api/
+Disallow: /admin
+Disallow: /roles
+Disallow: /ofertas
+Disallow: /logs
 
 User-agent: ClaudeBot
 Allow: /
 Disallow: /api/
+Disallow: /admin
+Disallow: /roles
+Disallow: /ofertas
+Disallow: /logs
 
 User-agent: PerplexityBot
 Allow: /
 Disallow: /api/
+Disallow: /admin
+Disallow: /roles
+Disallow: /ofertas
+Disallow: /logs
 
 User-agent: *
 Allow: /
@@ -16,5 +28,13 @@ Allow: /
 Disallow: /api/
 Disallow: /img1
 Disallow: /img1.html
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /roles
+Disallow: /roles.html
+Disallow: /ofertas
+Disallow: /ofertas.html
+Disallow: /logs
+Disallow: /logs.html
 
 Sitemap: https://immoral.es/sitemap.xml
