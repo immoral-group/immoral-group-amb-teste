@@ -79,3 +79,13 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 **Por qué:** petición explícita del usuario para poder saltar a ver el sitio público sin perder la sesión del panel.
 
 **Afecta:** `src/dashboardShell.js` (visible en `/admin`, `/ofertas`, `/logos`, `/logs` y `/roles`, al ser el shell compartido).
+
+---
+
+## 2026-08-03 — Corregido tamaño de los logos de Meta y ActiveCampaign en la barra
+
+**Qué:** en `public/imgs/barra-logos/Meta_id0D-m9C5l_0.svg` y `active.svg` (ActiveCampaign), el `viewBox` original heredado del export de Illustrator era mucho más grande que el contenido visible real (el "artboard" completo, no el bounding box del logo) — Meta usaba solo el 33% de la altura de su `viewBox` (1000 de 3000) y ActiveCampaign solo el 28% (25.4 de 91). Como la barra fija la altura del `<img>` (`h-6`) y escala en base al `viewBox`, ambos logos se veían visiblemente más chicos que el resto pese a tener la misma altura de contenedor. Se recortó el `viewBox` de los dos ficheros al bounding box real del contenido (con un margen de ~5%), sin tocar los `path` del dibujo.
+
+**Por qué:** feedback visual explícito del usuario tras ver la barra en el dashboard.
+
+**Afecta:** `public/imgs/barra-logos/Meta_id0D-m9C5l_0.svg`, `public/imgs/barra-logos/active.svg`.
