@@ -451,3 +451,21 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; confirmado en navegador que el efecto `.liquid-glass` sigue aplicado (`backdrop-filter` con la distorsión SVG) en `/nuestra-historia` tras el merge; sin errores de consola en `/nuestra-historia` ni `/equipo`; confirmado que el botón celeste de navegación/footer (fuera del alcance de este PR) sigue intacto.
+
+---
+
+## 2026-08-04 — Carrusel "Plataformas que dominamos" en Publicidad en Medios + ajuste de recuadro en Nuestra Historia
+
+**Qué:** sustituido el grid estático de plataformas (Meta/Google/LinkedIn/TikTok/YouTube/Pinterest/Spotify) en `publicidad-en-medios.html` por un carrusel tipo "flip caterpillar" (GSAP Flip: captura estado → reordena DOM → anima la diferencia) que muestra 4 tarjetas a la vez con botones Anterior/Siguiente. En reposo cada tarjeta muestra solo el logo centrado con un balanceo vertical continuo y suave, distinto por tarjeta y desfasado entre ellas. Al hover, el logo y la descripción se centran juntos como bloque y la tarjeta pasa de negro sólido a vidrio esmerilado con tinte del color de marca (`color-mix()` + `backdrop-filter`). Nuevo módulo `src/platform-carousel.js`, registrado en `src/main.js`; estilos nuevos en `src/style.css`. Número de tarjetas visibles adaptado por ancho de viewport.
+
+Adicionalmente, en `nuestra-historia.html` se realineó el recuadro de texto ("Al principio nos llamamos ADMK Team...") con la columna de texto superior (antes centrado de forma independiente) y se ajustó su fondo `.liquid-glass` a un tinte oscuro con padding reducido, tras varias iteraciones en vivo con el usuario.
+
+**Por qué:** petición explícita del usuario, iterada en vivo sobre un prototipo (`proto-plataformas.html` + `src/proto-platform-carousel.js`, ya eliminados) antes de tocar la página real: probó primero un layout en abanico (rechazado), luego el carrusel Flip inspirado en una demo de GSAP, y ajustó el hover (revelado del texto, wiggle vertical continuo, "liquid glass", colores) hasta aprobar la versión de producción.
+
+**Afecta:** `publicidad-en-medios.html`, `src/platform-carousel.js` (nuevo), `src/main.js`, `src/style.css`, `nuestra-historia.html`.
+
+**Deuda técnica documentada (no resuelta en este PR):** ver nota en `project-context.md` — coexisten ahora dos sistemas de "liquid glass": `.liquid-glass` (distorsión SVG, para paneles siempre-cristal) y el `color-mix()` de las tarjetas de plataformas (para tarjetas que transicionan negro→cristal-de-color). No se unificaron porque el resultado visual de cada uno ya estaba aprobado por el usuario antes de detectarse el solapamiento.
+
+**Bug de entorno local encontrado y corregido:** este worktree no tenía fichero `.env` (solo `.env.example`), por lo que `createClient()` en `src/supabaseClient.js` lanzaba `Error: supabaseUrl is required.` al evaluarse el módulo — al ser un throw de nivel superior en una dependencia transitiva de `main.js`, rompía silenciosamente la ejecución de `initAll()` en todas las páginas (no solo la sección nueva), sin generar ningún error visible hasta aislarlo. Se creó `.env` local a partir de `.env.example` (gitignorado, no se sube) para desbloquear las pruebas — necesario en cualquier clon nuevo del repo, ver `supabase/README.md`.
+
+**Verificado en local:** servidor `npm run dev`; confirmado en `/publicidad-en-medios.html` que el carrusel renderiza 4 tarjetas en el orden esperado, que el hover activa el degradado con el color de marca correcto y que "Siguiente"/"Anterior" reordenan el DOM correctamente; confirmado en `/nuestra-historia.html` que el recuadro quedó alineado con el texto y con el nuevo tinte/tamaño. Sin errores de consola propios de estos cambios (solo el error preexistente y esperado de logos de partners por credenciales de Supabase de ejemplo).
