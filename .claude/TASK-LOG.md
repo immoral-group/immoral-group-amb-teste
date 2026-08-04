@@ -102,3 +102,15 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto).
 
 **Verificado en local:** `npm run build` sin errores; confirmado que los fixes de accesibilidad del PR #11 sobrevivieron el merge con los cambios del PR #8 sobre los mismos ficheros (`rel="noopener"` en los 8 enlaces externos del nuevo grid de `casos-de-exito.html`, `aria-expanded` en el acordeón de FAQ, `lang="es"` en las 3 páginas corregidas); sin errores de consola en `casos-de-exito.html`.
+
+---
+
+## 2026-08-03 — Resuelto conflicto de merge en el PR #12 (API key de Resend)
+
+**Qué:** la rama `fix/resend-api-key-hardcoded` (PR #12) quedó detrás de `main` tras el merge de los PR #8 y #11. Mismo patrón que los dos conflictos anteriores: el único conflicto real fue en `.claude/TASK-LOG.md`, puramente aditivo (la entrada del PR #12 por un lado, las cuatro entradas posteriores de `main` por el otro). Se conservaron todas, en orden cronológico.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #12 tras resolver su conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que el fix de la key de Resend sobrevivió el merge intacto (`api/send-email.js` sin fallback hardcodeado, `.env.example` con el placeholder).
