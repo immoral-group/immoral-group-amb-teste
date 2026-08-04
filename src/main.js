@@ -12,6 +12,7 @@ import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
+import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -1752,6 +1753,7 @@ function initAll() {
     initServicesCarousel();
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
     try { initComoLoHacemosScroll(); } catch (e) { console.error("Error in initComoLoHacemosScroll:", e); }
+    try { initDisenoScrollVideos(); } catch (e) { console.error("Error in initDisenoScrollVideos:", e); }
 
     // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,
     // solo falla esta promesa — no tumba el resto de main.js como pasaba antes.
