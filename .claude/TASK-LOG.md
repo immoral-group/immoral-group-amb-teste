@@ -268,3 +268,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `src/main.js`, `.claude/TASK-LOG.md`.
 
 **Verificado en local:** `npm run build` sin errores; confirmado en navegador que la barra de logos de la home ya carga los 22 logos reales desde Supabase (el usuario ya había ejecutado las migraciones `0006`/`0007` fuera de esta sesión) con el tamaño de Meta/ActiveCampaign corregido; grid de casos de éxito (`19 de 19`) y `/logos` (panel admin) sin errores de consola tras el merge.
+
+---
+
+## 2026-08-03 — Resuelto conflicto de merge en el PR #15 (scroll "Cómo lo hacemos")
+
+**Qué:** la rama `modificacion` (PR #15, de Angie) llevaba varios commits documentando en `.claude/TASK-LOG.md` toda la iteración de la nueva sección scroll-driven "Cómo lo hacemos" (reemplazo del acordeón viejo en 5 páginas de servicio, motor compartido `src/como-lo-hacemos-scroll.js`, ajustes de anillos, títulos, pills clicables). El único conflicto real fue, otra vez, puramente aditivo en `.claude/TASK-LOG.md` — 8 entradas nuevas de este PR por un lado y 8 entradas de `main` (barra de logos + resoluciones de los PR #8/#11/#12/#14) por el otro, en el mismo punto del historial. Se conservaron las 16, en orden cronológico. Los 5 ficheros HTML de servicio y `src/main.js` (tocados por ambas ramas: accesibilidad WCAG de `main` vs. el nuevo scroll de este PR) se automergearon sin conflicto — verificado explícitamente que ambos cambios coexisten (p. ej. `aria-expanded` del PR #11 y `#chlh-pin` de este PR presentes a la vez en las 5 páginas).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #15 tras resolver su conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; `publicidad-en-medios.html` y `diseno-de-marca.html` cargando la sección scroll nueva correctamente (badge, título y pills presentes; el acordeón viejo `.accord-panel` ya no existe en el DOM); sin errores de consola.
