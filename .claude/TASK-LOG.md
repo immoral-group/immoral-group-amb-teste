@@ -316,3 +316,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; en `diseno-de-marca.html`, `chlh-pin` presente con el título correcto y los 5 `<video>` (incluido `design-hover-8.webm`) cargando correctamente tras el merge.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de fondo de la sección "Historia Fundador" por vídeo
+
+**Qué:** en `nuestra-historia.html`, la sección "Historia Fundador" usaba una imagen estática (`imgs/nt-bg-2.webp`, "Marco Fundador") como fondo. Se sustituyó por un `<video>` (`imgs/nt-bg-2.mp4`, autoplay/muted/loop/playsinline) con las mismas clases de encuadre (`object-cover object-[80%_center]`) para que el fundador siga siempre visible en el mismo punto. Se borró `public/imgs/nt-bg-2.webp` (ya sin referencias en el repo) y se añadió `public/imgs/nt-bg-2.mp4`.
+
+**Por qué:** petición explícita del usuario de sustituir ese fondo concreto por un vídeo que aportó.
+
+**Afecta:** `nuestra-historia.html`, `public/imgs/nt-bg-2.mp4` (nuevo), `public/imgs/nt-bg-2.webp` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; el vídeo carga (`readyState: 4`, 1920x1080), reproduce en loop con el mismo encuadre que tenía la imagen, y el resto de la sección (tarjeta de texto, layout) no se ve afectado. Sin errores de consola.
