@@ -316,3 +316,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; en `diseno-de-marca.html`, `chlh-pin` presente con el título correcto y los 5 `<video>` (incluido `design-hover-8.webm`) cargando correctamente tras el merge.
+
+---
+
+## 2026-08-04 — Edición in-place de personas del equipo + vista en grid
+
+**Qué:** dos cambios en `/admin` (panel de Equipo): (1) el listado de cada fila pasó de lista vertical (`space-y-2`) a grid de tarjetas (`grid-cols-2 sm:grid-cols-3 xl:grid-cols-5`, foto cuadrada arriba); (2) se añadió un botón "Editar" por tarjeta que abre un modal (nombre, cargo, fila, foto opcional — se conserva la actual si no se sube una nueva) y guarda con `UPDATE` sobre `team_members` en vez de forzar borrar-y-recrear. Si se cambia la fila desde el modal, la posición se recalcula al final de la nueva fila (misma lógica que al añadir); si la fila no cambia, la posición actual se conserva. Al reemplazar la foto, se sube la nueva a Storage y se borra la anterior solo tras confirmar el `UPDATE`.
+
+**Por qué:** petición explícita del usuario — la spec original (SPEC-08) dejaba la edición in-place fuera de alcance a propósito ("se resuelve eliminando y volviendo a crear"), pero en el uso real del panel resultó insuficiente.
+
+**Afecta:** `src/admin.js` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; verificado con datos simulados en navegador que el grid renderiza 5 columnas en la misma fila y que el modal de edición se pre-rellena correctamente con los datos de la persona.
