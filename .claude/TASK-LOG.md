@@ -47,6 +47,17 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 **Afecta:** `logs.html`, `src/logs.js`, `src/changelog.js`, `src/dashboardShell.js` (nuevo item de nav), `vite.config.js`, `public/robots.txt`, `CLAUDE.md`.
 
 **Nota de seguridad:** el contenido de `TASK-LOG.md` se compila dentro del bundle JS público de `/logs` (import `?raw` en build time). El login solo evita que un visitante normal lo vea en pantalla — no impide que el texto viaje en el JS servido a cualquiera. No escribir aquí datos de clientes, credenciales, ni nada que no deba ser públicamente inspeccionable.
+---
+
+## 2026-08-03 — Eliminación de API key de Resend hardcodeada
+
+**Qué:** `api/send-email.js` tenía una API key de Resend en texto plano como fallback si `process.env.RESEND_API_KEY` no estaba definida, presente en al menos 2 commits del historial. Se eliminó el fallback: el handler ahora usa exclusivamente la variable de entorno y devuelve un error 500 explícito si no está configurada, en vez de degradar silenciosamente a una key hardcodeada. Se añadió `RESEND_API_KEY` como placeholder en `.env.example`.
+
+**Por qué:** hallazgo de un reporte de seguridad — cualquier secreto en texto plano dentro de código versionado es explotable por quien tenga acceso al repo, independientemente de que la función sea server-side.
+
+**Afecta:** `api/send-email.js`, `.env.example`.
+
+**Pendiente (fuera del alcance de este agente):** la key sigue siendo la misma tras este fix — el usuario decidió no rotarla por ahora. Sigue presente en el historial de git (no se purgó, decisión explícita del usuario) y debe estar configurada como variable de entorno `RESEND_API_KEY` en Vercel (Production y Preview) para que el formulario de contacto siga funcionando en producción.
 
 ---
 
@@ -91,3 +102,15 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto).
 
 **Verificado en local:** `npm run build` sin errores; confirmado que los fixes de accesibilidad del PR #11 sobrevivieron el merge con los cambios del PR #8 sobre los mismos ficheros (`rel="noopener"` en los 8 enlaces externos del nuevo grid de `casos-de-exito.html`, `aria-expanded` en el acordeón de FAQ, `lang="es"` en las 3 páginas corregidas); sin errores de consola en `casos-de-exito.html`.
+
+---
+
+## 2026-08-03 — Resuelto conflicto de merge en el PR #12 (API key de Resend)
+
+**Qué:** la rama `fix/resend-api-key-hardcoded` (PR #12) quedó detrás de `main` tras el merge de los PR #8 y #11. Mismo patrón que los dos conflictos anteriores: el único conflicto real fue en `.claude/TASK-LOG.md`, puramente aditivo (la entrada del PR #12 por un lado, las cuatro entradas posteriores de `main` por el otro). Se conservaron todas, en orden cronológico.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #12 tras resolver su conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que el fix de la key de Resend sobrevivió el merge intacto (`api/send-email.js` sin fallback hardcodeado, `.env.example` con el placeholder).
