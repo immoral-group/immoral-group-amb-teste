@@ -331,3 +331,111 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `nuestra-historia.html`, `equipo.html`, `src/jobOpenings.js`, `src/style.css`, las 19 páginas `caso-*.html` (franja "Reto"). `package.json`/`package-lock.json` sin cambios netos (se instaló y desinstaló `@ybouane/liquidglass` + `patch-package` en el proceso).
 
 **Verificado en local:** sin errores de consola en `/nuestra-historia` y `/equipo` tras cada cambio; confirmado por `getComputedStyle` que el `backdrop-filter` incluye el filtro SVG de distorsión (`url("#liquid-glass-distortion")`) y que la regla `.liquid-glass:hover` está registrada en la hoja de estilos. No se pudo verificar visualmente el estado `:hover` en este entorno (el panel del navegador de la sesión no renderiza capturas) — pendiente de confirmación visual del usuario en su propio navegador.
+
+---
+
+## 2026-08-04 — Edición in-place de personas del equipo + vista en grid
+
+**Qué:** dos cambios en `/admin` (panel de Equipo): (1) el listado de cada fila pasó de lista vertical (`space-y-2`) a grid de tarjetas (`grid-cols-2 sm:grid-cols-3 xl:grid-cols-5`, foto cuadrada arriba); (2) se añadió un botón "Editar" por tarjeta que abre un modal (nombre, cargo, fila, foto opcional — se conserva la actual si no se sube una nueva) y guarda con `UPDATE` sobre `team_members` en vez de forzar borrar-y-recrear. Si se cambia la fila desde el modal, la posición se recalcula al final de la nueva fila (misma lógica que al añadir); si la fila no cambia, la posición actual se conserva. Al reemplazar la foto, se sube la nueva a Storage y se borra la anterior solo tras confirmar el `UPDATE`.
+
+**Por qué:** petición explícita del usuario — la spec original (SPEC-08) dejaba la edición in-place fuera de alcance a propósito ("se resuelve eliminando y volviendo a crear"), pero en el uso real del panel resultó insuficiente.
+
+**Afecta:** `src/admin.js` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; verificado con datos simulados en navegador que el grid renderiza 5 columnas en la misma fila y que el modal de edición se pre-rellena correctamente con los datos de la persona.
+
+---
+
+## 2026-08-04 — Estilo consistente para los botones "Seleccionar archivo" del panel
+
+**Qué:** los 4 `<input type="file">` del panel interno (`/admin` ×2, `/ofertas`, `/logos`) usaban el botón nativo del navegador (blanco, sin relación visual con el resto del dashboard oscuro). Se añadió un token compartido `T.fileInput` en `src/dashboardShell.js` (vía las pseudo-clases `file:*` de Tailwind) que estiliza el botón para que coincida con el resto de la UI (fondo `#1C1C1C`, borde `#2E2E2E` sólido, texto claro, hover `#2E2E2E`) y aplica a los 4 inputs.
+
+**Por qué:** feedback visual explícito del usuario sobre el botón "Seleccionar archivo" del formulario "Añadir persona" en `/admin`; se corrigió en los 4 sitios donde aparece el mismo patrón para no dejar 3 inconsistentes.
+
+**Afecta:** `src/dashboardShell.js` (nuevo token `T.fileInput`), `src/admin.js`, `src/ofertas.js`, `src/logosAdmin.js`.
+
+**Verificado en local:** `npm run build` sin errores; confirmado por `getComputedStyle` que el pseudo-elemento `::file-selector-button` toma el color/borde/radio correctos (incluyendo `border-style: solid` en vez del `outset` nativo); sin errores de consola en `/admin` ni `/ofertas`.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de fondo de la sección "Historia Fundador" por vídeo
+
+**Qué:** en `nuestra-historia.html`, la sección "Historia Fundador" usaba una imagen estática (`imgs/nt-bg-2.webp`, "Marco Fundador") como fondo. Se sustituyó por un `<video>` (`imgs/nt-bg-2.mp4`, autoplay/muted/loop/playsinline) con las mismas clases de encuadre (`object-cover object-[80%_center]`) para que el fundador siga siempre visible en el mismo punto. Se borró `public/imgs/nt-bg-2.webp` (ya sin referencias en el repo) y se añadió `public/imgs/nt-bg-2.mp4`.
+
+**Por qué:** petición explícita del usuario de sustituir ese fondo concreto por un vídeo que aportó.
+
+**Afecta:** `nuestra-historia.html`, `public/imgs/nt-bg-2.mp4` (nuevo), `public/imgs/nt-bg-2.webp` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; el vídeo carga (`readyState: 4`, 1920x1080), reproduce en loop con el mismo encuadre que tenía la imagen, y el resto de la sección (tarjeta de texto, layout) no se ve afectado. Sin errores de consola.
+
+---
+
+## 2026-08-04 — CTA a Behance en Casos de éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó visualmente el contador "Mostrando X de Y casos" (justo debajo de los filtros) por una barra ancha y llamativa (`bg-[#4889eb]`, el azul de marca ya usado en los filter-pills activos) que invita a ver más proyectos en Behance (`https://www.behance.net/immoralgroup`, `target="_blank"`), con el icono de Behance (reutilizado de `src/footer.js`) y una flecha animada al hover. El contador original se mantiene en el DOM como `sr-only` (visualmente oculto, accesible para lectores de pantalla) en vez de eliminarse, para no romper `initCasosFilter()` en `src/main.js` (que sigue escribiendo el texto ahí) y conservar esa información para accesibilidad.
+
+**Por qué:** petición explícita del usuario para añadir un CTA a Behance justo en el hueco visual donde antes estaba el contador.
+
+**Afecta:** `casos-de-exito.html` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; enlace con `href`/`target="_blank"`/`rel="noopener noreferrer"` correctos; contador sigue actualizándose (`sr-only`) al aplicar un filtro (`Mostrando 8 de 19 casos`); sin errores de consola.
+
+---
+
+## 2026-08-04 — Logo real de Behance en el CTA de Casos de éxito
+
+**Qué:** se sustituyó el icono de Behance dibujado a mano (un `<svg>` inline) en la barra CTA de `casos-de-exito.html` por el logo oficial que el usuario dejó en `public/imgs/barra-logos/Behance_Logo_0.svg` (wordmark completo, ya en blanco). Se ajustó el texto de la barra ("...nuestro Behance" → "...nuestro perfil") para no repetir la palabra "Behance" dos veces, ya que ahora la muestra el propio logo.
+
+**Por qué:** petición explícita del usuario tras subir el archivo del logo real.
+
+**Afecta:** `casos-de-exito.html` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; el logo carga correctamente (`naturalWidth: 300`, sin 404); sin errores de consola.
+
+---
+
+## 2026-08-04 — Ancho del CTA de Behance ajustado al contenido
+
+**Qué:** la barra CTA de `casos-de-exito.html` ocupaba todo el ancho de la sección (`w-full`); se cambió a `inline-flex` (ancho ajustado al contenido, ~526px en vez de ~1217px) para que se vea como una pastilla compacta en vez de una barra que estira todo el layout.
+
+**Por qué:** feedback visual explícito del usuario con una captura de referencia.
+
+**Afecta:** `casos-de-exito.html` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; ancho del enlace confirmado en ~526px; sin errores de consola.
+
+---
+
+## 2026-08-04 — Resuelto conflicto de merge en el PR #19 (edición de equipo + grid)
+
+**Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (las 2 entradas de este PR vs. las 3 entradas del CTA de Behance en `main`). Se conservaron las 5, en orden cronológico. `src/admin.js` y `src/dashboardShell.js` no tuvieron conflicto (`main` no tocaba esos ficheros en su rango de commits nuevos).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #19.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que el CTA de Behance (PR #17) y la edición de equipo + botón de archivo (este PR) coexisten sin pisarse tras el merge.
+
+---
+
+## 2026-08-04 — Resuelto conflicto de merge en el PR #18 (vídeo de fondo en Historia Fundador)
+
+**Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR vs. las 3 entradas del CTA de Behance en `main`). Se conservaron las 4, en orden cronológico. `nuestra-historia.html` no tuvo conflicto.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #18.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; el vídeo de fondo (`nt-bg-2.mp4`) carga correctamente (`readyState: 4`, 1920x1080) tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-04 — Segunda resolución del PR #19 (el PR #18 se mergeó en el intermedio)
+
+**Qué:** justo después de resolver el conflicto anterior del PR #19, el usuario mergeó el PR #18 a `main` — mismo patrón ya visto con el PR #16. Se repitió el proceso: mergear `origin/main` (ya con el PR #18 dentro) en la rama `feature/editar-equipo-grid`. Dos bloques de conflicto, ambos puramente aditivos en `.claude/TASK-LOG.md` (las entradas propias de este PR + su resolución anterior, vs. la entrada del PR #18 + su resolución). Se conservaron todas, en orden cronológico.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #19 tras resolver su (segundo) conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que la edición de equipo + grid + botón de archivo (este PR) y el vídeo de "Historia Fundador" (PR #18) coexisten sin pisarse tras el merge.
