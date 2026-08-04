@@ -558,49 +558,53 @@ html {
     width: 100%;
 }
 
-/* Safari-specific fixes for portfolio carousel */
-@supports (-webkit-appearance: none) {
-    .portfolio-carousel-track {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-perspective: 1000px;
-        perspective: 1000px;
-    }
+/* Casos de éxito - Filterable grid */
+.filter-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1.1rem;
+    border-radius: 9999px;
+    border: 2px solid #000;
+    background: #fff;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
 
-    .portfolio-card {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        will-change: transform;
-    }
+.filter-pill:hover {
+    background: #000;
+    color: #fff;
+}
 
-    /* Fix for Safari touch events */
-    .portfolio-carousel-container {
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
-    }
+.filter-pill.is-active {
+    background: #4889eb;
+    border-color: #4889eb;
+    color: #fff;
+}
 
-    /* Prevent Safari from changing card dimensions during drag */
-    .portfolio-card img {
-        -webkit-user-drag: none;
-        -khtml-user-drag: none;
-        -moz-user-drag: none;
-        -o-user-drag: none;
-        pointer-events: none;
-    }
+.case-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.3rem 0.7rem;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
 
-    /* Fix height issues in Safari */
-    .portfolio-card.h-full {
-        height: auto !important;
-        min-height: 400px;
-    }
-
-    .portfolio-card.h-full .h-full {
-        height: 400px !important;
-    }
+.case-tag--result {
+    background: rgba(72, 137, 235, 0.85);
+    border-color: rgba(72, 137, 235, 0.9);
 }
 
 /* View Transitions API - Versión Robusta */
@@ -724,51 +728,6 @@ html {
 .scroll-trigger {
     height: 100vh;
     width: 100%;
-}
-
-/* Safari-specific fixes for portfolio carousel */
-@supports (-webkit-appearance: none) {
-    .portfolio-carousel-track {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-perspective: 1000px;
-        perspective: 1000px;
-    }
-
-    .portfolio-card {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        will-change: transform;
-    }
-
-    /* Fix for Safari touch events */
-    .portfolio-carousel-container {
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
-    }
-
-    /* Prevent Safari from changing card dimensions during drag */
-    .portfolio-card img {
-        -webkit-user-drag: none;
-        -khtml-user-drag: none;
-        -moz-user-drag: none;
-        -o-user-drag: none;
-        pointer-events: none;
-    }
-
-    /* Fix height issues in Safari */
-    .portfolio-card.h-full {
-        height: auto !important;
-        min-height: 400px;
-    }
-
-    .portfolio-card.h-full .h-full {
-        height: 400px !important;
-    }
 }
 
 /* View Transitions API - Versión Robusta */
@@ -919,51 +878,6 @@ html {
 .scroll-trigger {
     height: 100vh;
     width: 100%;
-}
-
-/* Safari-specific fixes for portfolio carousel */
-@supports (-webkit-appearance: none) {
-    .portfolio-carousel-track {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        -webkit-perspective: 1000px;
-        perspective: 1000px;
-    }
-
-    .portfolio-card {
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
-        will-change: transform;
-    }
-
-    /* Fix for Safari touch events */
-    .portfolio-carousel-container {
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
-    }
-
-    /* Prevent Safari from changing card dimensions during drag */
-    .portfolio-card img {
-        -webkit-user-drag: none;
-        -khtml-user-drag: none;
-        -moz-user-drag: none;
-        -o-user-drag: none;
-        pointer-events: none;
-    }
-
-    /* Fix height issues in Safari */
-    .portfolio-card.h-full {
-        height: auto !important;
-        min-height: 400px;
-    }
-
-    .portfolio-card.h-full .h-full {
-        height: 400px !important;
-    }
 }
 
 /* View Transitions API - Versión Robusta */
