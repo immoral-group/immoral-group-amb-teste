@@ -376,3 +376,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `casos-de-exito.html` únicamente.
 
 **Verificado en local:** `npm run build` sin errores; ancho del enlace confirmado en ~526px; sin errores de consola.
+
+---
+
+## 2026-08-04 — Resuelto conflicto de merge en el PR #19 (edición de equipo + grid)
+
+**Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (las 2 entradas de este PR vs. las 3 entradas del CTA de Behance en `main`). Se conservaron las 5, en orden cronológico. `src/admin.js` y `src/dashboardShell.js` no tuvieron conflicto (`main` no tocaba esos ficheros en su rango de commits nuevos).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #19.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que el CTA de Behance (PR #17) y la edición de equipo + botón de archivo (este PR) coexisten sin pisarse tras el merge.
