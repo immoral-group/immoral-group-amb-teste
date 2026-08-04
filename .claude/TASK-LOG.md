@@ -319,6 +319,30 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 
 ---
 
+## 2026-08-04 — Edición in-place de personas del equipo + vista en grid
+
+**Qué:** dos cambios en `/admin` (panel de Equipo): (1) el listado de cada fila pasó de lista vertical (`space-y-2`) a grid de tarjetas (`grid-cols-2 sm:grid-cols-3 xl:grid-cols-5`, foto cuadrada arriba); (2) se añadió un botón "Editar" por tarjeta que abre un modal (nombre, cargo, fila, foto opcional — se conserva la actual si no se sube una nueva) y guarda con `UPDATE` sobre `team_members` en vez de forzar borrar-y-recrear. Si se cambia la fila desde el modal, la posición se recalcula al final de la nueva fila (misma lógica que al añadir); si la fila no cambia, la posición actual se conserva. Al reemplazar la foto, se sube la nueva a Storage y se borra la anterior solo tras confirmar el `UPDATE`.
+
+**Por qué:** petición explícita del usuario — la spec original (SPEC-08) dejaba la edición in-place fuera de alcance a propósito ("se resuelve eliminando y volviendo a crear"), pero en el uso real del panel resultó insuficiente.
+
+**Afecta:** `src/admin.js` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; verificado con datos simulados en navegador que el grid renderiza 5 columnas en la misma fila y que el modal de edición se pre-rellena correctamente con los datos de la persona.
+
+---
+
+## 2026-08-04 — Estilo consistente para los botones "Seleccionar archivo" del panel
+
+**Qué:** los 4 `<input type="file">` del panel interno (`/admin` ×2, `/ofertas`, `/logos`) usaban el botón nativo del navegador (blanco, sin relación visual con el resto del dashboard oscuro). Se añadió un token compartido `T.fileInput` en `src/dashboardShell.js` (vía las pseudo-clases `file:*` de Tailwind) que estiliza el botón para que coincida con el resto de la UI (fondo `#1C1C1C`, borde `#2E2E2E` sólido, texto claro, hover `#2E2E2E`) y aplica a los 4 inputs.
+
+**Por qué:** feedback visual explícito del usuario sobre el botón "Seleccionar archivo" del formulario "Añadir persona" en `/admin`; se corrigió en los 4 sitios donde aparece el mismo patrón para no dejar 3 inconsistentes.
+
+**Afecta:** `src/dashboardShell.js` (nuevo token `T.fileInput`), `src/admin.js`, `src/ofertas.js`, `src/logosAdmin.js`.
+
+**Verificado en local:** `npm run build` sin errores; confirmado por `getComputedStyle` que el pseudo-elemento `::file-selector-button` toma el color/borde/radio correctos (incluyendo `border-style: solid` en vez del `outset` nativo); sin errores de consola en `/admin` ni `/ofertas`.
+
+---
+
 ## 2026-08-04 — Sustituye la imagen de fondo de la sección "Historia Fundador" por vídeo
 
 **Qué:** en `nuestra-historia.html`, la sección "Historia Fundador" usaba una imagen estática (`imgs/nt-bg-2.webp`, "Marco Fundador") como fondo. Se sustituyó por un `<video>` (`imgs/nt-bg-2.mp4`, autoplay/muted/loop/playsinline) con las mismas clases de encuadre (`object-cover object-[80%_center]`) para que el fundador siga siempre visible en el mismo punto. Se borró `public/imgs/nt-bg-2.webp` (ya sin referencias en el repo) y se añadió `public/imgs/nt-bg-2.mp4`.
@@ -367,6 +391,18 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 
 ---
 
+## 2026-08-04 — Resuelto conflicto de merge en el PR #19 (edición de equipo + grid)
+
+**Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (las 2 entradas de este PR vs. las 3 entradas del CTA de Behance en `main`). Se conservaron las 5, en orden cronológico. `src/admin.js` y `src/dashboardShell.js` no tuvieron conflicto (`main` no tocaba esos ficheros en su rango de commits nuevos).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #19.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que el CTA de Behance (PR #17) y la edición de equipo + botón de archivo (este PR) coexisten sin pisarse tras el merge.
+
+---
+
 ## 2026-08-04 — Resuelto conflicto de merge en el PR #18 (vídeo de fondo en Historia Fundador)
 
 **Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR vs. las 3 entradas del CTA de Behance en `main`). Se conservaron las 4, en orden cronológico. `nuestra-historia.html` no tuvo conflicto.
@@ -376,3 +412,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; el vídeo de fondo (`nt-bg-2.mp4`) carga correctamente (`readyState: 4`, 1920x1080) tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-04 — Segunda resolución del PR #19 (el PR #18 se mergeó en el intermedio)
+
+**Qué:** justo después de resolver el conflicto anterior del PR #19, el usuario mergeó el PR #18 a `main` — mismo patrón ya visto con el PR #16. Se repitió el proceso: mergear `origin/main` (ya con el PR #18 dentro) en la rama `feature/editar-equipo-grid`. Dos bloques de conflicto, ambos puramente aditivos en `.claude/TASK-LOG.md` (las entradas propias de este PR + su resolución anterior, vs. la entrada del PR #18 + su resolución). Se conservaron todas, en orden cronológico.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #19 tras resolver su (segundo) conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que la edición de equipo + grid + botón de archivo (este PR) y el vídeo de "Historia Fundador" (PR #18) coexisten sin pisarse tras el merge.

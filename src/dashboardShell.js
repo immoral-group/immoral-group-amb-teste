@@ -9,6 +9,7 @@ export const T = {
   page: 'bg-[#0D0D0D]',
   surface: 'bg-[#1C1C1C] border border-[#2E2E2E]',
   input: 'bg-[#141414] border border-[#2E2E2E] text-[#F5F5F5]',
+  fileInput: 'text-[#5A5A5A] text-sm cursor-pointer file:mr-3 file:cursor-pointer file:rounded-[8px] file:border file:border-solid file:border-[#2E2E2E] file:bg-[#1C1C1C] file:px-4 file:py-2 file:text-sm file:font-medium file:text-[#F5F5F5] hover:file:bg-[#2E2E2E] file:transition-colors',
   radiusCard: 'rounded-[14px]',
   radiusSm: 'rounded-[8px]',
   textPrimary: 'text-[#F5F5F5]',
