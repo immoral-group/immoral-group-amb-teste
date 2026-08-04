@@ -4,6 +4,7 @@ Disallow: /api/
 Disallow: /admin
 Disallow: /roles
 Disallow: /ofertas
+Disallow: /logos
 Disallow: /logs
 
 User-agent: ClaudeBot
@@ -12,6 +13,7 @@ Disallow: /api/
 Disallow: /admin
 Disallow: /roles
 Disallow: /ofertas
+Disallow: /logos
 Disallow: /logs
 
 User-agent: PerplexityBot
@@ -20,6 +22,7 @@ Disallow: /api/
 Disallow: /admin
 Disallow: /roles
 Disallow: /ofertas
+Disallow: /logos
 Disallow: /logs
 
 User-agent: *
@@ -34,6 +37,8 @@ Disallow: /roles
 Disallow: /roles.html
 Disallow: /ofertas
 Disallow: /ofertas.html
+Disallow: /logos
+Disallow: /logos.html
 Disallow: /logs
 Disallow: /logs.html
 

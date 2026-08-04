@@ -27,6 +27,7 @@ const ICONS = {
   briefcase: '<rect x="2.5" y="7" width="15" height="10" rx="1.5"/><path d="M7 7V5.5A1.5 1.5 0 0 1 8.5 4h3A1.5 1.5 0 0 1 13 5.5V7"/><path d="M2.5 11.5h15"/>',
   usercog: '<path d="M8 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M2 18c0-2.8 2.7-5 6-5s6 2.2 6 5"/><circle cx="16" cy="15.5" r="2.3"/><path d="M16 12.3v.7M16 17.9v.7M18.6 15.5h-.7M14.1 15.5h-.7M17.9 13.6l-.5.5M14.6 17.4l-.5.5M17.9 17.4l-.5-.5M14.6 13.6l-.5-.5"/>',
   logs: '<path d="M4.5 2.5h8l4 4v10.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-14a.5.5 0 0 1 .5-.5Z"/><path d="M12.5 2.5V6a.5.5 0 0 0 .5.5h3.5"/><path d="M6.5 10.5h6M6.5 13.5h6M6.5 7.5h3"/>',
+  logos: '<rect x="2.5" y="2.5" width="8" height="8" rx="1.5"/><rect x="12.5" y="2.5" width="5" height="5" rx="1.5"/><rect x="12.5" y="10" width="5" height="7.5" rx="1.5"/><rect x="2.5" y="13" width="8" height="4.5" rx="1.5"/>',
 };
 
 function icon(name) {
@@ -44,6 +45,7 @@ export function renderShell(root, { activeHref, email, role, isAdmin }) {
   const navItems = [
     { href: '/admin', label: 'Equipo', icon: 'users' },
     { href: '/ofertas', label: 'Ofertas activas', icon: 'briefcase' },
+    { href: '/logos', label: 'Barra de logos', icon: 'logos' },
     { href: '/logs', label: 'Logs', icon: 'logs' },
   ];
   if (isAdmin) {
@@ -59,6 +61,11 @@ export function renderShell(root, { activeHref, email, role, isAdmin }) {
           <span class="text-sm font-medium text-white/70">Panel interno</span>
         </div>
         <div class="flex items-center gap-2">
+          <a href="/" target="_blank" rel="noopener noreferrer"
+            class="text-sm text-white/60 hover:text-white flex items-center gap-1.5 mr-2">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M8 4.5H4.5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V12"/><path d="M11.5 3.5h5v5"/><path d="M16 4 8.5 11.5"/></svg>
+            Ver la web
+          </a>
           <span class="text-sm text-white/60">${email}</span>
           <span class="text-xs px-2 py-0.5 rounded-full capitalize bg-white/10 text-white/70">${role}</span>
           <button id="shell-signout" class="text-sm text-white/60 hover:text-white ml-2">Salir</button>

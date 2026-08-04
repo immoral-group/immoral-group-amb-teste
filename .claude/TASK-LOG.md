@@ -71,6 +71,38 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 
 ---
 
+## 2026-08-03 — Panel de gestión de la barra de logos (home)
+
+**Qué:** la barra de logos de partners/herramientas de la home (carrusel infinito bajo el hero) pasa de HTML hardcodeado a datos dinámicos en Supabase, con un panel nuevo (`/logos`) para añadir, activar/desactivar y eliminar logos sin tocar código — mismo patrón que `/admin` (equipo) y `/ofertas`. Se consolidaron todos los logos (los 13 ya existentes + 9 nuevos aportados por el usuario: Blender, Canva, Claude, ElevenLabs, Envato, GitHub, Higgsfield, Magnific, Vercel) en una sola carpeta `public/imgs/barra-logos/` (antes estaban en `public/imgs/brands/`, ahora vacía y sin referencias). Los logos se muestran en blanco mediante el filtro CSS ya existente (`brightness-0 invert`) aplicado al `<img>`, por lo que no fue necesario recolorear los SVG de origen (algunos, como Blender o Envato, son multicolor en su archivo original) — el filtro fuerza cualquier color de entrada a blanco puro al renderizar.
+
+**Por qué:** petición explícita del usuario de añadir los 9 logos nuevos, consolidar la carpeta de assets, y poder gestionar la barra completa desde el dashboard igual que el resto del contenido editable del sitio.
+
+**Afecta:** `supabase/migrations/0006_partner_logos.sql` (tabla `partner_logos`, RLS vía `is_admin()`, bucket de Storage `partner-logos`), `supabase/migrations/0007_partner_logos_seed.sql` (seed de los 22 logos apuntando a `/imgs/barra-logos/`), `src/partnerLogos.js` (render dinámico en la home, patrón de `jobOpenings.js`), `src/main.js` (`initPartnerLogos()`), `index.html` (carrusel ahora vacío + `id="partner-logos-section"`/`id="partner-logos-track"`, se rellena en runtime), `logos.html` + `src/logosAdmin.js` (panel CRUD, patrón de `ofertas.html`/`ofertas.js`), `src/dashboardShell.js` (nuevo item de nav "Barra de logos"), `vite.config.js`, `public/robots.txt`, `public/imgs/barra-logos/` (22 archivos), `public/imgs/brands/` (eliminada, vacía).
+
+**Pendiente (fuera del alcance de este agente):** las migraciones `0006` y `0007` deben ejecutarse manualmente en el SQL Editor del proyecto Supabase real — el conector de Supabase de esta sesión está autenticado contra una cuenta/organización distinta a la que usa este proyecto (mismo motivo por el que las migraciones `0001`-`0005` de SPEC-08 se ejecutaron a mano). Hasta que se ejecuten, la barra de logos de la home queda oculta (no rota — el código detecta la ausencia de la tabla y oculta la sección en vez de mostrar un error visible).
+
+---
+
+## 2026-08-03 — Botón "Ver la web" en el header del dashboard
+
+**Qué:** se añadió un enlace "Ver la web" en la barra superior del shell compartido de todo el panel interno (entre el logo y el bloque de email/rol/Salir), que abre la home (`/`) en una pestaña nueva.
+
+**Por qué:** petición explícita del usuario para poder saltar a ver el sitio público sin perder la sesión del panel.
+
+**Afecta:** `src/dashboardShell.js` (visible en `/admin`, `/ofertas`, `/logos`, `/logs` y `/roles`, al ser el shell compartido).
+
+---
+
+## 2026-08-03 — Corregido tamaño de los logos de Meta y ActiveCampaign en la barra
+
+**Qué:** en `public/imgs/barra-logos/Meta_id0D-m9C5l_0.svg` y `active.svg` (ActiveCampaign), el `viewBox` original heredado del export de Illustrator era mucho más grande que el contenido visible real (el "artboard" completo, no el bounding box del logo) — Meta usaba solo el 33% de la altura de su `viewBox` (1000 de 3000) y ActiveCampaign solo el 28% (25.4 de 91). Como la barra fija la altura del `<img>` (`h-6`) y escala en base al `viewBox`, ambos logos se veían visiblemente más chicos que el resto pese a tener la misma altura de contenedor. Se recortó el `viewBox` de los dos ficheros al bounding box real del contenido (con un margen de ~5%), sin tocar los `path` del dibujo.
+
+**Por qué:** feedback visual explícito del usuario tras ver la barra en el dashboard.
+
+**Afecta:** `public/imgs/barra-logos/Meta_id0D-m9C5l_0.svg`, `public/imgs/barra-logos/active.svg`.
+
+---
+
 ## 2026-08-03 — Resuelto conflicto de merge en el PR #8 (grid de casos de éxito)
 
 **Qué:** la rama `design/cambio-diagrama-casosdeexito` (PR #8, de Bruno Azzi) estaba 13 commits detrás de `main` y tenía un conflicto real en `src/main.js` al intentar mergear. Se mergeó `origin/main` dentro de esa rama y se resolvió el único conflicto de contenido: en el punto de inserción tras `initTeamCarousel()`, el PR añadía `initCasosFilter()` (para el nuevo grid filtrable) mientras `main` había añadido por separado `initJobOpenings()` (ofertas activas, de SPEC-08) — ambas funciones son independientes y no se solapan, así que se conservaron las dos. Además, `main` seguía teniendo `initPortfolioCarousel()` (el carrusel viejo que el PR reemplaza), pero el propio PR ya lo había eliminado intencionalmente junto con su HTML (`.portfolio-carousel-container` no existe en ninguna página tras este cambio) — se respetó esa eliminación en vez de resucitar una función que habría quedado muerta (guard clause que nunca se cumple). Se ajustó `initAll()` para llamar a `initJobOpenings()` + `initCasosFilter()`, sin `initPortfolioCarousel()`.
@@ -114,3 +146,15 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto).
 
 **Verificado en local:** `npm run build` sin errores; confirmado que el fix de la key de Resend sobrevivió el merge intacto (`api/send-email.js` sin fallback hardcodeado, `.env.example` con el placeholder).
+
+---
+
+## 2026-08-03 — Resuelto conflicto de merge en el PR #14 (barra de logos)
+
+**Qué:** la rama `feature/panel-barra-logos` (PR #14) se creó antes de que se mergeara el PR #8, así que en `src/main.js` seguía llamando a la función vieja `initPortfolioCarousel()` (ya reemplazada en `main` por `initCasosFilter()`, ver resolución del PR #8) en el mismo punto donde este PR añadía `initPartnerLogos()`. Mismo criterio que en esa resolución: se conservó `initPartnerLogos()` (de este PR) + `initCasosFilter()` (de `main`), sin resucitar `initPortfolioCarousel()`. El otro conflicto, en `.claude/TASK-LOG.md`, fue puramente aditivo (igual que en los PR #11 y #12) — se conservaron todas las entradas de ambos lados en orden cronológico.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #14 tras resolver sus conflictos.
+
+**Afecta:** `src/main.js`, `.claude/TASK-LOG.md`.
+
+**Verificado en local:** `npm run build` sin errores; confirmado en navegador que la barra de logos de la home ya carga los 22 logos reales desde Supabase (el usuario ya había ejecutado las migraciones `0006`/`0007` fuera de esta sesión) con el tamaño de Meta/ActiveCampaign corregido; grid de casos de éxito (`19 de 19`) y `/logos` (panel admin) sin errores de consola tras el merge.

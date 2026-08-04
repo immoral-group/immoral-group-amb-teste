@@ -5,6 +5,7 @@ import { initFAQAccordion } from './faq-accordion.js';
 import { initFooter } from './footer.js';
 import { renderTeamMembers } from './team.js';
 import { renderJobOpenings } from './jobOpenings.js';
+import { renderPartnerLogos } from './partnerLogos.js';
 import { initHablemosHover } from './hablemos-hover.js';
 import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
@@ -467,6 +468,13 @@ function initJobOpenings() {
     const grid = document.getElementById('job-openings-grid');
     if (!grid) return;
     renderJobOpenings(grid);
+}
+
+// --- 7.6. BARRA DE LOGOS DE PARTNERS/HERRAMIENTAS (index.html) ---
+function initPartnerLogos() {
+    const track = document.getElementById('partner-logos-track');
+    if (!track) return;
+    renderPartnerLogos(track);
 }
 
 // --- 8. CASOS DE ÉXITO GRID FILTER ---
@@ -1783,6 +1791,7 @@ function initAll() {
     initCarousel();
     initTeamCarousel();
     initJobOpenings();
+    initPartnerLogos();
     initCasosFilter();
     initTestimonialsCarousel();
     initStackingCards();
