@@ -88,7 +88,7 @@ async function renderPanel(profile) {
           <input type="text" id="new-name" placeholder="Nombre (ej. Figma)" required
             class="sm:col-span-2 ${T.input} ${T.radiusSm} px-3 py-2 text-sm" />
           <input type="file" id="new-logo" accept="image/svg+xml,image/png,image/webp" required
-            class="sm:col-span-2 ${T.textPrimary} text-sm" />
+            class="sm:col-span-2 ${T.fileInput}" />
           <p class="sm:col-span-2 ${T.textMuted} text-xs -mt-1">El logo se muestra en blanco automáticamente en la barra (filtro aplicado en la web), no hace falta editar su color.</p>
           <button type="submit" class="sm:col-span-2 ${T.accent} ${T.radiusSm} py-2 text-sm">
             Añadir

@@ -70,7 +70,7 @@ function openEditModal(member, onSaved) {
           <option value="2" ${member.row_number === 2 ? 'selected' : ''}>Fila 2</option>
         </select>
         <input type="file" id="edit-photo" accept="image/png,image/jpeg,image/webp"
-          class="sm:col-span-2 ${T.textPrimary} text-sm" />
+          class="sm:col-span-2 ${T.fileInput}" />
         <p class="sm:col-span-2 ${T.textMuted} text-xs -mt-1">Deja el campo de foto vacío para conservar la foto actual.</p>
         <div class="sm:col-span-2 flex gap-2 mt-1">
           <button type="submit" class="flex-1 ${T.accent} ${T.radiusSm} py-2 text-sm">Guardar</button>
@@ -194,7 +194,7 @@ async function renderPanel(profile) {
             <option value="2">Fila 2</option>
           </select>
           <input type="file" id="new-photo" accept="image/png,image/jpeg,image/webp" required
-            class="${T.textPrimary} text-sm" />
+            class="${T.fileInput}" />
           <button type="submit" class="sm:col-span-2 ${T.accent} ${T.radiusSm} py-2 text-sm">
             Añadir
           </button>

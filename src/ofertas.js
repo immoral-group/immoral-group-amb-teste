@@ -86,7 +86,7 @@ async function renderPanel(profile) {
           <input type="text" id="new-title" placeholder="Puesto (ej. Paid Media Specialist)" required
             class="sm:col-span-2 ${T.input} ${T.radiusSm} px-3 py-2 text-sm" />
           <input type="file" id="new-icon" accept="image/png,image/jpeg,image/webp,image/svg+xml" required
-            class="sm:col-span-2 ${T.textPrimary} text-sm" />
+            class="sm:col-span-2 ${T.fileInput}" />
           <button type="submit" class="sm:col-span-2 ${T.accent} ${T.radiusSm} py-2 text-sm">
             Añadir
           </button>

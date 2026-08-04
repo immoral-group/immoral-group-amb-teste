@@ -328,3 +328,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `src/admin.js` únicamente.
 
 **Verificado en local:** `npm run build` sin errores; verificado con datos simulados en navegador que el grid renderiza 5 columnas en la misma fila y que el modal de edición se pre-rellena correctamente con los datos de la persona.
+
+---
+
+## 2026-08-04 — Estilo consistente para los botones "Seleccionar archivo" del panel
+
+**Qué:** los 4 `<input type="file">` del panel interno (`/admin` ×2, `/ofertas`, `/logos`) usaban el botón nativo del navegador (blanco, sin relación visual con el resto del dashboard oscuro). Se añadió un token compartido `T.fileInput` en `src/dashboardShell.js` (vía las pseudo-clases `file:*` de Tailwind) que estiliza el botón para que coincida con el resto de la UI (fondo `#1C1C1C`, borde `#2E2E2E` sólido, texto claro, hover `#2E2E2E`) y aplica a los 4 inputs.
+
+**Por qué:** feedback visual explícito del usuario sobre el botón "Seleccionar archivo" del formulario "Añadir persona" en `/admin`; se corrigió en los 4 sitios donde aparece el mismo patrón para no dejar 3 inconsistentes.
+
+**Afecta:** `src/dashboardShell.js` (nuevo token `T.fileInput`), `src/admin.js`, `src/ofertas.js`, `src/logosAdmin.js`.
+
+**Verificado en local:** `npm run build` sin errores; confirmado por `getComputedStyle` que el pseudo-elemento `::file-selector-button` toma el color/borde/radio correctos (incluyendo `border-style: solid` en vez del `outset` nativo); sin errores de consola en `/admin` ni `/ofertas`.
