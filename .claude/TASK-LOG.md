@@ -451,3 +451,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; confirmado en navegador que el efecto `.liquid-glass` sigue aplicado (`backdrop-filter` con la distorsión SVG) en `/nuestra-historia` tras el merge; sin errores de consola en `/nuestra-historia` ni `/equipo`; confirmado que el botón celeste de navegación/footer (fuera del alcance de este PR) sigue intacto.
+
+---
+
+## 2026-08-04 — Nuevo personaje animado en el banner de cookies
+
+**Qué:** sustituido el vídeo del personaje que acompaña al aviso de cookies (`public/imgs/personaje1.webm`, referenciado desde `src/bottom-panel.js`) por una nueva animación entregada por el usuario (`COOKIES.mov`, códec QuickTime Animation con canal alpha nativo). Conversión con `ffmpeg` a VP9/WebM con transparencia (`-pix_fmt yuva420p -auto-alt-ref 0`), mismo método de codificación que ya usaba el archivo anterior, manteniendo la resolución nativa del vídeo fuente (1928×1072, antes 1920×1080) y una duración de ~5s a 24fps. Tamaño final 573 KB (antes 708 KB).
+
+**Por qué:** petición del usuario de reemplazar el personaje de esa sección concreta por una pieza de vídeo nueva, sin tocar el resto del banner ni otras apariciones del personaje en el sitio (no las hay: `personaje1.webm` solo se usa en `bottom-panel.js`).
+
+**Afecta:** `public/imgs/personaje1.webm` (reemplazado; mismo nombre de archivo, mismo punto de referencia, sin cambios en `src/bottom-panel.js`).
+
+**Verificado en local:** servidor de dev de Vite; forzada la aparición del banner de cookies (`initBottomPanel()`) y confirmado por lectura de píxeles vía `<canvas>`/`getImageData` que el vídeo se decodifica con canal alpha real en el navegador (~71% de los píxeles muestreados con alpha < 10, consistente con fondo transparente alrededor del personaje). No se pudo tomar captura de pantalla porque el panel de vista previa no estaba visible en esta sesión.
