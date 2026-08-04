@@ -316,3 +316,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; en `diseno-de-marca.html`, `chlh-pin` presente con el título correcto y los 5 `<video>` (incluido `design-hover-8.webm`) cargando correctamente tras el merge.
+
+---
+
+## 2026-08-04 — CTA a Behance en Casos de éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó visualmente el contador "Mostrando X de Y casos" (justo debajo de los filtros) por una barra ancha y llamativa (`bg-[#4889eb]`, el azul de marca ya usado en los filter-pills activos) que invita a ver más proyectos en Behance (`https://www.behance.net/immoralgroup`, `target="_blank"`), con el icono de Behance (reutilizado de `src/footer.js`) y una flecha animada al hover. El contador original se mantiene en el DOM como `sr-only` (visualmente oculto, accesible para lectores de pantalla) en vez de eliminarse, para no romper `initCasosFilter()` en `src/main.js` (que sigue escribiendo el texto ahí) y conservar esa información para accesibilidad.
+
+**Por qué:** petición explícita del usuario para añadir un CTA a Behance justo en el hueco visual donde antes estaba el contador.
+
+**Afecta:** `casos-de-exito.html` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; enlace con `href`/`target="_blank"`/`rel="noopener noreferrer"` correctos; contador sigue actualizándose (`sr-only`) al aplicar un filtro (`Mostrando 8 de 19 casos`); sin errores de consola.
