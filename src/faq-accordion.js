@@ -15,11 +15,13 @@ export function initFAQAccordion() {
                 content.style.maxHeight = null;
                 content.classList.add('opacity-0');
                 icon.classList.remove('rotate-180');
+                header.setAttribute('aria-expanded', 'false');
             } else {
                 // Open
                 content.style.maxHeight = content.scrollHeight + "px";
                 content.classList.remove('opacity-0');
                 icon.classList.add('rotate-180');
+                header.setAttribute('aria-expanded', 'true');
             }
         });
     });

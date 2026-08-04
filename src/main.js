@@ -5,6 +5,7 @@ import { initFAQAccordion } from './faq-accordion.js';
 import { initFooter } from './footer.js';
 import { renderTeamMembers } from './team.js';
 import { renderJobOpenings } from './jobOpenings.js';
+import { renderPartnerLogos } from './partnerLogos.js';
 import { initHablemosHover } from './hablemos-hover.js';
 import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
@@ -470,141 +471,57 @@ function initJobOpenings() {
     renderJobOpenings(grid);
 }
 
-// --- 8. PORTFOLIO CAROUSEL (Fixed Drag & Touch) ---
-function initPortfolioCarousel() {
-    const container = document.querySelector('.portfolio-carousel-container');
-    const track = document.querySelector('.portfolio-carousel-track');
-    const prevBtn = document.querySelector('.portfolio-nav-prev');
-    const nextBtn = document.querySelector('.portfolio-nav-next');
-    const cards = document.querySelectorAll('.portfolio-card');
+// --- 7.6. BARRA DE LOGOS DE PARTNERS/HERRAMIENTAS (index.html) ---
+function initPartnerLogos() {
+    const track = document.getElementById('partner-logos-track');
+    if (!track) return;
+    renderPartnerLogos(track);
+}
 
-    if (!container || !track || cards.length === 0) return;
+// --- 8. CASOS DE ÉXITO GRID FILTER ---
+function initCasosFilter() {
+    const grid = document.getElementById('casos-grid');
+    const filters = document.getElementById('casos-filters');
+    const cards = document.querySelectorAll('.case-card');
+    const countLabel = document.getElementById('casos-count');
+    const emptyState = document.getElementById('casos-empty');
 
-    let currentTranslateX = 0;
-    let isDragging = false;
-    let startX = 0;
-    let currentX = 0;
-    let initialTransform = 0;
-    let maxTranslateX = 0;
-    let minTranslateX = 0;
-    let dragThreshold = 5;
-    let hasDragged = false;
+    if (!grid || !filters || cards.length === 0) return;
 
-    function updateDimensions() {
-        const containerWidth = container.offsetWidth;
-        const trackWidth = track.scrollWidth;
-        maxTranslateX = 0;
-        minTranslateX = trackWidth > containerWidth ? containerWidth - trackWidth : 0;
-        // Ensure we stay within bounds on resize
-        currentTranslateX = Math.max(minTranslateX, Math.min(maxTranslateX, currentTranslateX));
-        track.style.transform = `translateX(${currentTranslateX}px)`;
-    }
+    const activeFilters = { sector: 'todos', resultado: 'todos' };
 
-    // --- MOUSE EVENTS ---
-    track.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        hasDragged = false;
-        startX = e.clientX;
-        initialTransform = currentTranslateX;
-        track.style.cursor = 'grabbing';
-        track.style.transition = 'none';
-        e.preventDefault();
-    });
+    function applyFilters() {
+        let visibleCount = 0;
 
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const deltaX = e.clientX - startX;
-        if (Math.abs(deltaX) > dragThreshold) hasDragged = true;
+        cards.forEach(card => {
+            const matchesSector = activeFilters.sector === 'todos' || card.dataset.sector === activeFilters.sector;
+            const matchesResultado = activeFilters.resultado === 'todos' || card.dataset.resultado === activeFilters.resultado;
+            const isVisible = matchesSector && matchesResultado;
 
-        // Update currentTranslateX continuously
-        let newTransform = initialTransform + deltaX;
-
-        // Add resistance at edges
-        if (newTransform > maxTranslateX) newTransform = maxTranslateX + (newTransform - maxTranslateX) * 0.3;
-        if (newTransform < minTranslateX) newTransform = minTranslateX + (newTransform - minTranslateX) * 0.3;
-
-        currentTranslateX = newTransform; // Store the new position
-        track.style.transform = `translateX(${currentTranslateX}px)`;
-    });
-
-    window.addEventListener('mouseup', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        track.style.cursor = 'grab';
-        track.style.transition = 'transform 0.3s ease-out';
-
-        // Snap back to bounds if overscrolled
-        currentTranslateX = Math.max(minTranslateX, Math.min(maxTranslateX, currentTranslateX));
-        track.style.transform = `translateX(${currentTranslateX}px)`;
-
-        setTimeout(() => { hasDragged = false; }, 50);
-    });
-
-    // --- TOUCH EVENTS (Mobile Support) ---
-    track.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        hasDragged = false;
-        startX = e.touches[0].clientX;
-        initialTransform = currentTranslateX;
-        track.style.transition = 'none';
-    }, { passive: true });
-
-    window.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const deltaX = e.touches[0].clientX - startX;
-        if (Math.abs(deltaX) > dragThreshold) hasDragged = true;
-
-        let newTransform = initialTransform + deltaX;
-        if (newTransform > maxTranslateX) newTransform = maxTranslateX + (newTransform - maxTranslateX) * 0.3;
-        if (newTransform < minTranslateX) newTransform = minTranslateX + (newTransform - minTranslateX) * 0.3;
-
-        currentTranslateX = newTransform;
-        track.style.transform = `translateX(${currentTranslateX}px)`;
-    }, { passive: false });
-
-    window.addEventListener('touchend', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        track.style.transition = 'transform 0.3s ease-out';
-        currentTranslateX = Math.max(minTranslateX, Math.min(maxTranslateX, currentTranslateX));
-        track.style.transform = `translateX(${currentTranslateX}px)`;
-        setTimeout(() => { hasDragged = false; }, 50);
-    });
-
-    // Prevent link clicks if dragged
-    const links = track.querySelectorAll('a');
-    links.forEach(link => {
-        link.addEventListener('click', (e) => {
-            if (hasDragged) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        }, true);
-    });
-
-    // Buttons
-    if (prevBtn) {
-        const newPrev = prevBtn.cloneNode(true);
-        prevBtn.parentNode.replaceChild(newPrev, prevBtn);
-        newPrev.addEventListener('click', () => {
-            currentTranslateX = Math.min(maxTranslateX, currentTranslateX + container.offsetWidth * 0.8);
-            track.style.transition = 'transform 0.3s ease-out';
-            track.style.transform = `translateX(${currentTranslateX}px)`;
+            card.classList.toggle('hidden', !isVisible);
+            if (isVisible) visibleCount++;
         });
-    }
-    if (nextBtn) {
-        const newNext = nextBtn.cloneNode(true);
-        nextBtn.parentNode.replaceChild(newNext, nextBtn);
-        newNext.addEventListener('click', () => {
-            currentTranslateX = Math.max(minTranslateX, currentTranslateX - container.offsetWidth * 0.8);
-            track.style.transition = 'transform 0.3s ease-out';
-            track.style.transform = `translateX(${currentTranslateX}px)`;
-        });
+
+        countLabel.textContent = `Mostrando ${visibleCount} de ${cards.length} casos`;
+        emptyState.classList.toggle('hidden', visibleCount !== 0);
     }
 
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
+    filters.addEventListener('click', (e) => {
+        const pill = e.target.closest('.filter-pill');
+        if (!pill) return;
+
+        const group = pill.dataset.filterGroup;
+        const value = pill.dataset.filterValue;
+        activeFilters[group] = value;
+
+        filters.querySelectorAll(`.filter-pill[data-filter-group="${group}"]`).forEach(btn => {
+            btn.classList.toggle('is-active', btn === pill);
+        });
+
+        applyFilters();
+    });
+
+    applyFilters();
 }
 
 // --- 9. TESTIMONIALS CAROUSEL ---
@@ -1811,7 +1728,8 @@ function initAll() {
     initCarousel();
     initTeamCarousel();
     initJobOpenings();
-    initPortfolioCarousel();
+    initPartnerLogos();
+    initCasosFilter();
     initTestimonialsCarousel();
     initStackingCards();
     setupServiceEvents();
