@@ -412,3 +412,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; el vídeo de fondo (`nt-bg-2.mp4`) carga correctamente (`readyState: 4`, 1920x1080) tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-04 — Segunda resolución del PR #19 (el PR #18 se mergeó en el intermedio)
+
+**Qué:** justo después de resolver el conflicto anterior del PR #19, el usuario mergeó el PR #18 a `main` — mismo patrón ya visto con el PR #16. Se repitió el proceso: mergear `origin/main` (ya con el PR #18 dentro) en la rama `feature/editar-equipo-grid`. Dos bloques de conflicto, ambos puramente aditivos en `.claude/TASK-LOG.md` (las entradas propias de este PR + su resolución anterior, vs. la entrada del PR #18 + su resolución). Se conservaron todas, en orden cronológico.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #19 tras resolver su (segundo) conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado que la edición de equipo + grid + botón de archivo (este PR) y el vídeo de "Historia Fundador" (PR #18) coexisten sin pisarse tras el merge.
