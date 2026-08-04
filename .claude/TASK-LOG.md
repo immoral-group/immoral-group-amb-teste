@@ -168,3 +168,17 @@ Formato de cada entrada: fecha, qué se hizo, por qué, ficheros/áreas afectada
 **Afecta:** `src/main.js`, `.claude/TASK-LOG.md`.
 
 **Verificado en local:** `npm run build` sin errores; confirmado en navegador que la barra de logos de la home ya carga los 22 logos reales desde Supabase (el usuario ya había ejecutado las migraciones `0006`/`0007` fuera de esta sesión) con el tamaño de Meta/ActiveCampaign corregido; grid de casos de éxito (`19 de 19`) y `/logos` (panel admin) sin errores de consola tras el merge.
+
+---
+
+## 2026-08-03 — Resuelto conflicto de merge en el PR #16 (fondos/vídeos de Diseño de Marca)
+
+**Qué:** la rama `actualizacion-fondo-videos-servicios` (PR #16, de Angie) se creó antes de la reescritura de la sección "Cómo lo hacemos" (PR #15, todavía sin mergear a `main` en el momento de esta resolución) y solo toca la sección de tarjetas "¿Qué podemos hacer por ti?" — una parte distinta de `diseno-de-marca.html`. El único conflicto real fue, de nuevo, puramente aditivo en `.claude/TASK-LOG.md`. El acordeón viejo de "Cómo lo hacemos" sigue presente en el resultado de este merge porque el PR #15 aún no está mergeado a `main` — no es una regresión de este PR ni contenido perdido, es el estado real y esperado de `main` en este momento. Se verificaron explícitamente los 4 cambios propios del PR #16 tras el merge (opacidad de Motion Design y del ítem 6, vídeo+blur+zoom del ítem 8 "Diseño web y UX/UI", blur del ítem 9) y todos están intactos.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #16 tras resolver su conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Nota de orden de merge:** los PR #15 y #16 tocan `diseno-de-marca.html` en secciones distintas y no colisionan entre sí, pero cada uno se resolvió por separado contra el `main` vigente en ese momento. El que se mergee primero no tendrá problema; el que se mergee después probablemente vuelva a mostrar "Merge conflicts" en GitHub (mismo patrón ya visto con los PR #8/#11/#12/#14) y necesitará una nueva pasada de resolución — es esperable, no un error.
+
+**Verificado en local:** `npm run build` sin errores; los 5 `<video>` de `diseno-de-marca.html` cargan correctamente (`readyState: 4`), incluido `design-hover-8.webm` con el nuevo blur y zoom.
