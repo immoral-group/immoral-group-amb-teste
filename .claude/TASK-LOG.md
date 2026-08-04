@@ -304,3 +304,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; `publicidad-en-medios.html` y `diseno-de-marca.html` cargando la sección scroll nueva correctamente (badge, título y pills presentes; el acordeón viejo `.accord-panel` ya no existe en el DOM); sin errores de consola.
+
+---
+
+## 2026-08-03 — Segunda resolución del PR #16 (el PR #15 se mergeó a `main` en el intermedio)
+
+**Qué:** justo después de resolver el conflicto del PR #16 contra `main`, el usuario mergeó el PR #15 a `main` — tal como se anticipó en la nota de la resolución anterior, el PR #16 volvió a mostrar "Merge conflicts" en GitHub. Se repitió el proceso: mergear `origin/main` (ya con el PR #15 dentro) en la rama `actualizacion-fondo-videos-servicios`. Único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md`. Esta vez sí se pudo verificar en `diseno-de-marca.html` que ambos cambios coexisten correctamente: la sección scroll nueva del PR #15 (`chlh-pin` presente, acordeón viejo ausente) y los 5 vídeos de hover del PR #16 (incluido `design-hover-8.webm` con blur y zoom), sin que ninguno de los dos se pisara.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #16 tras resolver su (segundo) conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; en `diseno-de-marca.html`, `chlh-pin` presente con el título correcto y los 5 `<video>` (incluido `design-hover-8.webm`) cargando correctamente tras el merge.
