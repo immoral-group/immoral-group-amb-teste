@@ -439,3 +439,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; confirmado que la edición de equipo + grid + botón de archivo (este PR) y el vídeo de "Historia Fundador" (PR #18) coexisten sin pisarse tras el merge.
+
+---
+
+## 2026-08-04 — Resuelto conflicto de merge en el PR #20 (reducir celeste + liquid glass)
+
+**Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR vs. las entradas de `main` a través de la resolución del PR #19). Se conservaron todas, en orden cronológico. Ningún otro fichero tuvo conflicto real — este PR no toca ninguno de los ficheros modificados por los PR #18/#19 (`nuestra-historia.html` sí lo comparte con el #18, pero en zonas distintas del archivo: el vídeo de fondo por un lado, las cajas de texto y el efecto liquid glass por otro).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #20.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado en navegador que el efecto `.liquid-glass` sigue aplicado (`backdrop-filter` con la distorsión SVG) en `/nuestra-historia` tras el merge; sin errores de consola en `/nuestra-historia` ni `/equipo`; confirmado que el botón celeste de navegación/footer (fuera del alcance de este PR) sigue intacto.
