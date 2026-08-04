@@ -11,6 +11,7 @@ import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
+import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -1714,70 +1715,6 @@ function initServicesCarousel() {
     wrapper.style.cursor = 'grab';
 }
 
-// --- DESIGN PAGE ACCORDION ---
-function initDesignAccordion() {
-    const allPanels = document.querySelectorAll('.accord-panel');
-    if (allPanels.length === 0) return;
-
-    window.toggleAccordion = function (element, index) {
-        // 1. First, immediately hide ALL expanded content (no transition)
-        allPanels.forEach(panel => {
-            panel.querySelectorAll('.expanded-content').forEach(content => {
-                content.classList.add('opacity-0');
-                content.classList.remove('opacity-100');
-            });
-        });
-
-        // 2. Then start the panel width/flex transitions
-        allPanels.forEach(panel => {
-            panel.classList.remove('active', 'flex-grow-[6]', 'md:w-[64%]');
-            panel.classList.add('flex-grow', 'md:w-[12%]');
-
-            const collapsed = panel.querySelector('.collapsed-content');
-            if (collapsed) {
-                collapsed.classList.remove('opacity-0');
-                collapsed.classList.add('opacity-100');
-            }
-        });
-
-        // Activate clicked panel
-        element.classList.remove('flex-grow', 'md:w-[12%]');
-        element.classList.add('active', 'flex-grow-[6]', 'md:w-[64%]');
-
-        // Hide collapsed content of active panel
-        const collapsed = element.querySelector('.collapsed-content');
-        if (collapsed) {
-            collapsed.classList.remove('opacity-100');
-            collapsed.classList.add('opacity-0');
-        }
-
-        // 3. Add hidden to collapsed panels' content after fade out
-        setTimeout(() => {
-            allPanels.forEach(panel => {
-                if (panel !== element) {
-                    panel.querySelectorAll('.expanded-content').forEach(content => {
-                        content.classList.add('hidden');
-                    });
-                }
-            });
-        }, 300);
-
-        // 4. Wait for panel to expand, THEN show expanded content
-        setTimeout(() => {
-            element.querySelectorAll('.expanded-content').forEach(content => {
-                content.classList.remove('hidden');
-                requestAnimationFrame(() => {
-                    content.classList.remove('opacity-0');
-                    content.classList.add('opacity-100');
-                });
-            });
-        }, 400);
-    };
-
-    const firstItem = document.querySelector('.accord-panel');
-    if (firstItem) window.toggleAccordion(firstItem, 1);
-}
-
 // --- INICIALIZACIÓN GLOBAL ---
 function initAll() {
     if ('scrollRestoration' in history) {
@@ -1814,7 +1751,7 @@ function initAll() {
     initEmailHero();
     initServicesCarousel();
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
-    initDesignAccordion();
+    try { initComoLoHacemosScroll(); } catch (e) { console.error("Error in initComoLoHacemosScroll:", e); }
 
     // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,
     // solo falla esta promesa — no tumba el resto de main.js como pasaba antes.
