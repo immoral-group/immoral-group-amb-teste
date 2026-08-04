@@ -340,3 +340,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `casos-de-exito.html` únicamente.
 
 **Verificado en local:** `npm run build` sin errores; el logo carga correctamente (`naturalWidth: 300`, sin 404); sin errores de consola.
+
+---
+
+## 2026-08-04 — Ancho del CTA de Behance ajustado al contenido
+
+**Qué:** la barra CTA de `casos-de-exito.html` ocupaba todo el ancho de la sección (`w-full`); se cambió a `inline-flex` (ancho ajustado al contenido, ~526px en vez de ~1217px) para que se vea como una pastilla compacta en vez de una barra que estira todo el layout.
+
+**Por qué:** feedback visual explícito del usuario con una captura de referencia.
+
+**Afecta:** `casos-de-exito.html` únicamente.
+
+**Verificado en local:** `npm run build` sin errores; ancho del enlace confirmado en ~526px; sin errores de consola.
