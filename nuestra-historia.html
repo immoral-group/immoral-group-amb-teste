@@ -31,6 +31,15 @@
 </head>
 
 <body class="bg-white overflow-visible">
+    <!-- Filtro SVG para el efecto Liquid Glass (ver .liquid-glass en src/style.css) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <filter id="liquid-glass-distortion" x="-30%" y="-30%" width="160%" height="160%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
     <!-- Fondo Animado -->
     <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-black">
         <!-- Orbe 1: Cyan (#a7fffc) - Arriba Derecha -->
@@ -398,8 +407,8 @@
                 <!-- Tarjeta Bicolor -->
                 <div class="rounded-lg overflow-hidden shadow-2xl relative z-10 mt-64">
 
-                    <!-- Parte Azul -->
-                    <div class="bg-[#3B82F6] py-10 pl-0 xl:pl-8 text-white">
+                    <!-- Parte Superior -->
+                    <div class="bg-gray-200 py-10 pl-0 xl:pl-8 text-black">
                         <p
                             class="hidden xl:block reveal-lines text-lg md:text-xl font-light leading-relaxed opacity-90">
                             Marco, nuestro fundador, venía de trabajar con
@@ -539,10 +548,10 @@
                 </div>
             </div>
 
-            <!-- Recuadro Azul (Centrado abajo) -->
-            <div class="md:-mt-32 max-w-3xl mx-auto px-6 relative z-20">
+            <!-- Recuadro Liquid Glass (Centrado abajo) -->
+            <div class="md:-mt-32 max-w-3xl mx-auto relative z-20">
                 <div
-                    class="bg-[#3B82F6] text-white p-8 md:p-12 rounded-2xl shadow-xl text-center relative overflow-hidden">
+                    class="liquid-glass text-white p-8 md:p-12 rounded-2xl text-center hover:scale-[1.03] cursor-pointer">
                     <p class="hidden xl:block reveal-lines text-lg md:text-xl font-light leading-relaxed">
                         Al principio nos llamamos ADMK Team. Lo dimos todo.
                     </p>
@@ -562,7 +571,7 @@
                         <p class="reveal-lines text-lg md:text-xl opacity-90">
                             el nombre, la marca, el discurso…
                         </p>
-                        <p class="text-3xl md:text-4xl font-black pt-2 tracking-tight">
+                        <p class="inline-block pt-2 text-3xl md:text-4xl font-black tracking-tight text-blue-400">
                             No éramos nosotros.
                         </p>
                     </div>

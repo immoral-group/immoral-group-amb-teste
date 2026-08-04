@@ -319,6 +319,21 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 
 ---
 
+## 2026-08-04 — Reducir el celeste de marca en Nuestra Historia, Equipo y Casos de Éxito + efecto Liquid Glass
+
+**Qué:** dos cambios sobre la rama `reducir-celeste-en-la-web`:
+
+1. **Reemplazo del celeste (`#3B82F6`/`#4889eb`/`bg-blue-500`) en tres puntos del sitio**, a petición de Angie: en `nuestra-historia.html` las dos cajas (cita de Marco y "No éramos nosotros") pasan de fondo celeste a gris claro con texto negro; en `equipo.html` la sección "¿No ves tu rol?" pasa de celeste a fondo blanco/texto negro con el botón invertido a negro/blanco para mantener contraste; y en las **19 páginas `caso-*.html`** la franja "Reto" pasa de `bg-blue-500` a `bg-black` (el texto ya era blanco). El botón celeste de navegación/footer (color de marca del sitio) se dejó intacto — no era parte de lo pedido.
+2. **Efecto "Liquid Glass"** en la caja "No éramos nosotros" (`nuestra-historia.html`) y en las cards de "Ofertas activas" (`equipo.html`/`src/jobOpenings.js`): se probó primero con backdrop-filter + distorsión SVG (rechazado por plano), después con la librería WebGL real `@ybouane/liquidglass` (refracción/aberración cromática/especular reales vía shaders) — se abandonó tras encontrar dos bugs de la librería: su `postinstall` requería `patch-package` sin declararlo como dependencia (rompía `npm install` para cualquiera; se probó añadiéndolo como devDependency, funcionaba, pero el segundo bug hizo descartar la librería del todo) y, más grave, la captura del fondo (`html-to-image`) devolvía un panel sólido blanco sin lanzar error ni warning, y re-inicializar el efecto (necesario por la navegación tipo SPA de este sitio, ver `updateDOM`/`initAll` en `src/main.js`) colgaba la promesa indefinidamente. Se revirtió la dependencia por completo y se reconstruyó el efecto en CSS puro (clase `.liquid-glass` en `src/style.css`): `backdrop-filter` con blur+saturate+brightness, el mismo filtro SVG `feDisplacementMap` pero más marcado, aberración cromática falsa (doble borde rojo/cian desenfocado vía `::before`) y brillo especular diagonal (`::after` con `mix-blend-mode: overlay`). El hover de "crecer" se movió del texto "No éramos nosotros" (que ya no lo tiene) a la caja completa (`hover:scale-[1.03]` en el panel, `hover:scale-105` en las cards de ofertas).
+
+**Por qué:** petición explícita del usuario para reducir el uso del celeste de marca en esas tres zonas y para que el efecto de vidrio se viera más realista que un backdrop-blur plano.
+
+**Afecta:** `nuestra-historia.html`, `equipo.html`, `src/jobOpenings.js`, `src/style.css`, las 19 páginas `caso-*.html` (franja "Reto"). `package.json`/`package-lock.json` sin cambios netos (se instaló y desinstaló `@ybouane/liquidglass` + `patch-package` en el proceso).
+
+**Verificado en local:** sin errores de consola en `/nuestra-historia` y `/equipo` tras cada cambio; confirmado por `getComputedStyle` que el `backdrop-filter` incluye el filtro SVG de distorsión (`url("#liquid-glass-distortion")`) y que la regla `.liquid-glass:hover` está registrada en la hoja de estilos. No se pudo verificar visualmente el estado `:hover` en este entorno (el panel del navegador de la sesión no renderiza capturas) — pendiente de confirmación visual del usuario en su propio navegador.
+
+---
+
 ## 2026-08-04 — Edición in-place de personas del equipo + vista en grid
 
 **Qué:** dos cambios en `/admin` (panel de Equipo): (1) el listado de cada fila pasó de lista vertical (`space-y-2`) a grid de tarjetas (`grid-cols-2 sm:grid-cols-3 xl:grid-cols-5`, foto cuadrada arriba); (2) se añadió un botón "Editar" por tarjeta que abre un modal (nombre, cargo, fila, foto opcional — se conserva la actual si no se sube una nueva) y guarda con `UPDATE` sobre `team_members` en vez de forzar borrar-y-recrear. Si se cambia la fila desde el modal, la posición se recalcula al final de la nueva fila (misma lógica que al añadir); si la fila no cambia, la posición actual se conserva. Al reemplazar la foto, se sube la nueva a Storage y se borra la anterior solo tras confirmar el `UPDATE`.
@@ -424,3 +439,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; confirmado que la edición de equipo + grid + botón de archivo (este PR) y el vídeo de "Historia Fundador" (PR #18) coexisten sin pisarse tras el merge.
+
+---
+
+## 2026-08-04 — Resuelto conflicto de merge en el PR #20 (reducir celeste + liquid glass)
+
+**Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR vs. las entradas de `main` a través de la resolución del PR #19). Se conservaron todas, en orden cronológico. Ningún otro fichero tuvo conflicto real — este PR no toca ninguno de los ficheros modificados por los PR #18/#19 (`nuestra-historia.html` sí lo comparte con el #18, pero en zonas distintas del archivo: el vídeo de fondo por un lado, las cajas de texto y el efecto liquid glass por otro).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #20.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado en navegador que el efecto `.liquid-glass` sigue aplicado (`backdrop-filter` con la distorsión SVG) en `/nuestra-historia` tras el merge; sin errores de consola en `/nuestra-historia` ni `/equipo`; confirmado que el botón celeste de navegación/footer (fuera del alcance de este PR) sigue intacto.
