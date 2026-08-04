@@ -1,13 +1,15 @@
 import { Resend } from 'resend';
 
-// NOTE: Ideally this should be in process.env.RESEND_API_KEY
-// Placing here as requested by user for this environment
-const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_Vwjcr5k6_CPrfGoE3T3piRnhKUFhJ7daE';
-const resend = new Resend(RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY no está configurada en las variables de entorno');
+    return res.status(500).json({ success: false, message: 'Servicio de email no configurado' });
   }
 
   const { nombre, email, mensaje } = req.body;
