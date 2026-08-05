@@ -911,3 +911,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md`, `src/main.js`, `src/style.css` (los tres con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores (sin errores de sintaxis CSS). Confirmado en navegador: el cursor personalizado sigue al ratón, oculta el nativo (`cursor: none`) y activa `is-hover` correctamente al pasar sobre un enlace; `/publicidad-en-medios.html` sigue renderizando las 4 tarjetas del carrusel con sus estilos (`background-color: rgb(10, 10, 10)` en `.platform-card-inner`) intactos; `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D. Las tres funcionalidades, que tocan `main.js` y/o `style.css` desde PRs distintos, coexisten tras el merge. Sin errores de consola nuevos (los mensajes de fallo de HMR de `style.css` vistos durante la resolución eran residuales del estado a medio editar, no del resultado final — confirmado por navegación forzada tras terminar).
+
+---
+
+## 2026-08-05 — Fix: cursor invisible en el dashboard interno
+
+**Qué:** la regla `cursor: none !important` que oculta el cursor nativo para el cursor personalizado (PR #26) vive en `src/style.css`, importado por **todas** las páginas — también `admin.js`, `ofertas.js`, `logosAdmin.js`, `roles.js` y `casosAdmin.js`, ninguna de las cuales llama a `initCustomCursor()` (eso solo pasa en `src/main.js`, el entrypoint del sitio público). Resultado: en todo el dashboard interno el cursor nativo se ocultaba sin que existiera ningún círculo que lo sustituyera — el ratón quedaba invisible. Se acotó la regla con `:has()` para que solo aplique cuando `.custom-cursor` existe de verdad en la página (`html:has(.custom-cursor) *`), en vez de tocar cada entrypoint del dashboard para excluirlo uno a uno.
+
+**Por qué:** reporte del usuario ("no se ve el mouse dentro del dashboard").
+
+**Afecta:** `src/style.css` únicamente.
+
+**Verificado en local:** `npm run build` sin errores. En `/admin.html` (dashboard), `getComputedStyle(document.body).cursor` devuelve `auto` y no existe ningún `.custom-cursor` en el DOM — cursor nativo visible. En `/index.html` (sitio público), `cursor` devuelve `none` y `.custom-cursor` sí existe — el efecto se mantiene intacto donde corresponde. Sin errores de consola nuevos.
