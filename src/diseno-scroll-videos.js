@@ -41,33 +41,42 @@ const CLIPS = [
 // vertical no gana nada con repetirlos y evita 14 vídeos decodificando a la vez.
 const MOBILE_COUNT = CLIPS.length;
 
-// Una entrada por instancia: ancho (vw), dirección de salida (fracción del
-// viewport) y rotación. El nº de instancias = longitud de este array.
+// Una entrada por instancia: ancho (vw), orientación, dirección de salida
+// (fracción del viewport) y rotación. El nº de instancias = longitud del array.
+//
+// Los 5 clips son 1920x1080 (horizontales); las instancias marcadas como
+// `portrait` los encajan en un contenedor 9:16 y el object-cover del <video>
+// recorta los lados. Sus anchos son mucho menores que los horizontales porque
+// la altura crece con el ancho (9:16 -> alto = ancho * 16/9): a 22vw en un
+// viewport 1280x720 ya ocupa ~70vh de alto.
 const ITEMS = [
-    { width: 34, dx: -0.95, dy: -0.55, rotate: -6 },
-    { width: 27, dx: 0.95, dy: -0.6, rotate: 7 },
-    { width: 30, dx: -0.9, dy: 0.65, rotate: 4 },
-    { width: 25, dx: 0.9, dy: 0.55, rotate: -5 },
-    { width: 38, dx: 0.35, dy: -0.9, rotate: -4 },
-    { width: 32, dx: -0.5, dy: -0.95, rotate: 8 },
-    { width: 26, dx: 0.55, dy: 0.9, rotate: -7 },
-    { width: 31, dx: -0.95, dy: 0.15, rotate: -3 },
-    { width: 24, dx: 0.9, dy: -0.2, rotate: 5 },
-    { width: 29, dx: 0.15, dy: 0.95, rotate: 2 },
-    { width: 36, dx: -0.7, dy: -0.8, rotate: 6 },
-    { width: 23, dx: 0.75, dy: 0.75, rotate: -8 },
-    { width: 33, dx: -0.25, dy: 0.95, rotate: 3 },
-    { width: 28, dx: 0.95, dy: -0.85, rotate: -2 },
+    { width: 44, dx: -0.95, dy: -0.55, rotate: -6 },
+    { width: 21, portrait: true, dx: 0.95, dy: -0.6, rotate: 7 },
+    { width: 38, dx: -0.9, dy: 0.65, rotate: 4 },
+    { width: 32, dx: 0.9, dy: 0.55, rotate: -5 },
+    { width: 50, dx: 0.35, dy: -0.9, rotate: -4 },
+    { width: 23, portrait: true, dx: -0.5, dy: -0.95, rotate: 8 },
+    { width: 34, dx: 0.55, dy: 0.9, rotate: -7 },
+    { width: 18, portrait: true, dx: -0.95, dy: 0.15, rotate: -3 },
+    { width: 40, dx: 0.9, dy: -0.2, rotate: 5 },
+    { width: 24, portrait: true, dx: 0.15, dy: 0.95, rotate: 2 },
+    { width: 47, dx: -0.7, dy: -0.8, rotate: 6 },
+    { width: 19, portrait: true, dx: 0.75, dy: 0.75, rotate: -8 },
+    { width: 42, dx: -0.25, dy: 0.95, rotate: 3 },
+    { width: 36, dx: 0.95, dy: -0.85, rotate: -2 },
 ];
 
 function buildItems(stage) {
     const frag = document.createDocumentFragment();
     const created = [];
 
-    ITEMS.forEach((_, i) => {
+    ITEMS.forEach((data, i) => {
         const wrapper = document.createElement('div');
-        wrapper.className =
-            'dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl';
+        // Las dos variantes se escriben como cadenas literales completas para
+        // que el JIT de Tailwind las detecte al escanear este fichero.
+        wrapper.className = data.portrait
+            ? 'dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl'
+            : 'dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl';
 
         const video = document.createElement('video');
         video.className = 'w-full h-full object-cover';

@@ -499,3 +499,15 @@ Los 5 vídeos fuente (`public/page-diseno/*.mp4`, aportados por el usuario, ~126
 **Afecta:** `src/diseno-scroll-videos.js`, `diseno-de-marca.html` (los 10 bloques `.dsv-item` se sustituyen por un `#dsv-stage` vacío con un comentario que apunta al módulo).
 
 **Verificado en local:** `npm run build` sin errores. En desktop (1280×720): 14 items, recorrido de 2.304px (antes 1.584px), entre el 20% y el 80% del scroll hay siempre **3-4 vídeos en pantalla** (antes 2-3) y al 100% los 14 han salido del viewport. Confirmado el gradiente de profundidad a mitad de vuelo (el más cercano ocupa el 31% del ancho del viewport, el más lejano el 4%), que los 14 `<video>` cargan (`readyState: 4`) con **solo 5 URLs únicas**, y que sigue habiendo 2.655px de separación entre el final de esta sección y el inicio de "Cómo lo hacemos" (sin regresión del solapamiento). En mobile (375px): 14 items en el DOM pero solo 5 visibles, sin pin, sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+---
+
+## 2026-08-05 — Vídeos aún más grandes y mezcla de formato vertical en la galería 3D
+
+**Qué:** dos ajustes más sobre la galería, pedidos por el usuario: (1) **tamaños subidos otra vez** — los horizontales pasan de 23-38vw a 32-50vw; (2) **mezcla de orientaciones** — 5 de las 14 instancias pasan a formato vertical (contenedor `aspect-[9/16]` en vez de `aspect-video`), quedando 9 horizontales + 5 verticales. Los 5 clips fuente son 1920×1080 (horizontales), así que en las instancias verticales el `object-cover` del `<video>` recorta los lados — no hace falta material nuevo. Las entradas verticales llevan anchos mucho menores (18-24vw) porque en 9:16 la altura crece con el ancho: a 22vw en un viewport de 1280×720 ya ocupa ~70vh de alto.
+
+**Por qué:** feedback explícito del usuario ("que sean más grandes aún y que algunos vídeos tengan formato vertical").
+
+**Afecta:** `src/diseno-scroll-videos.js` únicamente (nuevo flag `portrait` por entrada del array `ITEMS`; las dos variantes de `className` se escriben como cadenas literales completas para que el JIT de Tailwind las detecte al escanear el módulo — `src/**/*.js` ya está en el `content` de `tailwind.config.js`).
+
+**Verificado en local:** `npm run build` sin errores y `.aspect-\[9\/16\]` presente en el CSS compilado (confirmado que Tailwind genera la clase desde el JS). En desktop (1280×720): 14 items con exactamente dos ratios distintos — 1.78 (16:9) en 9 items y 0.56 (9:16) en 5 —, tamaño máximo en pantalla del 52% del ancho del viewport a un 20% del scroll (antes 31%) y hasta un 127% del ancho / 151% del alto al pasar junto a la cámara justo antes de salir (efecto buscado, recortado por el `overflow-hidden` de la sección); al 100% del scroll los 14 siguen saliendo del viewport. En mobile (375px): 5 items visibles, uno de ellos vertical (523px de alto en un viewport de 812px), sin overflow horizontal. Sin errores de consola en ninguno de los dos.
