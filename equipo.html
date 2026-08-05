@@ -30,6 +30,15 @@
 </head>
 
 <body class="bg-black overflow-visible">
+    <!-- Filtro SVG para el efecto Liquid Glass (ver .liquid-glass en src/style.css) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <filter id="liquid-glass-distortion" x="-30%" y="-30%" width="160%" height="160%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise" />
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
+            </filter>
+        </defs>
+    </svg>
     <!-- Menu oscuro -->
     <nav class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100]">
         <a href="index.html" aria-label="Immoral — ir al inicio">
@@ -408,7 +417,7 @@
         </div>
     </section>
     <!-- Seccion No ves tu rol -->
-    <section class="w-full bg-[#4889eb] py-20 xl:py-32 px-6 text-center text-white">
+    <section class="w-full bg-white py-20 xl:py-32 px-6 text-center text-black">
         <div class="max-w-4xl mx-auto flex flex-col items-center">
             <h2 class="hidden xl:block font-black text-4xl sm:text-5xl xl:text-6xl leading-tight">
                 ¿No ves tu rol, pero sabes
@@ -429,7 +438,7 @@
             </div>
 
             <a href="mailto:rrhh@immoral.marketing"
-                class="inline-block bg-white text-black font-light text-sm sm:text-base py-4 px-10 rounded hover:bg-gray-100 transition-colors duration-300 uppercase tracking-wide">
+                class="inline-block bg-black text-white font-light text-sm sm:text-base py-4 px-10 rounded hover:bg-gray-800 transition-colors duration-300 uppercase tracking-wide">
                 Quiero formar parte
             </a>
         </div>
