@@ -1123,3 +1123,59 @@ html {
         inset 0 -1.5px 1px rgba(0, 0, 0, 0.25),
         0 16px 48px rgba(0, 0, 0, 0.4);
 }
+
+/* Cursor personalizado: círculo blanco en reposo, negro al pasar sobre elementos interactivos */
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: opacity 0.15s ease;
+    will-change: transform;
+}
+
+.custom-cursor.is-hidden {
+    opacity: 0;
+}
+
+.custom-cursor .cc-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #000;
+    transform: translate(-50%, -50%) scale(1);
+    transition:
+        background-color 0.35s ease,
+        border-color 0.35s ease,
+        transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.custom-cursor.is-hover .cc-dot {
+    background: #000;
+    border-color: #fff;
+    transform: translate(-50%, -50%) scale(1.8);
+}
+
+@media (pointer: fine) {
+
+    html,
+    body,
+    *,
+    *::before,
+    *::after {
+        cursor: none !important;
+    }
+}
+
+@media (pointer: coarse) {
+    .custom-cursor {
+        display: none;
+    }
+}

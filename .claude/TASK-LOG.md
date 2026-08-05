@@ -583,3 +583,27 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run dev`; confirmadas visualmente en `/casos-de-exito.html` las 10 tarjetas con sus imágenes nuevas coexistiendo con la barra CTA de Behance (PR #17) tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-05 — Cursor personalizado: círculo blanco/negro con inversión en hover
+
+**Qué:** se añadió un cursor personalizado en todo el sitio (`src/custom-cursor.js`, ~40 líneas): un círculo fijo de 20px que sigue al ratón vía `mousemove`, blanco con borde negro por defecto ("positivo"), y que pasa a negro con borde blanco ("negativo") al pasar por encima de cualquier elemento interactivo (`a, button, input, textarea, select, label, [role="button"], [tabindex], .cursor-pointer`), detectado por delegación de eventos `mouseover`/`mouseout` en `document`. El cursor nativo se oculta (`cursor: none !important` en todos los elementos, con `!important` porque varias interacciones existentes —drag de carruseles— fijan `element.style.cursor` inline) solo en dispositivos con puntero fino (`@media (pointer: fine)`); en touch (`pointer: coarse`) el cursor personalizado no se crea y el nativo permanece intacto. Como la navegación de este sitio reemplaza `document.body.innerHTML` en cada cambio de página (SPA-like, ver `updateDOM`/`initAll` en `src/main.js`), `initCustomCursor()` recrea el elemento del círculo en cada llamada pero solo adjunta los listeners de `window`/`document` una vez (flag de módulo), para no acumular listeners duplicados tras varias navegaciones.
+
+**Por qué:** petición explícita del usuario. Se confirmaron dos decisiones de diseño antes de implementar: el significado de "positivo/negativo" (blanco relleno → negro relleno, no inversión tipo `mix-blend-mode`) y el alcance del hover (solo elementos interactivos, no cualquier elemento de la página).
+
+**Afecta:** `src/custom-cursor.js` (nuevo), `src/main.js` (import + llamada en `initAll()`), `src/style.css` (reglas `.custom-cursor`).
+
+**Verificado en local:** preview con `npm run dev`; confirmado por inspección del DOM que el círculo sigue al cursor (`transform` se actualiza en cada `mousemove`) y que la clase `is-hover` se activa/desactiva correctamente al entrar/salir de un enlace; confirmado visualmente en captura que el círculo se ve blanco sobre fondo negro en reposo y negro con borde blanco al pasar sobre el nav; confirmado que en emulación móvil (`pointer: coarse`) el elemento no se crea y `cursor` del body vuelve a `auto`. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Ajusta tamaño y transición del cursor personalizado
+
+**Qué:** dos ajustes al cursor personalizado (`src/custom-cursor.js`, `src/style.css`) tras feedback visual del usuario: (1) el círculo se redujo de 20px a 12px; (2) la transición plana de color (0.15s linear) se sustituyó por una animación con rebote — se separó el punto visual (`.cc-dot`, un `<span>` interno) del contenedor que sigue la posición del ratón (`.custom-cursor`), para poder animar `transform: scale()` en el punto sin interferir con el `transform: translate()` que el JS actualiza en cada `mousemove`. Al hacer hover, el punto ahora escala a 1.8x con `cubic-bezier(0.34, 1.56, 0.64, 1)` (efecto de rebote/overshoot) en 0.45s, junto con el cambio de color en 0.35s.
+
+**Por qué:** feedback explícito del usuario: el círculo era demasiado grande y la transición positivo→negativo se sentía plana, sin animación.
+
+**Afecta:** `src/custom-cursor.js`, `src/style.css`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por inspección del DOM que la estructura anidada (`.custom-cursor > .cc-dot`) existe y el tamaño en reposo es 12px; confirmado visualmente en captura que el punto crece notablemente con rebote al pasar sobre un enlace del nav. Sin errores de consola nuevos.
