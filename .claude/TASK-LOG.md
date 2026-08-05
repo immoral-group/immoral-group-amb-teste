@@ -902,6 +902,18 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 
 ---
 
+## 2026-08-05 — Actualiza el vídeo de fondo de "Historia Fundador" con la versión más reciente
+
+**Qué:** en `nuestra-historia.html`, se sustituyó `public/imgs/nt-bg-2.mp4` (fondo en vídeo de la sección "Historia Fundador", introducido en la PR #18) por la versión actualizada del mismo vídeo ("GIF Marco.mp4") que el usuario dejó en la carpeta `Nuestra Historia/` del proyecto. Mismo nombre y ruta de archivo, no se tocó el HTML. El nuevo archivo es más ligero (7.6MB vs 10.2MB) y de menor duración (3.97s vs 5.33s).
+
+**Por qué:** petición explícita del usuario tras actualizar el archivo fuente.
+
+**Afecta:** `public/imgs/nt-bg-2.mp4`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `video.readyState`/`videoWidth`/`duration` que el nuevo vídeo carga correctamente (1920x1080, 3.97s, sin 404) en `/nuestra-historia.html`. Sin errores de consola nuevos.
+
+---
+
 ## 2026-08-05 — Resuelto conflicto de merge en el PR #26 (cursor personalizado)
 
 **Qué:** tres conflictos reales: (1) el habitual y aditivo en `.claude/TASK-LOG.md` (las dos entradas de este PR — cursor personalizado y su ajuste de tamaño/transición — vs. las entradas de imágenes de Casos de Éxito y la resolución del PR #25). (2) En `src/main.js`, ambas ramas añadían un `import` nuevo en la misma línea (`initCustomCursor` de este PR vs. `initPlatformCarousel`/`initDisenoScrollVideos` de los PR #21/#24, ya en `main`) — de nuevo imports independientes, no alternativas; se conservaron los tres. (3) En `src/style.css`, el bloque de reglas `.custom-cursor` (este PR) y el bloque `.platform-carousel`/`.platform-card-*` (PR #24) se insertaron ambos al final del fichero en el mismo punto respecto al ancestro común, así que Git los marcó como un único conflicto aunque no se solapan — el bloque de HEAD llegó incompleto en el marcador (le faltaba la llave de cierre de `@media (pointer: coarse)`, que Git había desplazado justo después del separador `=======`); se reconstruyeron ambos bloques completos y balanceados, cursor primero y carrusel después, comprobando las llaves contra la versión original de cada rama.
@@ -964,3 +976,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Verificado en local:** `npm run build` sin errores con `casos-admin` como entrada nueva de Rollup; el `predev`/`prebuild` falla con gracia y sin tocar ningún fichero cuando la tabla `case_studies` aún no existe (confirmado, ya que la migración no se ha corrido todavía). `casos-admin.html` carga correctamente y muestra la vista de login compartida (mismo componente que `/admin`/`/ofertas`). `casos-de-exito.html` y las páginas de detalle existentes siguen intactas (19 tarjetas, 9 pills de filtro) mientras la tabla no exista. La lógica de generación se verificó de forma exhaustiva mediante el arnés de prueba descrito arriba, con diffs prácticamente idénticos (solo diferencias de whitespace/comentarios decorativos y la descripción meta, ver más abajo) contra `caso-nutfruit.html` (caso simple), `caso-travelperk.html` (2 KPIs + 1 testimonio) y `caso-bobo.html` (2 testimonios).
 
 **Limitación aceptada:** la meta description y el `about` del JSON-LD de cada caso se generan a partir del campo "descripción" (truncado a 300 caracteres), no de un resumen SEO redactado a mano con cifras concretas como tenían las páginas originales — el pedido del usuario no incluía un campo de meta description aparte, y añadirlo sin que lo pidieran habría sido alcance de más. Si se quiere igualar la calidad SEO original, es una mejora sencilla de añadir más adelante (un campo opcional más en el formulario).
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en la rama del vídeo de Nuestra Historia
+
+**Qué:** la rama `design/actualizar-video-nuestrahistoria` se creó desde `main` antes de que se mergearan la PR #26 (cursor personalizado) y todo el trabajo posterior (CRUD de Casos de Éxito desde el dashboard, fix del cursor invisible en el dashboard, sección de anillo en Influencer Marketing, entre otros — ver entradas anteriores). Al mergear `origin/main` en esta rama para traer esos cambios, único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (la entrada de esta rama sobre el vídeo actualizado vs. todas las entradas ya en `main` desde la resolución del PR #26 en adelante). Se conservaron todas, en orden cronológico. Ningún otro fichero tuvo conflicto real.
+
+**Por qué:** el usuario reportó no ver el cambio del cursor en local; la causa era que esta rama no lo tenía todavía.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** tras el merge, `npm run dev` arranca correctamente (el `predev` nuevo, `generate-case-studies.mjs`, falla con gracia por falta de tabla/Node 20, como está documentado, sin bloquear Vite); confirmado en el navegador que `.custom-cursor`/`.cc-dot` existen y `cursor: none` está aplicado en `/index.html`; sin marcadores de conflicto restantes en ningún fichero (`grep` limpio). Sin errores de consola nuevos.
