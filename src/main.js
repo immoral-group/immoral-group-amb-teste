@@ -1752,8 +1752,11 @@ function initAll() {
     initEmailHero();
     initServicesCarousel();
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
-    try { initComoLoHacemosScroll(); } catch (e) { console.error("Error in initComoLoHacemosScroll:", e); }
+    // Orden importante: en diseno-de-marca.html ambas secciones están pineadas
+    // y la galería de vídeos va antes en el DOM — inicializarla primero hace
+    // que su pin spacer exista antes de que "Cómo lo hacemos" calcule su rango.
     try { initDisenoScrollVideos(); } catch (e) { console.error("Error in initDisenoScrollVideos:", e); }
+    try { initComoLoHacemosScroll(); } catch (e) { console.error("Error in initComoLoHacemosScroll:", e); }
 
     // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,
     // solo falla esta promesa — no tumba el resto de main.js como pasaba antes.
