@@ -511,3 +511,25 @@ Los 5 vídeos fuente (`public/page-diseno/*.mp4`, aportados por el usuario, ~126
 **Afecta:** `src/diseno-scroll-videos.js` únicamente (nuevo flag `portrait` por entrada del array `ITEMS`; las dos variantes de `className` se escriben como cadenas literales completas para que el JIT de Tailwind las detecte al escanear el módulo — `src/**/*.js` ya está en el `content` de `tailwind.config.js`).
 
 **Verificado en local:** `npm run build` sin errores y `.aspect-\[9\/16\]` presente en el CSS compilado (confirmado que Tailwind genera la clase desde el JS). En desktop (1280×720): 14 items con exactamente dos ratios distintos — 1.78 (16:9) en 9 items y 0.56 (9:16) en 5 —, tamaño máximo en pantalla del 52% del ancho del viewport a un 20% del scroll (antes 31%) y hasta un 127% del ancho / 151% del alto al pasar junto a la cámara justo antes de salir (efecto buscado, recortado por el `overflow-hidden` de la sección); al 100% del scroll los 14 siguen saliendo del viewport. En mobile (375px): 5 items visibles, uno de ellos vertical (523px de alto en un viewport de 812px), sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+---
+
+## 2026-08-05 — Partículas y marcos decorativos en la galería 3D
+
+**Qué:** se añadieron 36 elementos decorativos que vuelan por el mismo espacio 3D que los vídeos, para que el scroll no se sienta vacío en los huecos entre un vídeo y el siguiente: **30 partículas** (puntos de 2-7px, un tercio en el azul de marca `#4889eb` y el resto en blanco) y **6 marcos translúcidos** (rectángulos de 9-17vw con borde y relleno muy tenues), en la línea de los "shapes" que ya usaba el portfolio de referencia del usuario. Se reparten por toda la duración del timeline de los vídeos (no con el mismo stagger), así que siempre hay varios en vuelo rellenando los huecos, y se apagan con un fade antes de llegar al borde en vez de recortarse en seco. Solo en desktop: en mobile la sección es una lista vertical simple y quedan ocultos.
+
+Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `Math.random()`: `initAll()` se re-ejecuta en la navegación tipo SPA de este sitio, y con random puro el campo de partículas se recolocaría en cada re-init produciendo un salto visible.
+
+**Por qué:** petición explícita del usuario ("¿podemos adicionar algunas partículas u otros elementos que no sea el vídeo para rellenar un poco más mientras sucede este scroll?").
+
+**Afecta:** `src/diseno-scroll-videos.js` únicamente.
+
+**Decisión de rendimiento:** los marcos van **sin** `backdrop-filter`, aunque el efecto de cristal sería más rico: son 6 elementos en movimiento sobre una escena que ya reproduce 14 vídeos simultáneos, y el blur de fondo animado es de lo más caro de componer. Sobre el negro de la sección, borde + relleno muy tenue ya lee como marco de cristal.
+
+**Bug real encontrado y corregido:** los colores/bordes de los decorativos se escribieron primero como clases de Tailwind y se comprobó que **`bg-white/[0.03]` no llegaba al CSS compilado** (0 ocurrencias de `0.03` en el bundle), dejando los marcos completamente sin relleno. Las clases estructurales sí se generan bien desde el JS (`aspect-[9/16]` está en el CSS), así que no es que el fichero no se escanee. Se movieron los valores de color/borde a estilo inline, que además es más apropiado para valores puntuales de elementos creados en runtime. Documentado en la cabecera del módulo.
+
+**Verificado en local:** `npm run build` sin errores. En desktop (1280×800): 36 decorativos en el DOM, con los estilos inline efectivamente aplicados (`rgb(72, 137, 235)` en las partículas azules, `rgba(255,255,255,0.03)` de relleno y `rgba(255,255,255,0.1)` de borde en los marcos). Densidad a lo largo del scroll: 15% → 3 vídeos + 8 decorativos, 35% → 4 + 14, 55% → 4 + 14, 75% → 4 + 9. En mobile (375px): los 36 decorativos siguen en el DOM pero con `display: none` (0 visibles) y los 5 vídeos de la lista intactos, sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+**Detalle conocido (no corregido a propósito):** el último ~6% del scroll pineado (~150px) queda sin elementos en pantalla, porque los últimos vídeos y partículas salen del viewport antes de que sus tweens terminen. El vaciado es gradual desde el 78% del scroll, así que funciona como respiro antes de la sección "Cómo lo hacemos"; forzar que coincidan exactamente obligaría a acortar los recorridos de salida y haría las salidas más abruptas.
+
+**No verificado:** el framerate real de la escena (14 vídeos + 36 elementos animados con scrub). El panel de navegador de esta sesión no compone frames, así que no se pudo medir — conviene una pasada en un equipo modesto antes de dar por buena la densidad.

@@ -28,6 +28,12 @@ gsap.registerPlugin(ScrollTrigger);
 //     acabar aplicando la rama equivocada (se vio la rama mobile activa a
 //     1280px de ancho). Para el orden de refresh entre secciones pineadas se
 //     usa `refreshPriority` + el orden de init en main.js, no un refresh manual.
+//  3. Los colores/bordes de los decorativos van en estilo inline, no en clases
+//     de Tailwind: se comprobó que una clase de opacidad arbitraria escrita aquí
+//     (`bg-white/[0.03]`) NO llegaba al CSS compilado, dejando los marcos sin
+//     relleno. Las clases estructurales sí funcionan (`aspect-[9/16]` se genera
+//     bien), pero para valores puntuales de elementos creados en runtime el
+//     estilo inline evita depender del escaneo del JIT.
 
 const CLIPS = [
     '/page-diseno/diseno-scroll-1.webm',
@@ -65,6 +71,79 @@ const ITEMS = [
     { width: 42, dx: -0.25, dy: 0.95, rotate: 3 },
     { width: 36, dx: 0.95, dy: -0.85, rotate: -2 },
 ];
+
+// Elementos decorativos que vuelan por el mismo espacio 3D que los vídeos para
+// que el scroll no se sienta vacío entre uno y otro: partículas (puntos) y unos
+// marcos translúcidos, en la línea de los "shapes" del portfolio de referencia.
+// Solo en desktop — en mobile la sección es una lista vertical simple.
+const PARTICLE_COUNT = 30;
+const FRAME_COUNT = 6;
+
+// PRNG con semilla en vez de Math.random(): así el campo de partículas es
+// idéntico en cada carga y en cada re-init de la navegación SPA (si no, cada
+// re-ejecución de initAll recolocaría todo y se vería un salto).
+function makeRng(seed) {
+    let s = seed >>> 0;
+    return () => {
+        s = (s + 0x6d2b79f5) >>> 0;
+        let t = Math.imul(s ^ (s >>> 15), 1 | s);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+}
+
+// Radia cada elemento en un ángulo distinto para repartirlos en 360°.
+function radialDirection(index, count, rng) {
+    const angle = (index / count) * Math.PI * 2 + (rng() - 0.5) * 0.6;
+    const reach = 0.75 + rng() * 0.55;
+    return { dx: Math.cos(angle) * reach, dy: Math.sin(angle) * reach };
+}
+
+function buildDecor(stage) {
+    const rng = makeRng(20260805);
+    const frag = document.createDocumentFragment();
+    const created = [];
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+        const el = document.createElement('div');
+        el.className = 'dsv-decor absolute top-1/2 left-1/2 rounded-full pointer-events-none';
+        const size = 2 + Math.round(rng() * 5);
+        el.style.width = `${size}px`;
+        el.style.height = `${size}px`;
+        // Un tercio en el azul de marca, el resto en blanco. Los colores van
+        // inline y no como clases de Tailwind: son valores decorativos de un
+        // elemento generado en runtime, y así no dependen de que el JIT los
+        // detecte al escanear este fichero (ver nota 3 de la cabecera).
+        el.style.backgroundColor = i % 3 === 0 ? '#4889eb' : '#ffffff';
+        el.setAttribute('aria-hidden', 'true');
+
+        const dir = radialDirection(i, PARTICLE_COUNT, rng);
+        created.push({ el, ...dir, depth: -1900 + rng() * 900, peak: 0.15 + rng() * 0.35 });
+        frag.appendChild(el);
+    }
+
+    for (let i = 0; i < FRAME_COUNT; i++) {
+        const el = document.createElement('div');
+        // Sin backdrop-blur a propósito: son 6 elementos en movimiento sobre una
+        // escena que ya reproduce 14 vídeos, y el blur de fondo animado es de lo
+        // más caro que hay. Sobre el negro, borde + relleno muy tenue ya lee
+        // como marco de cristal.
+        el.className = 'dsv-decor absolute top-1/2 left-1/2 rounded-2xl pointer-events-none';
+        const size = 9 + rng() * 8;
+        el.style.width = `${size.toFixed(1)}vw`;
+        el.style.height = `${(size * (0.7 + rng() * 0.6)).toFixed(1)}vw`;
+        el.style.border = '1px solid rgba(255,255,255,0.1)';
+        el.style.backgroundColor = 'rgba(255,255,255,0.03)';
+        el.setAttribute('aria-hidden', 'true');
+
+        const dir = radialDirection(i, FRAME_COUNT, rng);
+        created.push({ el, ...dir, depth: -1500 + rng() * 700, peak: 0.2 + rng() * 0.25 });
+        frag.appendChild(el);
+    }
+
+    stage.appendChild(frag);
+    return created;
+}
 
 function buildItems(stage) {
     const frag = document.createDocumentFragment();
@@ -104,6 +183,9 @@ export function initDisenoScrollVideos() {
     // initAll() puede re-ejecutarse en la navegación tipo SPA de este sitio
     // (ver updateDOM en main.js), así que se parte siempre de cero.
     stage.innerHTML = '';
+    // Los decorativos van primero en el DOM para quedar por detrás de los
+    // vídeos cuando dos elementos coinciden en Z.
+    const decor = buildDecor(stage);
     const items = buildItems(stage);
     if (items.length === 0) return;
 
@@ -167,10 +249,36 @@ export function initDisenoScrollVideos() {
                 }, start);
         });
 
+        // Los decorativos se reparten por TODA la duración del timeline de los
+        // vídeos (no con el mismo stagger), para que siempre haya partículas en
+        // vuelo rellenando los huecos entre un vídeo y el siguiente.
+        const videoTimeline = (items.length - 1) * stagger + flightDuration;
+        const decorFlight = 1.1;
+        const decorSpread = Math.max(videoTimeline - decorFlight, 0.1);
+
+        decor.forEach((d, i) => {
+            const start = (i / Math.max(decor.length - 1, 1)) * decorSpread;
+
+            gsap.set(d.el, { xPercent: -50, yPercent: -50, x: 0, y: 0, z: d.depth, scale: 0.4, opacity: 0 });
+
+            tl.to(d.el, { opacity: d.peak, duration: decorFlight * 0.15 }, start)
+                .to(d.el, {
+                    z: 1000,
+                    x: () => window.innerWidth * d.dx,
+                    y: () => window.innerHeight * d.dy,
+                    scale: 1.6,
+                    duration: decorFlight,
+                    ease: 'power1.in',
+                }, start)
+                // Se apagan antes de salir del borde, en vez de recortarse en seco.
+                .to(d.el, { opacity: 0, duration: decorFlight * 0.3 }, start + decorFlight * 0.7);
+        });
+
         return () => {
             tl.scrollTrigger?.kill();
             tl.kill();
             gsap.set(items, { clearProps: 'all' });
+            gsap.set(decor.map((d) => d.el), { clearProps: 'all' });
         };
     });
 
@@ -180,6 +288,8 @@ export function initDisenoScrollVideos() {
 
         gsap.set(items, { clearProps: 'all' });
         hidden.forEach((item) => { item.style.display = 'none'; });
+        // Las partículas y marcos solo tienen sentido en la escena 3D pineada.
+        decor.forEach((d) => { d.el.style.display = 'none'; });
 
         const triggers = shown.map((item) =>
             gsap.fromTo(item,
@@ -202,6 +312,7 @@ export function initDisenoScrollVideos() {
         return () => {
             triggers.forEach((t) => t?.kill());
             hidden.forEach((item) => { item.style.display = ''; });
+            decor.forEach((d) => { d.el.style.display = ''; });
         };
     });
 }
