@@ -914,6 +914,18 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 
 ---
 
+## 2026-08-05 — Influencer Marketing: sección "¿Qué podemos hacer por ti?" con el diseño de anillo scroll-driven
+
+**Qué:** en `influencer-marketing.html`, la sección "¿Qué podemos hacer por ti?" (antes 5 paneles verticales con imagen de fondo que se expandían al hover) se sustituyó por el componente de anillo scroll-driven "Cómo lo hacemos" ya usado en `diseno-de-marca.html` y `email-marketing.html` (motor compartido en `src/como-lo-hacemos-scroll.js`, sin cambios en el JS). Se reutilizó el copy de los 5 pasos existentes (Selección, Estrategia, Análisis, Gestión, Contenido) mapeado a la estructura `chlh-badge`/`chlh-title`/`chlh-description`/pills + `chlh-steps-data`, y se añadió un 5º estilo de anillo (`chlh-style-4`) porque las otras dos páginas solo tenían 4 pasos. La etiqueta visible de la sección se dejó como "¿Qué podemos hacer por ti?" (no "Cómo lo hacemos", para no perder el título original de esta sección en esta página).
+
+**Por qué:** petición explícita del usuario de unificar el diseño de esta sección con el patrón ya usado en otros servicios, en vez de mantener los paneles de imagen específicos de esta página.
+
+**Afecta:** `influencer-marketing.html` (única página tocada; no se modificó `src/como-lo-hacemos-scroll.js` ni ninguna otra página).
+
+**Verificado en local:** confirmado con `get_page_text` en el navegador de vista previa que la sección renderiza el badge "01", el título y descripción del primer paso, y las 5 pills en orden correcto, sin romper la sección siguiente ("¿Qué nos hace diferentes?"). No se pudo verificar visualmente la animación de scroll-pin en la herramienta de preview (el pin de GSAP ScrollTrigger no reacciona a scroll simulado por script en este entorno); se comprobó que `diseno-de-marca.html` — ya en producción con el mismo componente — presenta idéntica limitación ante la misma prueba, confirmando que es una limitación de la herramienta y no una regresión introducida.
+
+---
+
 ## 2026-08-05 — CRUD de Casos de Éxito desde el dashboard interno
 
 **Qué:** los 19 casos de éxito (hasta ahora 19 páginas HTML estáticas hechas a mano, `caso-*.html`, más el grid de `casos-de-exito.html`) pasan a gestionarse desde un panel nuevo, `/casos-admin`: añadir, editar y eliminar casos completos — portada + nombre + sector + resultado para el grid, y descripción/logo/reto/imagen intermedia/solución/resultados (KPIs, cantidad variable) para el detalle. Se añadió también un campo de testimonios opcional (no pedido explícitamente, pero necesario para no perder el contenido real de 10 de los 19 casos actuales, que sí tienen un carrusel de testimonios).
