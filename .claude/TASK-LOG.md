@@ -319,6 +319,126 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 
 ---
 
+## 2026-08-04 — Sustituye la imagen de portada del caso Nutfruit en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó `public/imgs/nutfruit-portada.jpg` (imagen de la tarjeta del caso NUTFRUIT en el grid de casos de éxito) por una nueva imagen aportada por el usuario (los 4 personajes/mascotas de frutos secos de Nutfruit sobre fondo verde). No se tocó el HTML, solo el contenido del archivo de imagen (mismo nombre y ruta).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `public/imgs/nutfruit-portada.jpg`.
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta NUTFRUIT en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso Cool Bottles en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso COOL BOTTLES (antes `imgs/cool.svg`) por una nueva foto aportada por el usuario (senderista con bidón en montaña). Al cambiar de formato vectorial a fotografía, se convirtió el PNG original (10MB, 3840x2160) a JPEG optimizado (`public/imgs/cool-portada.jpg`, ~1.4MB) en vez de servir el PNG sin comprimir, y se actualizó el `src` en el HTML. Se eliminó `public/imgs/cool.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/cool-portada.jpg` (nuevo), `public/imgs/cool.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta COOL BOTTLES en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso Velites en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso VELITES (antes `imgs/calum-4.webp`) por una nueva foto aportada por el usuario (atleta en remo, estética HYROX), guardada como `public/imgs/velites-portada.jpg`. Se eliminó `public/imgs/calum-4.webp` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/velites-portada.jpg` (nuevo), `public/imgs/calum-4.webp` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta VELITES en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso Mun Kombucha en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso MUN KOMBUCHA (antes `imgs/mun.png`) por una nueva foto aportada por el usuario (dos latas chocando en la playa), guardada como `public/imgs/munkombucha-portada.jpg`. Se eliminó `public/imgs/mun.png` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/munkombucha-portada.jpg` (nuevo), `public/imgs/mun.png` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta MUN KOMBUCHA en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso La Marca Well en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso LA MARCA WELL por una nueva foto aportada por el usuario (las dos hermanas fundadoras). A diferencia de los cambios anteriores, no se reutilizó el nombre de archivo existente (`imgs/port-well3.jpg`) porque ese mismo archivo también lo usa `caso-marcawell.html` (la página de detalle del caso) y el cambio pedido era solo para la tarjeta del grid de Casos de Éxito. Se creó un archivo nuevo y distinto, `public/imgs/marcawell-portada.jpg` (PNG original de 18MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~240KB), y solo se actualizó el `src` en `casos-de-exito.html`. `port-well3.jpg` queda intacto y sigue usándose en `caso-marcawell.html`.
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta, sin afectar la página de detalle del caso.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/marcawell-portada.jpg` (nuevo). `public/imgs/port-well3.jpg` no se toca.
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta LA MARCA WELL en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos; `caso-marcawell.html` no se ve afectado. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso Bobo Choses en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso BOBO CHOSES (antes `imgs/port-bobo.png`) por una nueva foto aportada por el usuario (modelo con prenda de rayas de la colección), guardada como `public/imgs/bobo-portada.jpg` (PNG original de 18MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~380KB). Se eliminó `public/imgs/port-bobo.png` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/bobo-portada.jpg` (nuevo), `public/imgs/port-bobo.png` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta BOBO CHOSES en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso Grupo Mimara en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso GRUPO MIMARA (antes `imgs/mimara.svg`) por una nueva foto aportada por el usuario (personas mayores jugando a cartas), guardada como `public/imgs/mimara-portada.jpg` (JPG original de 12.8MB/6000x4000 redimensionado a 2000px de ancho y recomprimido, ~425KB). Se eliminó `public/imgs/mimara.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/mimara-portada.jpg` (nuevo), `public/imgs/mimara.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta GRUPO MIMARA en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso Gabriel For Sach en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso GABRIEL FOR SACH (antes `imgs/gabriel.svg`) por una nueva foto aportada por el usuario (dos modelos con tops y bolsos de la colección), guardada como `public/imgs/gabrielforsach-portada.jpg` (PNG original de 20.6MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~335KB). Se eliminó `public/imgs/gabriel.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/gabrielforsach-portada.jpg` (nuevo), `public/imgs/gabriel.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta GABRIEL FOR SACH en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso iVentions en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso IVENTIONS (antes `imgs/iventions.svg`) por una nueva imagen aportada por el usuario (mockup de laptop con la marca "IVENTIONS" y foto del evento "Meetup 2025"), guardada como `public/imgs/iventions-portada.jpg`. Se eliminó `public/imgs/iventions.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/iventions-portada.jpg` (nuevo), `public/imgs/iventions.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta IVENTIONS en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-04 — Sustituye la imagen de portada del caso Oxperta Capital en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso OXPERTA CAPITAL (antes `imgs/ocapital.svg`) por una nueva foto aportada por el usuario (apretón de manos en reunión de negocios), guardada como `public/imgs/oxpertacapital-portada.jpg`. Se eliminó `public/imgs/ocapital.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/oxpertacapital-portada.jpg` (nuevo), `public/imgs/ocapital.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta OXPERTA CAPITAL en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
 ## 2026-08-04 — Reducir el celeste de marca en Nuestra Historia, Equipo y Casos de Éxito + efecto Liquid Glass
 
 **Qué:** dos cambios sobre la rama `reducir-celeste-en-la-web`:
@@ -451,3 +571,15 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; confirmado en navegador que el efecto `.liquid-glass` sigue aplicado (`backdrop-filter` con la distorsión SVG) en `/nuestra-historia` tras el merge; sin errores de consola en `/nuestra-historia` ni `/equipo`; confirmado que el botón celeste de navegación/footer (fuera del alcance de este PR) sigue intacto.
+
+---
+
+## 2026-08-04 — Resuelto conflicto de merge en el PR #22 (imágenes de portada de 10 casos de éxito)
+
+**Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (las 10 entradas de este PR, sobre las portadas de Nutfruit/Cool Bottles/Velites/Mun Kombucha/La Marca Well/Bobo Choses/Grupo Mimara/Gabriel For Sach/iVentions/Oxperta Capital, vs. todo el trabajo entrado en `main` mientras tanto: reducción del celeste + liquid glass, edición de equipo en grid, estilo de botones de archivo, vídeo de fondo en Historia Fundador, y el CTA de Behance con sus tres iteraciones). Se conservaron todas, en orden cronológico. `casos-de-exito.html` se automergeó sin conflicto — el PR #17 (CTA de Behance) tocó la cabecera de la sección (contador → barra CTA) y este PR tocó únicamente los `src` de las `<img>` de las tarjetas del grid, sin solaparse.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #22 tras resolver su conflicto.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run dev`; confirmadas visualmente en `/casos-de-exito.html` las 10 tarjetas con sus imágenes nuevas coexistiendo con la barra CTA de Behance (PR #17) tras el merge; sin errores de consola.
