@@ -533,3 +533,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Detalle conocido (no corregido a propósito):** el último ~6% del scroll pineado (~150px) queda sin elementos en pantalla, porque los últimos vídeos y partículas salen del viewport antes de que sus tweens terminen. El vaciado es gradual desde el 78% del scroll, así que funciona como respiro antes de la sección "Cómo lo hacemos"; forzar que coincidan exactamente obligaría a acortar los recorridos de salida y haría las salidas más abruptas.
 
 **No verificado:** el framerate real de la escena (14 vídeos + 36 elementos animados con scrub). El panel de navegador de esta sesión no compone frames, así que no se pudo medir — conviene una pasada en un equipo modesto antes de dar por buena la densidad.
+
+---
+
+## 2026-08-05 — Fix: el footer no aparecía en diseno-de-marca.html
+
+**Qué:** el `<footer>` que monta `src/footer.js` no tenía `z-index` propio (`class="relative bg-black py-16 text-white overflow-hidden"`). En `diseno-de-marca.html` la sección Hero es `position: fixed` con `z-[1]` y permanece fija durante todo el scroll de la página; al no tener el footer ningún z-index (`z-index: auto`), las reglas de stacking de CSS hacen que el Hero (con z-index positivo explícito) se pinte por encima de él sin importar el orden en el DOM, dejándolo tapado de forma permanente. Se añadió `z-10` al footer (`relative z-10 bg-black ...`), en línea con el resto de secciones de esta página, que ya usan `z-10` precisamente para quedar por encima de ese mismo Hero fijo.
+
+**Por qué:** reporte del usuario ("el pie de página no está apareciendo en esta página").
+
+**Afecta:** `src/footer.js` (componente compartido por todas las páginas del sitio). Se comprobó que `diseno-de-marca.html` es la única página con este patrón de Hero `fixed` + `z-[1]`, así que el bug era exclusivo de esa página; el fix es seguro en el resto del sitio porque ahí no hay ningún elemento con z-index superior al del footer con el que pueda competir.
+
+**Verificado en local:** `npm run build` sin errores. En `diseno-de-marca.html`, tras hacer scroll hasta el final, `getComputedStyle` confirma `z-index: 10` en el footer frente a `z-index: 1` en el Hero (`position: fixed`), y el contenido del footer (enlaces, dirección, copyright) aparece en el árbol de accesibilidad de la página en su posición esperada dentro del viewport.

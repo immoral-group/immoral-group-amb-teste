@@ -1,5 +1,5 @@
 const FOOTER_HTML = `
-<footer class="relative bg-black py-16 text-white overflow-hidden">
+<footer class="relative z-10 bg-black py-16 text-white overflow-hidden">
     <video
         id="hablemos-video"
         class="hidden md:block absolute right-0 top-8 h-48 w-auto object-contain pointer-events-none select-none z-10 opacity-0 transition-opacity duration-300 ease-out"
