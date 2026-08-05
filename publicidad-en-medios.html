@@ -413,118 +413,35 @@
     </script>
 
     <!-- Plataformas que dominamos Section -->
-    <section class="bg-white py-24 px-6 md:px-12 lg:px-24">
-        <div class="w-full mx-auto flex flex-col xl:flex-row gap-16 xl:gap-24 items-start">
+    <section class="bg-white py-24 px-6 md:px-12">
+        <div class="max-w-3xl mx-auto text-center mb-16">
+            <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-black leading-tight tracking-tight mb-8">
+                Plataformas que dominamos
+            </h2>
+            <p class="text-xl md:text-2xl font-light text-gray-600 leading-relaxed">
+                Elegimos dónde invertir pensando en tu negocio, tus objetivos y tu momento.
+                No seguimos tendencias: tomamos decisiones estratégicas.
+            </p>
+        </div>
 
-            <!-- Left Side: Title -->
-            <div class="w-full xl:w-[40%] xl:sticky top-24 self-start">
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-black text-black leading-tight tracking-tight mb-8">
-                    Plataformas<br>que dominamos
-                </h2>
-                <p class="text-xl md:text-2xl font-light text-gray-600 leading-relaxed">
-                    Elegimos dónde invertir pensando en tu negocio, tus objetivos y tu momento.
-                    No seguimos tendencias: tomamos decisiones estratégicas.
-                </p>
-            </div>
+        <div class="platform-carousel-viewport relative max-w-5xl mx-auto flex items-center justify-center gap-6">
+            <button id="platform-prev" aria-label="Anterior"
+                class="shrink-0 bg-[#1a1a1a] hover:bg-[#2a2a2a] rounded-full p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#4889eb]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 18L9 12L15 6" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
 
-            <!-- Right Side: Grid -->
-            <div class="w-full xl:w-[60%] grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="platform-carousel"></div>
 
-                <!-- Meta -->
-                <div
-                    class="group bg-black rounded-[2rem] p-8 min-h-[100px] flex flex-col justify-between hover:bg-[#1877F2] transition-colors duration-300 cursor-default">
-                    <img src="/imgs/publi-ico-1.svg" alt="Meta" class="w-auto h-7 self-start mb-4">
-                    <div>
-                        <p
-                            class="text-gray-400 group-hover:text-white transition-colors text-lg font-light leading-relaxed">
-                            Te acompañamos desde la visibilidad hasta la conversión, con estrategias claras y recorridos
-                            personalizados para el usuario objetivo.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Google -->
-                <div
-                    class="group bg-black rounded-[2rem] p-8 min-h-[100px] flex flex-col justify-between hover:bg-[#FBBC05] transition-colors duration-300 cursor-default">
-                    <img src="/imgs/publi-ico-2.svg" alt="Google"
-                        class="w-auto h-8 self-start mb-4 transition-all duration-300 group-hover:invert">
-                    <div>
-                        <p
-                            class="text-gray-400 group-hover:text-black transition-colors text-lg font-light leading-relaxed">
-                            Estamos presentes cuando te buscan y también cuando aún no saben que te necesitan.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- LinkedIn -->
-                <div
-                    class="group bg-black rounded-[2rem] p-8 min-h-[100px] flex flex-col justify-between hover:bg-[#0073B1] transition-colors duration-300 cursor-default">
-                    <img src="/imgs/publi-ico-3.svg" alt="LinkedIn" class="w-auto h-10 self-start mb-4">
-                    <div>
-                        <p
-                            class="text-gray-400 group-hover:text-white transition-colors text-lg font-light leading-relaxed">
-                            Conectamos tu marca con los perfiles que toman decisiones, de forma directa, profesional y
-                            relevante.
-
-                        </p>
-                    </div>
-                </div>
-
-                <!-- TikTok -->
-                <div
-                    class="group bg-black rounded-[2rem] p-8 min-h-[100px] flex flex-col justify-between hover:bg-[#25F4EE] transition-colors duration-300 cursor-default">
-                    <img src="/imgs/publi-ico-4.svg" alt="TikTok"
-                        class="w-auto h-8 self-start mb-4 transition-all duration-300 group-hover:invert">
-                    <div>
-                        <p
-                            class="text-gray-400 group-hover:text-black transition-colors text-lg font-light leading-relaxed">
-                            Combinamos creatividad y datos para crear contenido que encaja de forma natural en el feed y
-                            genera impacto.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- YouTube -->
-                <div
-                    class="group bg-black rounded-[2rem] p-8 min-h-[100px] flex flex-col justify-between hover:bg-[#FF0000] transition-colors duration-300 cursor-default">
-                    <img src="/imgs/publi-ico-6.svg" alt="YouTube" class="w-auto h-7 self-start mb-4">
-                    <div>
-                        <p
-                            class="text-gray-400 group-hover:text-white transition-colors text-lg font-light leading-relaxed">
-                            Diseñamos campañas para construir recuerdo, explicar propuestas de valor y acompañar al
-                            usuario a lo largo del funnel. Creatividad, segmentación y formatos pensados para convertir
-                            visualizaciones en intención real.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Pinterest -->
-                <div
-                    class="group bg-black rounded-[2rem] p-8 min-h-[100px] flex flex-col justify-between hover:bg-[#E60023] transition-colors duration-300 cursor-default">
-                    <img src="/imgs/publi-ico-7.svg" alt="Pinterest" class="w-auto h-7 self-start mb-4">
-                    <div>
-                        <p
-                            class="text-gray-400 group-hover:text-white transition-colors text-lg font-light leading-relaxed">
-                            Aparecemos cuando tu marca todavía está siendo inspiración.
-                            Trabajamos Pinterest como un canal de descubrimiento y demanda latente, ideal para influir
-                            en la decisión antes de que exista una búsqueda activa.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Spotify -->
-                <div
-                    class="group bg-black rounded-[2rem] p-10 min-h-[100px] md:col-span-2 flex flex-col md:flex-row items-start md:items-center xl:items-center gap-8 hover:bg-[#1ED760] transition-colors duration-300 cursor-default">
-                    <img src="/imgs/publi-ico-5.svg" alt="Spotify"
-                        class="w-auto h-10 shrink-0 transition-all duration-300 group-hover:invert">
-                    <p
-                        class="text-gray-400 group-hover:text-black transition-colors text-lg font-light leading-relaxed max-w-2xl">
-                        Impactamos a tu audiencia en momentos de atención real, cuando escucha, conecta y está receptiva
-                        al mensaje.
-                    </p>
-                </div>
-
-            </div>
+            <button id="platform-next" aria-label="Siguiente"
+                class="shrink-0 bg-[#1a1a1a] hover:bg-[#2a2a2a] rounded-full p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#4889eb]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 18L15 12L9 6" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
         </div>
     </section>
 

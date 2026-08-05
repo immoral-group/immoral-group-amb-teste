@@ -12,6 +12,8 @@ import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
+import { initPlatformCarousel } from './platform-carousel.js';
+import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -1739,6 +1741,7 @@ function initAll() {
     initHeroPhysics();
     initEquipoNetwork();
     try { initPublicidadMediosCubes(); } catch (e) { console.error("Error in initPublicidadMediosCubes:", e); }
+    try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
     initImmoralEcosystem();
@@ -1751,6 +1754,10 @@ function initAll() {
     initEmailHero();
     initServicesCarousel();
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
+    // Orden importante: en diseno-de-marca.html ambas secciones están pineadas
+    // y la galería de vídeos va antes en el DOM — inicializarla primero hace
+    // que su pin spacer exista antes de que "Cómo lo hacemos" calcule su rango.
+    try { initDisenoScrollVideos(); } catch (e) { console.error("Error in initDisenoScrollVideos:", e); }
     try { initComoLoHacemosScroll(); } catch (e) { console.error("Error in initComoLoHacemosScroll:", e); }
 
     // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,

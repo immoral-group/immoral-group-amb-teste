@@ -371,9 +371,15 @@
         </div>
     </section>
 
-    <!-- Video Section (Scrolls over Hero) -->
-    <section class="relative w-full h-screen z-10 mt-[100vh] bg-black">
-        <video src="imgs/hero-imcontent.mp4" autoplay muted loop playsinline width="1920" height="1080"></video>
+    <!-- Scroll 3D Video Gallery (Scrolls over Hero) -->
+    <section id="dsv-pin"
+        class="relative w-full min-h-screen bg-black z-10 mt-[100vh] overflow-hidden flex flex-col gap-6 py-20 px-6 md:p-0 md:block"
+        style="perspective: 1400px;">
+        <!-- Los .dsv-item se generan en runtime desde src/diseno-scroll-videos.js
+             (son decorativos y hay más instancias que clips — cantidad, tamaño
+             y trayectoria se ajustan desde el array ITEMS de ese módulo). -->
+        <div id="dsv-stage" class="flex flex-col gap-6 md:gap-0 md:block md:absolute md:inset-0"
+            style="transform-style: preserve-3d;"></div>
     </section>
 
     <!-- Services Grid Section -->
