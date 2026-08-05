@@ -911,3 +911,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md`, `src/main.js`, `src/style.css` (los tres con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores (sin errores de sintaxis CSS). Confirmado en navegador: el cursor personalizado sigue al ratón, oculta el nativo (`cursor: none`) y activa `is-hover` correctamente al pasar sobre un enlace; `/publicidad-en-medios.html` sigue renderizando las 4 tarjetas del carrusel con sus estilos (`background-color: rgb(10, 10, 10)` en `.platform-card-inner`) intactos; `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D. Las tres funcionalidades, que tocan `main.js` y/o `style.css` desde PRs distintos, coexisten tras el merge. Sin errores de consola nuevos (los mensajes de fallo de HMR de `style.css` vistos durante la resolución eran residuales del estado a medio editar, no del resultado final — confirmado por navegación forzada tras terminar).
+
+---
+
+## 2026-08-05 — Influencer Marketing: sección "¿Qué podemos hacer por ti?" con el diseño de anillo scroll-driven
+
+**Qué:** en `influencer-marketing.html`, la sección "¿Qué podemos hacer por ti?" (antes 5 paneles verticales con imagen de fondo que se expandían al hover) se sustituyó por el componente de anillo scroll-driven "Cómo lo hacemos" ya usado en `diseno-de-marca.html` y `email-marketing.html` (motor compartido en `src/como-lo-hacemos-scroll.js`, sin cambios en el JS). Se reutilizó el copy de los 5 pasos existentes (Selección, Estrategia, Análisis, Gestión, Contenido) mapeado a la estructura `chlh-badge`/`chlh-title`/`chlh-description`/pills + `chlh-steps-data`, y se añadió un 5º estilo de anillo (`chlh-style-4`) porque las otras dos páginas solo tenían 4 pasos. La etiqueta visible de la sección se dejó como "¿Qué podemos hacer por ti?" (no "Cómo lo hacemos", para no perder el título original de esta sección en esta página).
+
+**Por qué:** petición explícita del usuario de unificar el diseño de esta sección con el patrón ya usado en otros servicios, en vez de mantener los paneles de imagen específicos de esta página.
+
+**Afecta:** `influencer-marketing.html` (única página tocada; no se modificó `src/como-lo-hacemos-scroll.js` ni ninguna otra página).
+
+**Verificado en local:** confirmado con `get_page_text` en el navegador de vista previa que la sección renderiza el badge "01", el título y descripción del primer paso, y las 5 pills en orden correcto, sin romper la sección siguiente ("¿Qué nos hace diferentes?"). No se pudo verificar visualmente la animación de scroll-pin en la herramienta de preview (el pin de GSAP ScrollTrigger no reacciona a scroll simulado por script en este entorno); se comprobó que `diseno-de-marca.html` — ya en producción con el mismo componente — presenta idéntica limitación ante la misma prueba, confirmando que es una limitación de la herramienta y no una regresión introducida.
