@@ -40,6 +40,8 @@ URLs are listed below grouped by section, with recommended sitemap priority and 
 
 ### Case Studies (priority 0.7, changefreq: monthly)
 
+Gestionados desde `/casos-admin` (Supabase) — esta lista es la fotografía de los 19 casos existentes en el momento de migrar a ese panel; a partir de ahora crece/decrece según lo que se añada o desactive ahí, no hace falta mantenerla a mano aquí. Ver "Páginas auto-generadas" más abajo.
+
 - `/caso-amlul` ← `caso-amlul.html`
 - `/caso-angelanavarro` ← `caso-angelanavarro.html`
 - `/caso-bobo` ← `caso-bobo.html`
@@ -71,6 +73,12 @@ URLs are listed below grouped by section, with recommended sitemap priority and 
 - `img1.html` — test/placeholder file (591 bytes), not real content. Also disallowed in robots.txt.
 - `/api/*` — backend endpoints
 - `/src/*`, `/public/imgs/*`, `/public/fonts/*` — static assets
+
+## Páginas auto-generadas (casos de éxito)
+
+`casos-de-exito.html` (bloques entre `<!-- CASOS_GRID_START/END -->` y `<!-- CASOS_FILTERS_START/END -->`) y todos los `caso-*.html` se regeneran en cada `npm run dev`/`npm run build` a partir de Supabase (`scripts/generate-case-studies.mjs`), gestionados desde `/casos-admin`. **No editar estos ficheros a mano** — cualquier cambio se pierde en la siguiente regeneración; cada `caso-*.html` generado lleva un comentario marcador al principio para dejarlo claro. El resto de `casos-de-exito.html` (header, filtros del CTA de Behance, etc.) sí es estático y se edita normalmente.
+
+Se eligió generar HTML estático en vez de un fetch en el navegador (como equipo/ofertas/logos) para no perder el SEO propio de cada página (title/meta/canonical/JSON-LD individuales, indexables sin JavaScript) — el coste es que un cambio guardado en `/casos-admin` tarda 1-2 minutos en publicarse (dispara un redeploy en Vercel vía Deploy Hook, ver `supabase/README.md` paso 13) en vez de verse al instante.
 
 ## Known Issues to Flag
 
