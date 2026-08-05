@@ -12,6 +12,7 @@ import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
+import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import gsap from 'gsap';
@@ -1723,6 +1724,7 @@ function initAll() {
         history.scrollRestoration = 'manual';
     }
 
+    initCustomCursor();
     initDropdowns();
     initMenu();
     initHowWeDo();

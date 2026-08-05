@@ -710,6 +710,30 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 
 ---
 
+## 2026-08-05 — Cursor personalizado: círculo blanco/negro con inversión en hover
+
+**Qué:** se añadió un cursor personalizado en todo el sitio (`src/custom-cursor.js`, ~40 líneas): un círculo fijo de 20px que sigue al ratón vía `mousemove`, blanco con borde negro por defecto ("positivo"), y que pasa a negro con borde blanco ("negativo") al pasar por encima de cualquier elemento interactivo (`a, button, input, textarea, select, label, [role="button"], [tabindex], .cursor-pointer`), detectado por delegación de eventos `mouseover`/`mouseout` en `document`. El cursor nativo se oculta (`cursor: none !important` en todos los elementos, con `!important` porque varias interacciones existentes —drag de carruseles— fijan `element.style.cursor` inline) solo en dispositivos con puntero fino (`@media (pointer: fine)`); en touch (`pointer: coarse`) el cursor personalizado no se crea y el nativo permanece intacto. Como la navegación de este sitio reemplaza `document.body.innerHTML` en cada cambio de página (SPA-like, ver `updateDOM`/`initAll` en `src/main.js`), `initCustomCursor()` recrea el elemento del círculo en cada llamada pero solo adjunta los listeners de `window`/`document` una vez (flag de módulo), para no acumular listeners duplicados tras varias navegaciones.
+
+**Por qué:** petición explícita del usuario. Se confirmaron dos decisiones de diseño antes de implementar: el significado de "positivo/negativo" (blanco relleno → negro relleno, no inversión tipo `mix-blend-mode`) y el alcance del hover (solo elementos interactivos, no cualquier elemento de la página).
+
+**Afecta:** `src/custom-cursor.js` (nuevo), `src/main.js` (import + llamada en `initAll()`), `src/style.css` (reglas `.custom-cursor`).
+
+**Verificado en local:** preview con `npm run dev`; confirmado por inspección del DOM que el círculo sigue al cursor (`transform` se actualiza en cada `mousemove`) y que la clase `is-hover` se activa/desactiva correctamente al entrar/salir de un enlace; confirmado visualmente en captura que el círculo se ve blanco sobre fondo negro en reposo y negro con borde blanco al pasar sobre el nav; confirmado que en emulación móvil (`pointer: coarse`) el elemento no se crea y `cursor` del body vuelve a `auto`. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Ajusta tamaño y transición del cursor personalizado
+
+**Qué:** dos ajustes al cursor personalizado (`src/custom-cursor.js`, `src/style.css`) tras feedback visual del usuario: (1) el círculo se redujo de 20px a 12px; (2) la transición plana de color (0.15s linear) se sustituyó por una animación con rebote — se separó el punto visual (`.cc-dot`, un `<span>` interno) del contenedor que sigue la posición del ratón (`.custom-cursor`), para poder animar `transform: scale()` en el punto sin interferir con el `transform: translate()` que el JS actualiza en cada `mousemove`. Al hacer hover, el punto ahora escala a 1.8x con `cubic-bezier(0.34, 1.56, 0.64, 1)` (efecto de rebote/overshoot) en 0.45s, junto con el cambio de color en 0.35s.
+
+**Por qué:** feedback explícito del usuario: el círculo era demasiado grande y la transición positivo→negativo se sentía plana, sin animación.
+
+**Afecta:** `src/custom-cursor.js`, `src/style.css`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por inspección del DOM que la estructura anidada (`.custom-cursor > .cc-dot`) existe y el tamaño en reposo es 12px; confirmado visualmente en captura que el punto crece notablemente con rebote al pasar sobre un enlace del nav. Sin errores de consola nuevos.
+
+---
+
 ## 2026-08-05 — Sustituye la imagen de portada del caso Teamder en Casos de Éxito
 
 **Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso TEAMDER (antes `imgs/teamder.png`) por una nueva imagen aportada por el usuario (logo de Teamder sobre fondo degradado con grano), guardada como `public/imgs/teamder-portada.jpg` (PNG original de 4.4MB redimensionado a 2000px de ancho y convertido a JPEG, ~1MB). Se eliminó `public/imgs/teamder.png` (sin más referencias en el repo).
@@ -887,3 +911,68 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `public/imgs/nt-bg-2.mp4`.
 
 **Verificado en local:** preview con `npm run dev`; confirmado por `video.readyState`/`videoWidth`/`duration` que el nuevo vídeo carga correctamente (1920x1080, 3.97s, sin 404) en `/nuestra-historia.html`. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #26 (cursor personalizado)
+
+**Qué:** tres conflictos reales: (1) el habitual y aditivo en `.claude/TASK-LOG.md` (las dos entradas de este PR — cursor personalizado y su ajuste de tamaño/transición — vs. las entradas de imágenes de Casos de Éxito y la resolución del PR #25). (2) En `src/main.js`, ambas ramas añadían un `import` nuevo en la misma línea (`initCustomCursor` de este PR vs. `initPlatformCarousel`/`initDisenoScrollVideos` de los PR #21/#24, ya en `main`) — de nuevo imports independientes, no alternativas; se conservaron los tres. (3) En `src/style.css`, el bloque de reglas `.custom-cursor` (este PR) y el bloque `.platform-carousel`/`.platform-card-*` (PR #24) se insertaron ambos al final del fichero en el mismo punto respecto al ancestro común, así que Git los marcó como un único conflicto aunque no se solapan — el bloque de HEAD llegó incompleto en el marcador (le faltaba la llave de cierre de `@media (pointer: coarse)`, que Git había desplazado justo después del separador `=======`); se reconstruyeron ambos bloques completos y balanceados, cursor primero y carrusel después, comprobando las llaves contra la versión original de cada rama.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #26.
+
+**Afecta:** `.claude/TASK-LOG.md`, `src/main.js`, `src/style.css` (los tres con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores (sin errores de sintaxis CSS). Confirmado en navegador: el cursor personalizado sigue al ratón, oculta el nativo (`cursor: none`) y activa `is-hover` correctamente al pasar sobre un enlace; `/publicidad-en-medios.html` sigue renderizando las 4 tarjetas del carrusel con sus estilos (`background-color: rgb(10, 10, 10)` en `.platform-card-inner`) intactos; `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D. Las tres funcionalidades, que tocan `main.js` y/o `style.css` desde PRs distintos, coexisten tras el merge. Sin errores de consola nuevos (los mensajes de fallo de HMR de `style.css` vistos durante la resolución eran residuales del estado a medio editar, no del resultado final — confirmado por navegación forzada tras terminar).
+
+---
+
+## 2026-08-05 — Fix: cursor invisible en el dashboard interno
+
+**Qué:** la regla `cursor: none !important` que oculta el cursor nativo para el cursor personalizado (PR #26) vive en `src/style.css`, importado por **todas** las páginas — también `admin.js`, `ofertas.js`, `logosAdmin.js`, `roles.js` y `casosAdmin.js`, ninguna de las cuales llama a `initCustomCursor()` (eso solo pasa en `src/main.js`, el entrypoint del sitio público). Resultado: en todo el dashboard interno el cursor nativo se ocultaba sin que existiera ningún círculo que lo sustituyera — el ratón quedaba invisible. Se acotó la regla con `:has()` para que solo aplique cuando `.custom-cursor` existe de verdad en la página (`html:has(.custom-cursor) *`), en vez de tocar cada entrypoint del dashboard para excluirlo uno a uno.
+
+**Por qué:** reporte del usuario ("no se ve el mouse dentro del dashboard").
+
+**Afecta:** `src/style.css` únicamente.
+
+**Verificado en local:** `npm run build` sin errores. En `/admin.html` (dashboard), `getComputedStyle(document.body).cursor` devuelve `auto` y no existe ningún `.custom-cursor` en el DOM — cursor nativo visible. En `/index.html` (sitio público), `cursor` devuelve `none` y `.custom-cursor` sí existe — el efecto se mantiene intacto donde corresponde. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Influencer Marketing: sección "¿Qué podemos hacer por ti?" con el diseño de anillo scroll-driven
+
+**Qué:** en `influencer-marketing.html`, la sección "¿Qué podemos hacer por ti?" (antes 5 paneles verticales con imagen de fondo que se expandían al hover) se sustituyó por el componente de anillo scroll-driven "Cómo lo hacemos" ya usado en `diseno-de-marca.html` y `email-marketing.html` (motor compartido en `src/como-lo-hacemos-scroll.js`, sin cambios en el JS). Se reutilizó el copy de los 5 pasos existentes (Selección, Estrategia, Análisis, Gestión, Contenido) mapeado a la estructura `chlh-badge`/`chlh-title`/`chlh-description`/pills + `chlh-steps-data`, y se añadió un 5º estilo de anillo (`chlh-style-4`) porque las otras dos páginas solo tenían 4 pasos. La etiqueta visible de la sección se dejó como "¿Qué podemos hacer por ti?" (no "Cómo lo hacemos", para no perder el título original de esta sección en esta página).
+
+**Por qué:** petición explícita del usuario de unificar el diseño de esta sección con el patrón ya usado en otros servicios, en vez de mantener los paneles de imagen específicos de esta página.
+
+**Afecta:** `influencer-marketing.html` (única página tocada; no se modificó `src/como-lo-hacemos-scroll.js` ni ninguna otra página).
+
+**Verificado en local:** confirmado con `get_page_text` en el navegador de vista previa que la sección renderiza el badge "01", el título y descripción del primer paso, y las 5 pills en orden correcto, sin romper la sección siguiente ("¿Qué nos hace diferentes?"). No se pudo verificar visualmente la animación de scroll-pin en la herramienta de preview (el pin de GSAP ScrollTrigger no reacciona a scroll simulado por script en este entorno); se comprobó que `diseno-de-marca.html` — ya en producción con el mismo componente — presenta idéntica limitación ante la misma prueba, confirmando que es una limitación de la herramienta y no una regresión introducida.
+
+---
+
+## 2026-08-05 — CRUD de Casos de Éxito desde el dashboard interno
+
+**Qué:** los 19 casos de éxito (hasta ahora 19 páginas HTML estáticas hechas a mano, `caso-*.html`, más el grid de `casos-de-exito.html`) pasan a gestionarse desde un panel nuevo, `/casos-admin`: añadir, editar y eliminar casos completos — portada + nombre + sector + resultado para el grid, y descripción/logo/reto/imagen intermedia/solución/resultados (KPIs, cantidad variable) para el detalle. Se añadió también un campo de testimonios opcional (no pedido explícitamente, pero necesario para no perder el contenido real de 10 de los 19 casos actuales, que sí tienen un carrusel de testimonios).
+
+**Decisión de arquitectura (la más relevante de esta tarea):** en vez de renderizar el contenido en el navegador con un `fetch` a Supabase — el patrón que ya usan equipo/ofertas/logos — las páginas de casos de éxito se **siguen generando como HTML 100% estático**, ahora en build time a partir de Supabase, vía `scripts/generate-case-studies.mjs` (enganchado como `predev`/`prebuild` en `package.json`, así que corre solo con `npm run dev`/`npm run build`, sin plumbing extra). Se decidió así, preguntado explícitamente al usuario, porque estas son las páginas de más peso SEO del sitio: cada una necesita su propio `<title>`/meta/canonical/JSON-LD, indexable sin depender de que se ejecute JavaScript — justo lo que se pierde con el patrón de fetch-en-cliente. El coste: un cambio guardado en el admin tarda 1-2 min en publicarse (dispara un redeploy en Vercel vía Deploy Hook) en vez de verse al instante.
+
+**Modelo de datos:** migración `supabase/migrations/0008_case_studies.sql` — tres tablas (`case_studies`, `case_study_results` con 2-3 KPIs por caso confirmado que varía, y `case_study_testimonials` opcional), mismo patrón de RLS que `job_openings` (lectura pública solo de lo activo, gestión completa solo admin), y un bucket de Storage único `case-study-media` con subcarpetas `covers/`/`logos/`/`mid/` (esta entidad tiene 3 campos de imagen, no 1 como las anteriores, así que un bucket por campo habría sido ruido).
+
+**Migración del contenido existente:** los 19 casos actuales se extrajeron con un script de un solo uso (no commiteado, vivió en el scratchpad) que parseó los 19 `caso-*.html` + `casos-de-exito.html` por regex, generando `supabase/migrations/0009_case_studies_seed.sql`. Las imágenes existentes se dejaron con su ruta local original (`imgs/...`), sin re-subir a Storage.
+
+**Verificación exhaustiva antes de dar por buena la migración:** en vez de solo revisar el SQL a ojo, se montó un arnés de prueba (copia del generador real apuntando a un directorio de scratchpad en vez de a Supabase/al repo) para generar las 19 páginas a partir de los datos extraídos y compararlas byte a byte (`diff --strip-trailing-cr`) contra las páginas reales actuales. Esto encontró y corrigió 4 bugs de fidelidad reales que una revisión manual del SQL no habría detectado:
+- El nombre de marca se extraía en mayúsculas (de la tarjeta del grid, `<h3>NUTFRUIT</h3>`) y se reusaba tal cual en `<title>`/JSON-LD/`<h1>`, cuando el patrón real en 16 de los 19 casos es mostrar el nombre en mayúsculas **solo** en la tarjeta del grid y con su case natural (`Nutfruit`, `TravelPerk`, `iVentions`) en el resto. Corregido extrayendo el nombre del `<title>` en vez del `<h3>`, y quitando el `.toUpperCase()` forzado del `<h1>` del generador.
+- El tamaño de fuente de los números de KPI en el generador (`text-4xl sm:text-6xl`) era en realidad el del caso minoritario (3 de 19); el patrón dominante (15 de 19) es `text-5xl sm:text-6xl`. Corregido al valor mayoritario.
+- Faltaba la clase `reveal-group` en el contenedor del hero (presente en 16 de 19 casos), que agrupa el `<p>`/`<h1>` para que su animación de scroll-reveal salga escalonada (`src/main.js`, `initGsapAnimations`) en vez de cada uno por separado — sin ella el efecto sigue funcionando pero pierde el escalonado.
+- El avatar de los testimonios llevaba `alt="Logo"` genérico en vez de `alt="Logo de <marca>"`.
+- Se corrigió también el orden de los `<script type="application/ld+json">` (Organization antes que CreativeWork, como en el original) por limpieza, aunque no afecta a nada funcional.
+
+**Detalle conocido, no corregido a propósito:** el logo de Velites y el avatar del testimonio de TravelPerk dependían de un filtro CSS `invert` puntual (imágenes de logo en blanco pensadas para fondo oscuro) que la plantilla generada no reproduce — quedarán con mal contraste hasta que se suba una versión oscura del logo desde `/casos-admin`. Documentado en el propio seed SQL. Añadir un campo `invert` al esquema por 2 casos de 19 (y 2 de 38 usos de logo) se consideró sobre-ingeniería para el problema real.
+
+**Afecta:** `supabase/migrations/0008_case_studies.sql` y `0009_case_studies_seed.sql` (nuevos), `scripts/generate-case-studies.mjs` (nuevo), `casos-admin.html` + `src/casosAdmin.js` (nuevos), `casos-de-exito.html` (marcadores `CASOS_GRID_START/END` y `CASOS_FILTERS_START/END`), los 19 `caso-*.html` (pasan a ser artefactos auto-generados, marcados con un comentario al principio), `vite.config.js`, `public/robots.txt`, `src/dashboardShell.js` (nav item + icono `trophy`), `package.json` (`predev`/`prebuild`), `supabase/README.md` y `.env.example` (Deploy Hook), `.claude/project-context.md` (convención de páginas auto-generadas).
+
+**Pendiente del lado del usuario (no soy yo quien lo ejecuta):** correr `0008_case_studies.sql` y `0009_case_studies_seed.sql` en el SQL Editor de Supabase (mismo flujo manual que las migraciones anteriores — no tengo acceso MCP a este proyecto concreto de Supabase, está en otra cuenta/organización), y crear el Deploy Hook de Vercel + variable `VITE_DEPLOY_HOOK_URL` (ver `supabase/README.md`, paso 13) para que guardar/eliminar un caso dispare el redeploy automáticamente.
+
+**Verificado en local:** `npm run build` sin errores con `casos-admin` como entrada nueva de Rollup; el `predev`/`prebuild` falla con gracia y sin tocar ningún fichero cuando la tabla `case_studies` aún no existe (confirmado, ya que la migración no se ha corrido todavía). `casos-admin.html` carga correctamente y muestra la vista de login compartida (mismo componente que `/admin`/`/ofertas`). `casos-de-exito.html` y las páginas de detalle existentes siguen intactas (19 tarjetas, 9 pills de filtro) mientras la tabla no exista. La lógica de generación se verificó de forma exhaustiva mediante el arnés de prueba descrito arriba, con diffs prácticamente idénticos (solo diferencias de whitespace/comentarios decorativos y la descripción meta, ver más abajo) contra `caso-nutfruit.html` (caso simple), `caso-travelperk.html` (2 KPIs + 1 testimonio) y `caso-bobo.html` (2 testimonios).
+
+**Limitación aceptada:** la meta description y el `about` del JSON-LD de cada caso se generan a partir del campo "descripción" (truncado a 300 caracteres), no de un resumen SEO redactado a mano con cifras concretas como tenían las páginas originales — el pedido del usuario no incluía un campo de meta description aparte, y añadirlo sin que lo pidieran habría sido alcance de más. Si se quiere igualar la calidad SEO original, es una mejora sencilla de añadir más adelante (un campo opcional más en el formulario).
