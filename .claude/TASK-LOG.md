@@ -574,6 +574,18 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 
 ---
 
+## 2026-08-04 — Nuevo personaje animado en el banner de cookies
+
+**Qué:** sustituido el vídeo del personaje que acompaña al aviso de cookies (`public/imgs/personaje1.webm`, referenciado desde `src/bottom-panel.js`) por una nueva animación entregada por el usuario (`COOKIES.mov`, códec QuickTime Animation con canal alpha nativo). Conversión con `ffmpeg` a VP9/WebM con transparencia (`-pix_fmt yuva420p -auto-alt-ref 0`), mismo método de codificación que ya usaba el archivo anterior, manteniendo la resolución nativa del vídeo fuente (1928×1072, antes 1920×1080) y una duración de ~5s a 24fps. Tamaño final 573 KB (antes 708 KB).
+
+**Por qué:** petición del usuario de reemplazar el personaje de esa sección concreta por una pieza de vídeo nueva, sin tocar el resto del banner ni otras apariciones del personaje en el sitio (no las hay: `personaje1.webm` solo se usa en `bottom-panel.js`).
+
+**Afecta:** `public/imgs/personaje1.webm` (reemplazado; mismo nombre de archivo, mismo punto de referencia, sin cambios en `src/bottom-panel.js`).
+
+**Verificado en local:** servidor de dev de Vite; forzada la aparición del banner de cookies (`initBottomPanel()`) y confirmado por lectura de píxeles vía `<canvas>`/`getImageData` que el vídeo se decodifica con canal alpha real en el navegador (~71% de los píxeles muestreados con alpha < 10, consistente con fondo transparente alrededor del personaje). No se pudo tomar captura de pantalla porque el panel de vista previa no estaba visible en esta sesión.
+
+---
+
 ## 2026-08-04 — Galería de vídeos con scroll 3D en Diseño de Marca
 
 **Qué:** en `diseno-de-marca.html`, la segunda sección (un único vídeo de fondo, `imgs/hero-imcontent.mp4`) se sustituyó por una galería de 5 vídeos con un efecto de scroll pineado (GSAP `ScrollTrigger`) en 3D real: cada vídeo parte del centro de la pantalla —lejos, en el eje Z (`translateZ(-1600px)`, `scale(0.25)`, invisible)— y a medida que se hace scroll se acerca y se desplaza hacia afuera (radiando desde el centro hacia las 4 esquinas + uno central grande), usando `perspective` en el contenedor y `translateZ`/`scale`/`rotateZ` por vídeo — profundidad real, no un parallax vertical. Nuevo módulo `src/diseno-scroll-videos.js` (`initDisenoScrollVideos`), importado y llamado desde `src/main.js`. En mobile (`gsap.matchMedia`, `max-width: 767px`) se simplifica a una lista vertical normal sin pin ni 3D (cada vídeo hace fade/scale-in al entrar en viewport), evitando el scroll-jacking pesado en dispositivos táctiles.
@@ -689,3 +701,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; confirmado en navegador que en `/casos-de-exito.html` las 10 portadas nuevas del PR #22 y el CTA de Behance (PR #17) siguen coexistiendo tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #23 (personaje del banner de cookies)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR, con fecha 2026-08-04, vs. todo el trabajo entrado en `main` mientras tanto: galería 3D de Diseño de Marca con sus ajustes sucesivos, el fix del footer, y la resolución de conflicto del PR #22). Se conservaron todas, ordenadas cronológicamente por fecha de la entrada. Ningún otro fichero tuvo conflicto real: este PR solo toca `public/imgs/personaje1.webm`, que ningún otro PR mergeado ha tocado.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #23.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado en navegador (banner de cookies forzado tras limpiar `localStorage`) que el nuevo vídeo del personaje (`/imgs/personaje1.webm`, 1928×1072) carga y decodifica correctamente tras el merge; sin errores de consola.
