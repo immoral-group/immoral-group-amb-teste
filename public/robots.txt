@@ -6,6 +6,7 @@ Disallow: /roles
 Disallow: /ofertas
 Disallow: /logos
 Disallow: /logs
+Disallow: /casos-admin
 
 User-agent: ClaudeBot
 Allow: /
@@ -15,6 +16,7 @@ Disallow: /roles
 Disallow: /ofertas
 Disallow: /logos
 Disallow: /logs
+Disallow: /casos-admin
 
 User-agent: PerplexityBot
 Allow: /
@@ -24,6 +26,7 @@ Disallow: /roles
 Disallow: /ofertas
 Disallow: /logos
 Disallow: /logs
+Disallow: /casos-admin
 
 User-agent: *
 Allow: /
@@ -41,5 +44,7 @@ Disallow: /logos
 Disallow: /logos.html
 Disallow: /logs
 Disallow: /logs.html
+Disallow: /casos-admin
+Disallow: /casos-admin.html
 
 Sitemap: https://immoral.es/sitemap.xml
