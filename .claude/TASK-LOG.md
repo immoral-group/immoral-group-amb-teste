@@ -710,6 +710,126 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 
 ---
 
+## 2026-08-05 — Sustituye la imagen de portada del caso Teamder en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso TEAMDER (antes `imgs/teamder.png`) por una nueva imagen aportada por el usuario (logo de Teamder sobre fondo degradado con grano), guardada como `public/imgs/teamder-portada.jpg` (PNG original de 4.4MB redimensionado a 2000px de ancho y convertido a JPEG, ~1MB). Se eliminó `public/imgs/teamder.png` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/teamder-portada.jpg` (nuevo), `public/imgs/teamder.png` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta TEAMDER en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola nuevos (los errores de Supabase presentes son preexistentes por falta de credenciales locales, no relacionados con este cambio).
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso Oxperta Express en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso OXPERTA EXPRESS (antes `imgs/oexpress.svg`) por una nueva foto aportada por el usuario (repartidor con cajas frente a furgoneta de reparto), guardada como `public/imgs/oxpertaexpress-portada.jpg` (PNG original de 20MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~420KB). Se eliminó `public/imgs/oexpress.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/oxpertaexpress-portada.jpg` (nuevo), `public/imgs/oexpress.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta OXPERTA EXPRESS en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso TravelPerk en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso TRAVELPERK (antes `imgs/travelperk.png`) por una nueva foto aportada por el usuario (interior de oficina moderna con cabinas telefónicas y zona de descanso), guardada como `public/imgs/travelperk-portada.jpg`. Se eliminó `public/imgs/travelperk.png` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/travelperk-portada.jpg` (nuevo), `public/imgs/travelperk.png` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta TRAVELPERK en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso Vasquiat en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso VASQUIAT (antes `imgs/vasquiat.svg`) por una nueva foto editorial de moda aportada por el usuario, guardada como `public/imgs/vasquiat-portada.jpg` (PNG original de 19.5MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~365KB). Se eliminó `public/imgs/vasquiat.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/vasquiat-portada.jpg` (nuevo), `public/imgs/vasquiat.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `img.complete`/`naturalWidth` que la imagen carga correctamente (2000x1116, sin 404) en la tarjeta VASQUIAT de `/casos-de-exito.html`; sin errores de consola. (La captura visual del panel de preview no renderizó en este entorno puntualmente; verificación hecha por inspección del DOM en vez de captura de pantalla.)
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso WeTribu en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso WETRIBU (antes `imgs/wetribu.svg`) por una nueva foto aportada por el usuario (evento de la comunidad WeTribu, círculo de sillas con banners de marca), guardada como `public/imgs/wetribu-portada.jpg` (PNG original de 19.7MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~490KB). Se eliminó `public/imgs/wetribu.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/wetribu-portada.jpg` (nuevo), `public/imgs/wetribu.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/wetribu-portada.jpg` responde 200 y carga correctamente (2000x1116) al solicitarlo directamente; el `<img>` de la tarjeta no disparó su lazy-load durante la sesión de pruebas automatizada (artefacto del entorno, no del sitio), pero el `src` en el HTML y el archivo servido son correctos. Sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso The Crewel Work Company en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso THE CREWEL WORK COMPANY (antes `imgs/crewel.svg`) por una nueva foto de detalle de bordado aportada por el usuario, guardada como `public/imgs/crewel-portada.jpg` (PNG original de 22MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~645KB). Se eliminó `public/imgs/crewel.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/crewel-portada.jpg` (nuevo), `public/imgs/crewel.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/crewel-portada.jpg` responde 200 y el `src` en el HTML es correcto; sin errores de consola en la pestaña del sitio.
+
+---
+
+## 2026-08-05 — Corrige el nombre de marca incorrecto en la página de detalle de Crewel Work
+
+**Qué:** en `caso-thecrewel.html`, el `<h1>` de la cabecera ("Caso de Éxito: ...") decía "La Manso" en vez del nombre correcto — un error de copy-paste preexistente, ajeno al cambio de portada de la tarea anterior. Se corrigió a "Crewel Work", el nombre que ya usa el resto de la misma página (title, meta description, JSON-LD y cuerpo del texto). Se revisó el `<h1>` equivalente de las 19 páginas `caso-*.html` y no se encontró ningún otro caso con el nombre incorrecto.
+
+**Por qué:** feedback explícito del usuario tras revisar la página del caso.
+
+**Afecta:** `caso-thecrewel.html` únicamente.
+
+**Verificado:** grep sobre las 19 páginas `caso-*.html` confirmando que cada `<h1>` de cabecera coincide con la marca correspondiente.
+
+---
+
+## 2026-08-05 — Sustituye la imagen ilustrativa del caso Nutfruit
+
+**Qué:** en `caso-nutfruit.html`, se sustituyó `public/imgs/nut-img1.jpg` (imagen de la franja horizontal entre el hero y la sección de Solución/Resultados) por una nueva imagen aportada por el usuario (los personajes/mascotas de Nutfruit en un bosque). Mismo nombre y ruta de archivo, no se tocó el HTML; PNG original de 22MB/6336x2688 redimensionado a 2200px de ancho y convertido a JPEG (~700KB).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen concreta dentro del caso.
+
+**Afecta:** `public/imgs/nut-img1.jpg`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `img.complete`/`naturalWidth` (2200, sin 404) que la nueva imagen carga correctamente en `/caso-nutfruit.html`; sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso AMLUL en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso AMLUL por una nueva imagen aportada por el usuario (visualmente idéntica a la que ya estaba puesta — mismo encuadre, confirmado con el usuario antes de proceder). Igual que con La Marca Well, no se reutilizó `imgs/port-amlul.png` porque ese archivo también lo usa `caso-amlul.html` (la página de detalle) y el cambio pedido era solo para la tarjeta del grid. Se creó `public/imgs/amlul-portada.jpg` (PNG original de 18.6MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~345KB) y solo se actualizó el `src` en `casos-de-exito.html`. `port-amlul.png` no se toca.
+
+**Por qué:** petición explícita del usuario, confirmada tras señalar que la imagen aportada coincidía con la ya existente.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/amlul-portada.jpg` (nuevo). `public/imgs/port-amlul.png` no se toca.
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/amlul-portada.jpg` carga correctamente (2000x1116); sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso La Manso en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso LA MANSO por una nueva imagen aportada por el usuario (de nuevo visualmente idéntica a la ya existente, mismo patrón que AMLUL en la tarea anterior). No se reutilizó `imgs/port-manso.jpg` porque también lo usa `caso-lamanso.html` (página de detalle); se creó `public/imgs/lamanso-portada.jpg` (PNG original de 19MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~345KB) y solo se actualizó el `src` en `casos-de-exito.html`. `port-manso.jpg` no se toca.
+
+**Por qué:** petición explícita del usuario; se aplicó el mismo criterio ya confirmado en el cambio anterior de AMLUL (sustituir aunque la imagen coincida con la existente).
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/lamanso-portada.jpg` (nuevo). `public/imgs/port-manso.jpg` no se toca.
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/lamanso-portada.jpg` responde 200 y el `src` en el HTML es correcto; sin errores de consola.
+
+---
+
 ## 2026-08-05 — Resuelto conflicto de merge en el PR #21 (galería 3D en Diseño de Marca)
 
 **Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (las entradas de este PR — galería 3D, sus ajustes sucesivos y el fix del footer — vs. la entrada de resolución del PR #22, ya mergeado en `main`, sobre las 10 portadas de casos de éxito). Se conservaron todas, en orden cronológico. Ningún otro fichero tuvo conflicto real: el PR #22 solo tocó `src` de imágenes en `casos-de-exito.html` y ficheros en `public/imgs/`, sin relación con `diseno-de-marca.html`, `src/diseno-scroll-videos.js`, `src/main.js` ni `src/footer.js`.
@@ -743,3 +863,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md`, `src/main.js` (ambos con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores. Confirmado en navegador que `/publicidad-en-medios.html` renderiza las 4 tarjetas del carrusel Flip, que `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D, y que `/nuestra-historia.html` carga sin errores — las tres funcionalidades, entradas por PRs distintos que tocan `main.js`, coexisten tras el merge. Sin errores de consola en ninguna de las tres.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #25 (más portadas de Casos de Éxito + fix de nombre)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (las 8 entradas de este PR — portadas de Teamder, Oxperta Express, TravelPerk, Vasquiat, WeTribu, The Crewel Work Company, AMLUL y La Manso, más el fix del nombre de marca en `caso-thecrewel.html` — vs. las resoluciones de conflicto de los PR #21, #23 y #24 ya integradas en `main`). Se conservaron todas, en orden cronológico. Ningún otro fichero tuvo conflicto real: este PR solo toca imágenes de `public/imgs/` y el `<h1>` de `caso-thecrewel.html`, sin relación con `src/main.js`, `src/footer.js` ni la galería 3D.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #25.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en navegador que `/caso-thecrewel.html` muestra el `<h1>` corregido ("Crewel Work") y que las 8 nuevas portadas (`teamder-portada`, `oxpertaexpress-portada`, `travelperk-portada`, `vasquiat-portada`, `wetribu-portada`, `crewel-portada`, `amlul-portada`, `lamanso-portada`) están presentes en `/casos-de-exito.html` junto con el CTA de Behance. Sin errores de consola en ninguna de las dos.
