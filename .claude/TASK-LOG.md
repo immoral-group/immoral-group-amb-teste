@@ -574,6 +574,24 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 
 ---
 
+## 2026-08-04 — Carrusel "Plataformas que dominamos" en Publicidad en Medios + ajuste de recuadro en Nuestra Historia
+
+**Qué:** sustituido el grid estático de plataformas (Meta/Google/LinkedIn/TikTok/YouTube/Pinterest/Spotify) en `publicidad-en-medios.html` por un carrusel tipo "flip caterpillar" (GSAP Flip: captura estado → reordena DOM → anima la diferencia) que muestra 4 tarjetas a la vez con botones Anterior/Siguiente. En reposo cada tarjeta muestra solo el logo centrado con un balanceo vertical continuo y suave, distinto por tarjeta y desfasado entre ellas. Al hover, el logo y la descripción se centran juntos como bloque y la tarjeta pasa de negro sólido a vidrio esmerilado con tinte del color de marca (`color-mix()` + `backdrop-filter`). Nuevo módulo `src/platform-carousel.js`, registrado en `src/main.js`; estilos nuevos en `src/style.css`. Número de tarjetas visibles adaptado por ancho de viewport.
+
+Adicionalmente, en `nuestra-historia.html` se realineó el recuadro de texto ("Al principio nos llamamos ADMK Team...") con la columna de texto superior (antes centrado de forma independiente) y se ajustó su fondo `.liquid-glass` a un tinte oscuro con padding reducido, tras varias iteraciones en vivo con el usuario.
+
+**Por qué:** petición explícita del usuario, iterada en vivo sobre un prototipo (`proto-plataformas.html` + `src/proto-platform-carousel.js`, ya eliminados) antes de tocar la página real: probó primero un layout en abanico (rechazado), luego el carrusel Flip inspirado en una demo de GSAP, y ajustó el hover (revelado del texto, wiggle vertical continuo, "liquid glass", colores) hasta aprobar la versión de producción.
+
+**Afecta:** `publicidad-en-medios.html`, `src/platform-carousel.js` (nuevo), `src/main.js`, `src/style.css`, `nuestra-historia.html`.
+
+**Deuda técnica documentada (no resuelta en este PR):** ver nota en `project-context.md` — coexisten ahora dos sistemas de "liquid glass": `.liquid-glass` (distorsión SVG, para paneles siempre-cristal) y el `color-mix()` de las tarjetas de plataformas (para tarjetas que transicionan negro→cristal-de-color). No se unificaron porque el resultado visual de cada uno ya estaba aprobado por el usuario antes de detectarse el solapamiento.
+
+**Bug de entorno local encontrado y corregido:** este worktree no tenía fichero `.env` (solo `.env.example`), por lo que `createClient()` en `src/supabaseClient.js` lanzaba `Error: supabaseUrl is required.` al evaluarse el módulo — al ser un throw de nivel superior en una dependencia transitiva de `main.js`, rompía silenciosamente la ejecución de `initAll()` en todas las páginas (no solo la sección nueva), sin generar ningún error visible hasta aislarlo. Se creó `.env` local a partir de `.env.example` (gitignorado, no se sube) para desbloquear las pruebas — necesario en cualquier clon nuevo del repo, ver `supabase/README.md`.
+
+**Verificado en local:** servidor `npm run dev`; confirmado en `/publicidad-en-medios.html` que el carrusel renderiza 4 tarjetas en el orden esperado, que el hover activa el degradado con el color de marca correcto y que "Siguiente"/"Anterior" reordenan el DOM correctamente; confirmado en `/nuestra-historia.html` que el recuadro quedó alineado con el texto y con el nuevo tinte/tamaño. Sin errores de consola propios de estos cambios (solo el error preexistente y esperado de logos de partners por credenciales de Supabase de ejemplo).
+
+---
+
 ## 2026-08-04 — Nuevo personaje animado en el banner de cookies
 
 **Qué:** sustituido el vídeo del personaje que acompaña al aviso de cookies (`public/imgs/personaje1.webm`, referenciado desde `src/bottom-panel.js`) por una nueva animación entregada por el usuario (`COOKIES.mov`, códec QuickTime Animation con canal alpha nativo). Conversión con `ffmpeg` a VP9/WebM con transparencia (`-pix_fmt yuva420p -auto-alt-ref 0`), mismo método de codificación que ya usaba el archivo anterior, manteniendo la resolución nativa del vídeo fuente (1928×1072, antes 1920×1080) y una duración de ~5s a 24fps. Tamaño final 573 KB (antes 708 KB).
@@ -713,3 +731,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores; confirmado en navegador (banner de cookies forzado tras limpiar `localStorage`) que el nuevo vídeo del personaje (`/imgs/personaje1.webm`, 1928×1072) carga y decodifica correctamente tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #24 (carrusel Flip de plataformas + recuadro de Nuestra Historia)
+
+**Qué:** dos conflictos reales: (1) el habitual y puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR, con fecha 2026-08-04, vs. todo lo entrado en `main` mientras tanto — galería 3D, fix de footer, y las resoluciones de los PR #22/#23); se conservaron todas en orden cronológico. (2) En `src/main.js`, ambas ramas añadían un `import` nuevo en la misma línea (`initPlatformCarousel` de este PR vs. `initDisenoScrollVideos` del PR #21, ya en `main`) — no eran alternativas sino dos imports independientes, así que se conservaron ambos. Los puntos donde cada uno se invoca (`initAll()`) ya estaban en líneas distintas del fichero y se automergearon sin conflicto.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #24.
+
+**Afecta:** `.claude/TASK-LOG.md`, `src/main.js` (ambos con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en navegador que `/publicidad-en-medios.html` renderiza las 4 tarjetas del carrusel Flip, que `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D, y que `/nuestra-historia.html` carga sin errores — las tres funcionalidades, entradas por PRs distintos que tocan `main.js`, coexisten tras el merge. Sin errores de consola en ninguna de las tres.

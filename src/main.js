@@ -12,6 +12,7 @@ import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
+import { initPlatformCarousel } from './platform-carousel.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -1740,6 +1741,7 @@ function initAll() {
     initHeroPhysics();
     initEquipoNetwork();
     try { initPublicidadMediosCubes(); } catch (e) { console.error("Error in initPublicidadMediosCubes:", e); }
+    try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
     initImmoralEcosystem();
