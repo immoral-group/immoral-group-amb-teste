@@ -710,6 +710,30 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 
 ---
 
+## 2026-08-05 — Cursor personalizado: círculo blanco/negro con inversión en hover
+
+**Qué:** se añadió un cursor personalizado en todo el sitio (`src/custom-cursor.js`, ~40 líneas): un círculo fijo de 20px que sigue al ratón vía `mousemove`, blanco con borde negro por defecto ("positivo"), y que pasa a negro con borde blanco ("negativo") al pasar por encima de cualquier elemento interactivo (`a, button, input, textarea, select, label, [role="button"], [tabindex], .cursor-pointer`), detectado por delegación de eventos `mouseover`/`mouseout` en `document`. El cursor nativo se oculta (`cursor: none !important` en todos los elementos, con `!important` porque varias interacciones existentes —drag de carruseles— fijan `element.style.cursor` inline) solo en dispositivos con puntero fino (`@media (pointer: fine)`); en touch (`pointer: coarse`) el cursor personalizado no se crea y el nativo permanece intacto. Como la navegación de este sitio reemplaza `document.body.innerHTML` en cada cambio de página (SPA-like, ver `updateDOM`/`initAll` en `src/main.js`), `initCustomCursor()` recrea el elemento del círculo en cada llamada pero solo adjunta los listeners de `window`/`document` una vez (flag de módulo), para no acumular listeners duplicados tras varias navegaciones.
+
+**Por qué:** petición explícita del usuario. Se confirmaron dos decisiones de diseño antes de implementar: el significado de "positivo/negativo" (blanco relleno → negro relleno, no inversión tipo `mix-blend-mode`) y el alcance del hover (solo elementos interactivos, no cualquier elemento de la página).
+
+**Afecta:** `src/custom-cursor.js` (nuevo), `src/main.js` (import + llamada en `initAll()`), `src/style.css` (reglas `.custom-cursor`).
+
+**Verificado en local:** preview con `npm run dev`; confirmado por inspección del DOM que el círculo sigue al cursor (`transform` se actualiza en cada `mousemove`) y que la clase `is-hover` se activa/desactiva correctamente al entrar/salir de un enlace; confirmado visualmente en captura que el círculo se ve blanco sobre fondo negro en reposo y negro con borde blanco al pasar sobre el nav; confirmado que en emulación móvil (`pointer: coarse`) el elemento no se crea y `cursor` del body vuelve a `auto`. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Ajusta tamaño y transición del cursor personalizado
+
+**Qué:** dos ajustes al cursor personalizado (`src/custom-cursor.js`, `src/style.css`) tras feedback visual del usuario: (1) el círculo se redujo de 20px a 12px; (2) la transición plana de color (0.15s linear) se sustituyó por una animación con rebote — se separó el punto visual (`.cc-dot`, un `<span>` interno) del contenedor que sigue la posición del ratón (`.custom-cursor`), para poder animar `transform: scale()` en el punto sin interferir con el `transform: translate()` que el JS actualiza en cada `mousemove`. Al hacer hover, el punto ahora escala a 1.8x con `cubic-bezier(0.34, 1.56, 0.64, 1)` (efecto de rebote/overshoot) en 0.45s, junto con el cambio de color en 0.35s.
+
+**Por qué:** feedback explícito del usuario: el círculo era demasiado grande y la transición positivo→negativo se sentía plana, sin animación.
+
+**Afecta:** `src/custom-cursor.js`, `src/style.css`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por inspección del DOM que la estructura anidada (`.custom-cursor > .cc-dot`) existe y el tamaño en reposo es 12px; confirmado visualmente en captura que el punto crece notablemente con rebote al pasar sobre un enlace del nav. Sin errores de consola nuevos.
+
+---
+
 ## 2026-08-05 — Sustituye la imagen de portada del caso Teamder en Casos de Éxito
 
 **Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso TEAMDER (antes `imgs/teamder.png`) por una nueva imagen aportada por el usuario (logo de Teamder sobre fondo degradado con grano), guardada como `public/imgs/teamder-portada.jpg` (PNG original de 4.4MB redimensionado a 2000px de ancho y convertido a JPEG, ~1MB). Se eliminó `public/imgs/teamder.png` (sin más referencias en el repo).
@@ -875,3 +899,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores. Confirmado en navegador que `/caso-thecrewel.html` muestra el `<h1>` corregido ("Crewel Work") y que las 8 nuevas portadas (`teamder-portada`, `oxpertaexpress-portada`, `travelperk-portada`, `vasquiat-portada`, `wetribu-portada`, `crewel-portada`, `amlul-portada`, `lamanso-portada`) están presentes en `/casos-de-exito.html` junto con el CTA de Behance. Sin errores de consola en ninguna de las dos.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #26 (cursor personalizado)
+
+**Qué:** tres conflictos reales: (1) el habitual y aditivo en `.claude/TASK-LOG.md` (las dos entradas de este PR — cursor personalizado y su ajuste de tamaño/transición — vs. las entradas de imágenes de Casos de Éxito y la resolución del PR #25). (2) En `src/main.js`, ambas ramas añadían un `import` nuevo en la misma línea (`initCustomCursor` de este PR vs. `initPlatformCarousel`/`initDisenoScrollVideos` de los PR #21/#24, ya en `main`) — de nuevo imports independientes, no alternativas; se conservaron los tres. (3) En `src/style.css`, el bloque de reglas `.custom-cursor` (este PR) y el bloque `.platform-carousel`/`.platform-card-*` (PR #24) se insertaron ambos al final del fichero en el mismo punto respecto al ancestro común, así que Git los marcó como un único conflicto aunque no se solapan — el bloque de HEAD llegó incompleto en el marcador (le faltaba la llave de cierre de `@media (pointer: coarse)`, que Git había desplazado justo después del separador `=======`); se reconstruyeron ambos bloques completos y balanceados, cursor primero y carrusel después, comprobando las llaves contra la versión original de cada rama.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #26.
+
+**Afecta:** `.claude/TASK-LOG.md`, `src/main.js`, `src/style.css` (los tres con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores (sin errores de sintaxis CSS). Confirmado en navegador: el cursor personalizado sigue al ratón, oculta el nativo (`cursor: none`) y activa `is-hover` correctamente al pasar sobre un enlace; `/publicidad-en-medios.html` sigue renderizando las 4 tarjetas del carrusel con sus estilos (`background-color: rgb(10, 10, 10)` en `.platform-card-inner`) intactos; `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D. Las tres funcionalidades, que tocan `main.js` y/o `style.css` desde PRs distintos, coexisten tras el merge. Sin errores de consola nuevos (los mensajes de fallo de HMR de `style.css` vistos durante la resolución eran residuales del estado a medio editar, no del resultado final — confirmado por navegación forzada tras terminar).
