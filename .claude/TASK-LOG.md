@@ -574,6 +574,130 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 
 ---
 
+## 2026-08-04 — Carrusel "Plataformas que dominamos" en Publicidad en Medios + ajuste de recuadro en Nuestra Historia
+
+**Qué:** sustituido el grid estático de plataformas (Meta/Google/LinkedIn/TikTok/YouTube/Pinterest/Spotify) en `publicidad-en-medios.html` por un carrusel tipo "flip caterpillar" (GSAP Flip: captura estado → reordena DOM → anima la diferencia) que muestra 4 tarjetas a la vez con botones Anterior/Siguiente. En reposo cada tarjeta muestra solo el logo centrado con un balanceo vertical continuo y suave, distinto por tarjeta y desfasado entre ellas. Al hover, el logo y la descripción se centran juntos como bloque y la tarjeta pasa de negro sólido a vidrio esmerilado con tinte del color de marca (`color-mix()` + `backdrop-filter`). Nuevo módulo `src/platform-carousel.js`, registrado en `src/main.js`; estilos nuevos en `src/style.css`. Número de tarjetas visibles adaptado por ancho de viewport.
+
+Adicionalmente, en `nuestra-historia.html` se realineó el recuadro de texto ("Al principio nos llamamos ADMK Team...") con la columna de texto superior (antes centrado de forma independiente) y se ajustó su fondo `.liquid-glass` a un tinte oscuro con padding reducido, tras varias iteraciones en vivo con el usuario.
+
+**Por qué:** petición explícita del usuario, iterada en vivo sobre un prototipo (`proto-plataformas.html` + `src/proto-platform-carousel.js`, ya eliminados) antes de tocar la página real: probó primero un layout en abanico (rechazado), luego el carrusel Flip inspirado en una demo de GSAP, y ajustó el hover (revelado del texto, wiggle vertical continuo, "liquid glass", colores) hasta aprobar la versión de producción.
+
+**Afecta:** `publicidad-en-medios.html`, `src/platform-carousel.js` (nuevo), `src/main.js`, `src/style.css`, `nuestra-historia.html`.
+
+**Deuda técnica documentada (no resuelta en este PR):** ver nota en `project-context.md` — coexisten ahora dos sistemas de "liquid glass": `.liquid-glass` (distorsión SVG, para paneles siempre-cristal) y el `color-mix()` de las tarjetas de plataformas (para tarjetas que transicionan negro→cristal-de-color). No se unificaron porque el resultado visual de cada uno ya estaba aprobado por el usuario antes de detectarse el solapamiento.
+
+**Bug de entorno local encontrado y corregido:** este worktree no tenía fichero `.env` (solo `.env.example`), por lo que `createClient()` en `src/supabaseClient.js` lanzaba `Error: supabaseUrl is required.` al evaluarse el módulo — al ser un throw de nivel superior en una dependencia transitiva de `main.js`, rompía silenciosamente la ejecución de `initAll()` en todas las páginas (no solo la sección nueva), sin generar ningún error visible hasta aislarlo. Se creó `.env` local a partir de `.env.example` (gitignorado, no se sube) para desbloquear las pruebas — necesario en cualquier clon nuevo del repo, ver `supabase/README.md`.
+
+**Verificado en local:** servidor `npm run dev`; confirmado en `/publicidad-en-medios.html` que el carrusel renderiza 4 tarjetas en el orden esperado, que el hover activa el degradado con el color de marca correcto y que "Siguiente"/"Anterior" reordenan el DOM correctamente; confirmado en `/nuestra-historia.html` que el recuadro quedó alineado con el texto y con el nuevo tinte/tamaño. Sin errores de consola propios de estos cambios (solo el error preexistente y esperado de logos de partners por credenciales de Supabase de ejemplo).
+
+---
+
+## 2026-08-04 — Nuevo personaje animado en el banner de cookies
+
+**Qué:** sustituido el vídeo del personaje que acompaña al aviso de cookies (`public/imgs/personaje1.webm`, referenciado desde `src/bottom-panel.js`) por una nueva animación entregada por el usuario (`COOKIES.mov`, códec QuickTime Animation con canal alpha nativo). Conversión con `ffmpeg` a VP9/WebM con transparencia (`-pix_fmt yuva420p -auto-alt-ref 0`), mismo método de codificación que ya usaba el archivo anterior, manteniendo la resolución nativa del vídeo fuente (1928×1072, antes 1920×1080) y una duración de ~5s a 24fps. Tamaño final 573 KB (antes 708 KB).
+
+**Por qué:** petición del usuario de reemplazar el personaje de esa sección concreta por una pieza de vídeo nueva, sin tocar el resto del banner ni otras apariciones del personaje en el sitio (no las hay: `personaje1.webm` solo se usa en `bottom-panel.js`).
+
+**Afecta:** `public/imgs/personaje1.webm` (reemplazado; mismo nombre de archivo, mismo punto de referencia, sin cambios en `src/bottom-panel.js`).
+
+**Verificado en local:** servidor de dev de Vite; forzada la aparición del banner de cookies (`initBottomPanel()`) y confirmado por lectura de píxeles vía `<canvas>`/`getImageData` que el vídeo se decodifica con canal alpha real en el navegador (~71% de los píxeles muestreados con alpha < 10, consistente con fondo transparente alrededor del personaje). No se pudo tomar captura de pantalla porque el panel de vista previa no estaba visible en esta sesión.
+
+---
+
+## 2026-08-04 — Galería de vídeos con scroll 3D en Diseño de Marca
+
+**Qué:** en `diseno-de-marca.html`, la segunda sección (un único vídeo de fondo, `imgs/hero-imcontent.mp4`) se sustituyó por una galería de 5 vídeos con un efecto de scroll pineado (GSAP `ScrollTrigger`) en 3D real: cada vídeo parte del centro de la pantalla —lejos, en el eje Z (`translateZ(-1600px)`, `scale(0.25)`, invisible)— y a medida que se hace scroll se acerca y se desplaza hacia afuera (radiando desde el centro hacia las 4 esquinas + uno central grande), usando `perspective` en el contenedor y `translateZ`/`scale`/`rotateZ` por vídeo — profundidad real, no un parallax vertical. Nuevo módulo `src/diseno-scroll-videos.js` (`initDisenoScrollVideos`), importado y llamado desde `src/main.js`. En mobile (`gsap.matchMedia`, `max-width: 767px`) se simplifica a una lista vertical normal sin pin ni 3D (cada vídeo hace fade/scale-in al entrar en viewport), evitando el scroll-jacking pesado en dispositivos táctiles.
+
+Los 5 vídeos fuente (`public/page-diseno/*.mp4`, aportados por el usuario, ~126MB en total) se convirtieron a WebM (VP9, sin audio, reescalados a 1280px de ancho) — `diseno-scroll-1.webm` a `diseno-scroll-5.webm`, ~6.4MB en total (–95%) — y los `.mp4` originales se borraron tras confirmar la conversión.
+
+**Por qué:** petición explícita del usuario, inspirada en un efecto de su portfolio personal (`gregoryjaques.com` / `K:\Gregory\Portfolio`, componente `Mastering.jsx`) pero pidiendo explícitamente que el movimiento fuera en profundidad (eje Z, 3D real) en vez del parallax vertical de esa referencia.
+
+**Afecta:** `diseno-de-marca.html`, `src/main.js`, `src/diseno-scroll-videos.js` (nuevo), `public/page-diseno/diseno-scroll-1.webm` a `-5.webm` (nuevos, reemplazan a los 5 `.mp4` originales que se eliminaron).
+
+**Bug real encontrado y corregido durante la verificación:** la primera versión posicionaba cada `.dsv-item` con `top-1/2`/`left-1/2` pero dejaba el contenedor `#dsv-stage` como `flex flex-col` (sin `md:block`) y cada item en `position: relative` (sin `md:absolute`) en desktop — con eso, el `top`/`left` porcentual se aplicaba sobre la posición de flujo normal (cada vídeo apilado debajo del anterior), no sobre el centro real del contenedor, resultando en vídeos posicionados muy por debajo del viewport visible. Corregido añadiendo `md:block` a `#dsv-stage` y `md:absolute` a cada `.dsv-item`.
+
+**Verificado en local:** `npm run build` sin errores; verificado en navegador forzando `ScrollTrigger.update()` en varios puntos de progreso (0%, 50%, 95%, 100%) que: el estado inicial deja los 5 vídeos invisibles y centrados en Z=-1600; a mitad de scroll los primeros vídeos ya están visibles y posicionados mientras los últimos siguen esperando su turno; al final del scroll los 5 quedan dentro de los límites del viewport (`getBoundingClientRect` con `top`/`bottom` dentro de 0–928px), distribuidos en las 4 esquinas + uno central grande. En mobile (375px) se confirmó que los vídeos NO quedan pineados (`position: relative`, altura de sección natural en vez de `400vh`) y que el `ScrollTrigger` de cada item avanza su progreso correctamente con el scroll; no se pudo confirmar visualmente el fade-in real (esta sesión de navegador no compone frames de animaciones no-scrub, mismo límite ya documentado en entradas anteriores) — pendiente de confirmación visual del usuario en mobile real. Sin errores de consola en desktop ni mobile.
+
+---
+
+## 2026-08-05 — Vuelo continuo, doble de vídeos y arreglo del layout roto en la galería 3D
+
+**Qué:** tres cambios sobre la galería de scroll 3D de `diseno-de-marca.html`, a partir de feedback del usuario con capturas: (1) **el doble de vídeos** — de 5 a 10 instancias (los 5 clips se reutilizan duplicados, cada uno con su propio ancho, trayectoria y rotación); (2) **los vídeos ya no frenan en una posición final fija** — antes cada uno terminaba parado en un punto (4 esquinas + centro), ahora cada uno sigue su trayectoria hasta salir por completo del viewport (`z: 900`, desplazamiento del 150% de la mitad del viewport en ambos ejes, `scale: 2.4`, `ease: power1.in`), dando un flujo continuo de 2-3 vídeos en pantalla a la vez; (3) **duración del scroll muy reducida** — de `+=2400%` (un cálculo mío erróneo: ~22.300px de scroll) a `+=220%` (~1.580px) y `scrub` de 1 → 0.4, que era la causa de que se sintiera "muy larga y muy lenta".
+
+**Por qué:** petición explícita del usuario tras probar la primera versión en su navegador.
+
+**Afecta:** `diseno-de-marca.html` (10 `.dsv-item` en vez de 5; se quitó el wrapper `sticky` intermedio y la altura fija `md:h-[400vh]`), `src/diseno-scroll-videos.js`, `src/main.js` (orden de inicialización).
+
+**Tres bugs reales encontrados y corregidos:**
+
+- **Bloque "fantasma" que descuadraba toda la página tras la animación** (el que el usuario reportó con captura): la sección mezclaba `position: sticky` (CSS) con `pin: true` (GSAP) *y además* declaraba una altura fija `md:h-[400vh]`. Como el pin de ScrollTrigger ya inserta su propio spacer, el espacio quedaba duplicado: al des-pinear quedaba un bloque de ~400vh vacío solapándose con la sección siguiente. Corregido eliminando tanto el `sticky` como la altura manual, dejando que ScrollTrigger gestione el spacer a partir de `end`.
+- **La sección "Cómo lo hacemos" aparecía a mitad de la animación de los vídeos:** ambas secciones están pineadas, pero `initComoLoHacemosScroll()` se ejecutaba *antes* que `initDisenoScrollVideos()` pese a ir *después* en el DOM, así que calculaba su rango de scroll antes de que existiera el pin spacer de la galería y los rangos se solapaban (verificado: `chlh.start` quedaba 1.770px *antes* del `dsv.end`). Corregido invirtiendo el orden de init en `main.js` para que coincida con el orden del DOM, más `refreshPriority: 1` en el trigger de la galería. Tras el arreglo, `chlh` empieza 2.655px *después* de que termina `dsv`.
+- **`ScrollTrigger.refresh()` dentro del callback de `gsap.matchMedia()` rompía la detección de breakpoint:** se probó como intento de arreglar el punto anterior y provocó que a 1280px de ancho se activara la rama *mobile* (10 triggers por item en vez del pin de desktop). Documentado como anti-patrón en la cabecera del módulo para no repetirlo.
+
+**Verificado en local:** `npm run build` sin errores. En desktop (1280×720), recorriendo el scroll en 0/20/40/60/80/100%: en 0% no hay ningún vídeo visible, entre 20% y 80% hay siempre 2-3 en pantalla, y en 100% los **10 han salido del viewport** (0 visibles) — el vuelo ya no se detiene. Confirmado que 300px después del final del pin no queda ningún vídeo visible filtrándose en la sección siguiente, que la sección se comporta con su altura natural (720px, sin bloque fantasma) y que no hay scroll horizontal. En mobile (375px) confirmado que se activa la rama correcta (sin pin, 10 triggers por item, `position: relative`) y sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+---
+
+## 2026-08-05 — Ajuste de tamaño, velocidad y densidad de la galería 3D
+
+**Qué:** tres ajustes de sensación sobre la galería, pedidos por el usuario tras validar la versión anterior: (1) **vídeos más grandes** — anchos subidos ~35% (de un rango de 17-30vw a 23-38vw); (2) **desplazamiento más lento** — el recorrido de scroll pasa de `+=220%` a `+=320%` (de ~1.580px a ~2.300px), así la misma animación se reparte sobre más scroll; (3) **más elementos en pantalla a la vez** — de 10 a 14 instancias y `stagger` de 0.3 a 0.18 (el nº de vídeos solapados en vuelo es ≈ `flightDuration / stagger`, así que pasa de ~3 a ~5), que era la queja de que "aparecen pocos elementos durante el scroll".
+
+**Refactor asociado:** los `.dsv-item` ya no se escriben a mano en el HTML — se generan en `src/diseno-scroll-videos.js` desde un array `ITEMS` (ancho + trayectoria + rotación por instancia) reutilizando los 5 clips. Con 14 instancias, mantener el markup a mano significaba 14 bloques duplicados de 4 líneas cada uno para elementos puramente decorativos (`aria-hidden`); ahora cantidad, tamaño y trayectoria se ajustan en un único sitio. Al reutilizar las mismas 5 URLs el navegador las cachea, así que 14 elementos siguen costando **solo 5 descargas** (verificado). En mobile solo se muestran los 5 primeros (uno por clip): la lista vertical no gana nada repitiéndolos y evita 14 vídeos decodificando a la vez.
+
+**Por qué:** feedback explícito del usuario tras probar la versión anterior en su navegador.
+
+**Afecta:** `src/diseno-scroll-videos.js`, `diseno-de-marca.html` (los 10 bloques `.dsv-item` se sustituyen por un `#dsv-stage` vacío con un comentario que apunta al módulo).
+
+**Verificado en local:** `npm run build` sin errores. En desktop (1280×720): 14 items, recorrido de 2.304px (antes 1.584px), entre el 20% y el 80% del scroll hay siempre **3-4 vídeos en pantalla** (antes 2-3) y al 100% los 14 han salido del viewport. Confirmado el gradiente de profundidad a mitad de vuelo (el más cercano ocupa el 31% del ancho del viewport, el más lejano el 4%), que los 14 `<video>` cargan (`readyState: 4`) con **solo 5 URLs únicas**, y que sigue habiendo 2.655px de separación entre el final de esta sección y el inicio de "Cómo lo hacemos" (sin regresión del solapamiento). En mobile (375px): 14 items en el DOM pero solo 5 visibles, sin pin, sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+---
+
+## 2026-08-05 — Vídeos aún más grandes y mezcla de formato vertical en la galería 3D
+
+**Qué:** dos ajustes más sobre la galería, pedidos por el usuario: (1) **tamaños subidos otra vez** — los horizontales pasan de 23-38vw a 32-50vw; (2) **mezcla de orientaciones** — 5 de las 14 instancias pasan a formato vertical (contenedor `aspect-[9/16]` en vez de `aspect-video`), quedando 9 horizontales + 5 verticales. Los 5 clips fuente son 1920×1080 (horizontales), así que en las instancias verticales el `object-cover` del `<video>` recorta los lados — no hace falta material nuevo. Las entradas verticales llevan anchos mucho menores (18-24vw) porque en 9:16 la altura crece con el ancho: a 22vw en un viewport de 1280×720 ya ocupa ~70vh de alto.
+
+**Por qué:** feedback explícito del usuario ("que sean más grandes aún y que algunos vídeos tengan formato vertical").
+
+**Afecta:** `src/diseno-scroll-videos.js` únicamente (nuevo flag `portrait` por entrada del array `ITEMS`; las dos variantes de `className` se escriben como cadenas literales completas para que el JIT de Tailwind las detecte al escanear el módulo — `src/**/*.js` ya está en el `content` de `tailwind.config.js`).
+
+**Verificado en local:** `npm run build` sin errores y `.aspect-\[9\/16\]` presente en el CSS compilado (confirmado que Tailwind genera la clase desde el JS). En desktop (1280×720): 14 items con exactamente dos ratios distintos — 1.78 (16:9) en 9 items y 0.56 (9:16) en 5 —, tamaño máximo en pantalla del 52% del ancho del viewport a un 20% del scroll (antes 31%) y hasta un 127% del ancho / 151% del alto al pasar junto a la cámara justo antes de salir (efecto buscado, recortado por el `overflow-hidden` de la sección); al 100% del scroll los 14 siguen saliendo del viewport. En mobile (375px): 5 items visibles, uno de ellos vertical (523px de alto en un viewport de 812px), sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+---
+
+## 2026-08-05 — Partículas y marcos decorativos en la galería 3D
+
+**Qué:** se añadieron 36 elementos decorativos que vuelan por el mismo espacio 3D que los vídeos, para que el scroll no se sienta vacío en los huecos entre un vídeo y el siguiente: **30 partículas** (puntos de 2-7px, un tercio en el azul de marca `#4889eb` y el resto en blanco) y **6 marcos translúcidos** (rectángulos de 9-17vw con borde y relleno muy tenues), en la línea de los "shapes" que ya usaba el portfolio de referencia del usuario. Se reparten por toda la duración del timeline de los vídeos (no con el mismo stagger), así que siempre hay varios en vuelo rellenando los huecos, y se apagan con un fade antes de llegar al borde en vez de recortarse en seco. Solo en desktop: en mobile la sección es una lista vertical simple y quedan ocultos.
+
+Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `Math.random()`: `initAll()` se re-ejecuta en la navegación tipo SPA de este sitio, y con random puro el campo de partículas se recolocaría en cada re-init produciendo un salto visible.
+
+**Por qué:** petición explícita del usuario ("¿podemos adicionar algunas partículas u otros elementos que no sea el vídeo para rellenar un poco más mientras sucede este scroll?").
+
+**Afecta:** `src/diseno-scroll-videos.js` únicamente.
+
+**Decisión de rendimiento:** los marcos van **sin** `backdrop-filter`, aunque el efecto de cristal sería más rico: son 6 elementos en movimiento sobre una escena que ya reproduce 14 vídeos simultáneos, y el blur de fondo animado es de lo más caro de componer. Sobre el negro de la sección, borde + relleno muy tenue ya lee como marco de cristal.
+
+**Bug real encontrado y corregido:** los colores/bordes de los decorativos se escribieron primero como clases de Tailwind y se comprobó que **`bg-white/[0.03]` no llegaba al CSS compilado** (0 ocurrencias de `0.03` en el bundle), dejando los marcos completamente sin relleno. Las clases estructurales sí se generan bien desde el JS (`aspect-[9/16]` está en el CSS), así que no es que el fichero no se escanee. Se movieron los valores de color/borde a estilo inline, que además es más apropiado para valores puntuales de elementos creados en runtime. Documentado en la cabecera del módulo.
+
+**Verificado en local:** `npm run build` sin errores. En desktop (1280×800): 36 decorativos en el DOM, con los estilos inline efectivamente aplicados (`rgb(72, 137, 235)` en las partículas azules, `rgba(255,255,255,0.03)` de relleno y `rgba(255,255,255,0.1)` de borde en los marcos). Densidad a lo largo del scroll: 15% → 3 vídeos + 8 decorativos, 35% → 4 + 14, 55% → 4 + 14, 75% → 4 + 9. En mobile (375px): los 36 decorativos siguen en el DOM pero con `display: none` (0 visibles) y los 5 vídeos de la lista intactos, sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+**Detalle conocido (no corregido a propósito):** el último ~6% del scroll pineado (~150px) queda sin elementos en pantalla, porque los últimos vídeos y partículas salen del viewport antes de que sus tweens terminen. El vaciado es gradual desde el 78% del scroll, así que funciona como respiro antes de la sección "Cómo lo hacemos"; forzar que coincidan exactamente obligaría a acortar los recorridos de salida y haría las salidas más abruptas.
+
+**No verificado:** el framerate real de la escena (14 vídeos + 36 elementos animados con scrub). El panel de navegador de esta sesión no compone frames, así que no se pudo medir — conviene una pasada en un equipo modesto antes de dar por buena la densidad.
+
+---
+
+## 2026-08-05 — Fix: el footer no aparecía en diseno-de-marca.html
+
+**Qué:** el `<footer>` que monta `src/footer.js` no tenía `z-index` propio (`class="relative bg-black py-16 text-white overflow-hidden"`). En `diseno-de-marca.html` la sección Hero es `position: fixed` con `z-[1]` y permanece fija durante todo el scroll de la página; al no tener el footer ningún z-index (`z-index: auto`), las reglas de stacking de CSS hacen que el Hero (con z-index positivo explícito) se pinte por encima de él sin importar el orden en el DOM, dejándolo tapado de forma permanente. Se añadió `z-10` al footer (`relative z-10 bg-black ...`), en línea con el resto de secciones de esta página, que ya usan `z-10` precisamente para quedar por encima de ese mismo Hero fijo.
+
+**Por qué:** reporte del usuario ("el pie de página no está apareciendo en esta página").
+
+**Afecta:** `src/footer.js` (componente compartido por todas las páginas del sitio). Se comprobó que `diseno-de-marca.html` es la única página con este patrón de Hero `fixed` + `z-[1]`, así que el bug era exclusivo de esa página; el fix es seguro en el resto del sitio porque ahí no hay ningún elemento con z-index superior al del footer con el que pueda competir.
+
+**Verificado en local:** `npm run build` sin errores. En `diseno-de-marca.html`, tras hacer scroll hasta el final, `getComputedStyle` confirma `z-index: 10` en el footer frente a `z-index: 1` en el Hero (`position: fixed`), y el contenido del footer (enlaces, dirección, copyright) aparece en el árbol de accesibilidad de la página en su posición esperada dentro del viewport.
+
+---
+
 ## 2026-08-04 — Resuelto conflicto de merge en el PR #22 (imágenes de portada de 10 casos de éxito)
 
 **Qué:** único conflicto real, de nuevo puramente aditivo en `.claude/TASK-LOG.md` (las 10 entradas de este PR, sobre las portadas de Nutfruit/Cool Bottles/Velites/Mun Kombucha/La Marca Well/Bobo Choses/Grupo Mimara/Gabriel For Sach/iVentions/Oxperta Capital, vs. todo el trabajo entrado en `main` mientras tanto: reducción del celeste + liquid glass, edición de equipo en grid, estilo de botones de archivo, vídeo de fondo en Historia Fundador, y el CTA de Behance con sus tres iteraciones). Se conservaron todas, en orden cronológico. `casos-de-exito.html` se automergeó sin conflicto — el PR #17 (CTA de Behance) tocó la cabecera de la sección (contador → barra CTA) y este PR tocó únicamente los `src` de las `<img>` de las tarjetas del grid, sin solaparse.
@@ -607,3 +731,183 @@ Como consecuencia, `diseno-de-marca.html` dejó de ser la última página con el
 **Afecta:** `src/custom-cursor.js`, `src/style.css`.
 
 **Verificado en local:** preview con `npm run dev`; confirmado por inspección del DOM que la estructura anidada (`.custom-cursor > .cc-dot`) existe y el tamaño en reposo es 12px; confirmado visualmente en captura que el punto crece notablemente con rebote al pasar sobre un enlace del nav. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso Teamder en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso TEAMDER (antes `imgs/teamder.png`) por una nueva imagen aportada por el usuario (logo de Teamder sobre fondo degradado con grano), guardada como `public/imgs/teamder-portada.jpg` (PNG original de 4.4MB redimensionado a 2000px de ancho y convertido a JPEG, ~1MB). Se eliminó `public/imgs/teamder.png` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/teamder-portada.jpg` (nuevo), `public/imgs/teamder.png` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta TEAMDER en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola nuevos (los errores de Supabase presentes son preexistentes por falta de credenciales locales, no relacionados con este cambio).
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso Oxperta Express en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso OXPERTA EXPRESS (antes `imgs/oexpress.svg`) por una nueva foto aportada por el usuario (repartidor con cajas frente a furgoneta de reparto), guardada como `public/imgs/oxpertaexpress-portada.jpg` (PNG original de 20MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~420KB). Se eliminó `public/imgs/oexpress.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/oxpertaexpress-portada.jpg` (nuevo), `public/imgs/oexpress.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta OXPERTA EXPRESS en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso TravelPerk en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso TRAVELPERK (antes `imgs/travelperk.png`) por una nueva foto aportada por el usuario (interior de oficina moderna con cabinas telefónicas y zona de descanso), guardada como `public/imgs/travelperk-portada.jpg`. Se eliminó `public/imgs/travelperk.png` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/travelperk-portada.jpg` (nuevo), `public/imgs/travelperk.png` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; la tarjeta TRAVELPERK en `/casos-de-exito.html` muestra la nueva imagen con el mismo encuadre (`object-cover`) y badges intactos. Sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso Vasquiat en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso VASQUIAT (antes `imgs/vasquiat.svg`) por una nueva foto editorial de moda aportada por el usuario, guardada como `public/imgs/vasquiat-portada.jpg` (PNG original de 19.5MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~365KB). Se eliminó `public/imgs/vasquiat.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/vasquiat-portada.jpg` (nuevo), `public/imgs/vasquiat.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `img.complete`/`naturalWidth` que la imagen carga correctamente (2000x1116, sin 404) en la tarjeta VASQUIAT de `/casos-de-exito.html`; sin errores de consola. (La captura visual del panel de preview no renderizó en este entorno puntualmente; verificación hecha por inspección del DOM en vez de captura de pantalla.)
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso WeTribu en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso WETRIBU (antes `imgs/wetribu.svg`) por una nueva foto aportada por el usuario (evento de la comunidad WeTribu, círculo de sillas con banners de marca), guardada como `public/imgs/wetribu-portada.jpg` (PNG original de 19.7MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~490KB). Se eliminó `public/imgs/wetribu.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/wetribu-portada.jpg` (nuevo), `public/imgs/wetribu.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/wetribu-portada.jpg` responde 200 y carga correctamente (2000x1116) al solicitarlo directamente; el `<img>` de la tarjeta no disparó su lazy-load durante la sesión de pruebas automatizada (artefacto del entorno, no del sitio), pero el `src` en el HTML y el archivo servido son correctos. Sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso The Crewel Work Company en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso THE CREWEL WORK COMPANY (antes `imgs/crewel.svg`) por una nueva foto de detalle de bordado aportada por el usuario, guardada como `public/imgs/crewel-portada.jpg` (PNG original de 22MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~645KB). Se eliminó `public/imgs/crewel.svg` (sin más referencias en el repo).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen de portada concreta.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/crewel-portada.jpg` (nuevo), `public/imgs/crewel.svg` (eliminado).
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/crewel-portada.jpg` responde 200 y el `src` en el HTML es correcto; sin errores de consola en la pestaña del sitio.
+
+---
+
+## 2026-08-05 — Corrige el nombre de marca incorrecto en la página de detalle de Crewel Work
+
+**Qué:** en `caso-thecrewel.html`, el `<h1>` de la cabecera ("Caso de Éxito: ...") decía "La Manso" en vez del nombre correcto — un error de copy-paste preexistente, ajeno al cambio de portada de la tarea anterior. Se corrigió a "Crewel Work", el nombre que ya usa el resto de la misma página (title, meta description, JSON-LD y cuerpo del texto). Se revisó el `<h1>` equivalente de las 19 páginas `caso-*.html` y no se encontró ningún otro caso con el nombre incorrecto.
+
+**Por qué:** feedback explícito del usuario tras revisar la página del caso.
+
+**Afecta:** `caso-thecrewel.html` únicamente.
+
+**Verificado:** grep sobre las 19 páginas `caso-*.html` confirmando que cada `<h1>` de cabecera coincide con la marca correspondiente.
+
+---
+
+## 2026-08-05 — Sustituye la imagen ilustrativa del caso Nutfruit
+
+**Qué:** en `caso-nutfruit.html`, se sustituyó `public/imgs/nut-img1.jpg` (imagen de la franja horizontal entre el hero y la sección de Solución/Resultados) por una nueva imagen aportada por el usuario (los personajes/mascotas de Nutfruit en un bosque). Mismo nombre y ruta de archivo, no se tocó el HTML; PNG original de 22MB/6336x2688 redimensionado a 2200px de ancho y convertido a JPEG (~700KB).
+
+**Por qué:** petición explícita del usuario de cambiar esa imagen concreta dentro del caso.
+
+**Afecta:** `public/imgs/nut-img1.jpg`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `img.complete`/`naturalWidth` (2200, sin 404) que la nueva imagen carga correctamente en `/caso-nutfruit.html`; sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso AMLUL en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso AMLUL por una nueva imagen aportada por el usuario (visualmente idéntica a la que ya estaba puesta — mismo encuadre, confirmado con el usuario antes de proceder). Igual que con La Marca Well, no se reutilizó `imgs/port-amlul.png` porque ese archivo también lo usa `caso-amlul.html` (la página de detalle) y el cambio pedido era solo para la tarjeta del grid. Se creó `public/imgs/amlul-portada.jpg` (PNG original de 18.6MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~345KB) y solo se actualizó el `src` en `casos-de-exito.html`. `port-amlul.png` no se toca.
+
+**Por qué:** petición explícita del usuario, confirmada tras señalar que la imagen aportada coincidía con la ya existente.
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/amlul-portada.jpg` (nuevo). `public/imgs/port-amlul.png` no se toca.
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/amlul-portada.jpg` carga correctamente (2000x1116); sin errores de consola.
+
+---
+
+## 2026-08-05 — Sustituye la imagen de portada del caso La Manso en Casos de Éxito
+
+**Qué:** en `casos-de-exito.html`, se sustituyó la portada del caso LA MANSO por una nueva imagen aportada por el usuario (de nuevo visualmente idéntica a la ya existente, mismo patrón que AMLUL en la tarea anterior). No se reutilizó `imgs/port-manso.jpg` porque también lo usa `caso-lamanso.html` (página de detalle); se creó `public/imgs/lamanso-portada.jpg` (PNG original de 19MB/5504x3072 redimensionado a 2000px de ancho y convertido a JPEG, ~345KB) y solo se actualizó el `src` en `casos-de-exito.html`. `port-manso.jpg` no se toca.
+
+**Por qué:** petición explícita del usuario; se aplicó el mismo criterio ya confirmado en el cambio anterior de AMLUL (sustituir aunque la imagen coincida con la existente).
+
+**Afecta:** `casos-de-exito.html`, `public/imgs/lamanso-portada.jpg` (nuevo). `public/imgs/port-manso.jpg` no se toca.
+
+**Verificado en local:** preview con `npm run dev`; confirmado que `/imgs/lamanso-portada.jpg` responde 200 y el `src` en el HTML es correcto; sin errores de consola.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #21 (galería 3D en Diseño de Marca)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (las entradas de este PR — galería 3D, sus ajustes sucesivos y el fix del footer — vs. la entrada de resolución del PR #22, ya mergeado en `main`, sobre las 10 portadas de casos de éxito). Se conservaron todas, en orden cronológico. Ningún otro fichero tuvo conflicto real: el PR #22 solo tocó `src` de imágenes en `casos-de-exito.html` y ficheros en `public/imgs/`, sin relación con `diseno-de-marca.html`, `src/diseno-scroll-videos.js`, `src/main.js` ni `src/footer.js`.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #21.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado en navegador que en `/casos-de-exito.html` las 10 portadas nuevas del PR #22 y el CTA de Behance (PR #17) siguen coexistiendo tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #23 (personaje del banner de cookies)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR, con fecha 2026-08-04, vs. todo el trabajo entrado en `main` mientras tanto: galería 3D de Diseño de Marca con sus ajustes sucesivos, el fix del footer, y la resolución de conflicto del PR #22). Se conservaron todas, ordenadas cronológicamente por fecha de la entrada. Ningún otro fichero tuvo conflicto real: este PR solo toca `public/imgs/personaje1.webm`, que ningún otro PR mergeado ha tocado.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #23.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores; confirmado en navegador (banner de cookies forzado tras limpiar `localStorage`) que el nuevo vídeo del personaje (`/imgs/personaje1.webm`, 1928×1072) carga y decodifica correctamente tras el merge; sin errores de consola.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #24 (carrusel Flip de plataformas + recuadro de Nuestra Historia)
+
+**Qué:** dos conflictos reales: (1) el habitual y puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR, con fecha 2026-08-04, vs. todo lo entrado en `main` mientras tanto — galería 3D, fix de footer, y las resoluciones de los PR #22/#23); se conservaron todas en orden cronológico. (2) En `src/main.js`, ambas ramas añadían un `import` nuevo en la misma línea (`initPlatformCarousel` de este PR vs. `initDisenoScrollVideos` del PR #21, ya en `main`) — no eran alternativas sino dos imports independientes, así que se conservaron ambos. Los puntos donde cada uno se invoca (`initAll()`) ya estaban en líneas distintas del fichero y se automergearon sin conflicto.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #24.
+
+**Afecta:** `.claude/TASK-LOG.md`, `src/main.js` (ambos con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en navegador que `/publicidad-en-medios.html` renderiza las 4 tarjetas del carrusel Flip, que `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D, y que `/nuestra-historia.html` carga sin errores — las tres funcionalidades, entradas por PRs distintos que tocan `main.js`, coexisten tras el merge. Sin errores de consola en ninguna de las tres.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #25 (más portadas de Casos de Éxito + fix de nombre)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (las 8 entradas de este PR — portadas de Teamder, Oxperta Express, TravelPerk, Vasquiat, WeTribu, The Crewel Work Company, AMLUL y La Manso, más el fix del nombre de marca en `caso-thecrewel.html` — vs. las resoluciones de conflicto de los PR #21, #23 y #24 ya integradas en `main`). Se conservaron todas, en orden cronológico. Ningún otro fichero tuvo conflicto real: este PR solo toca imágenes de `public/imgs/` y el `<h1>` de `caso-thecrewel.html`, sin relación con `src/main.js`, `src/footer.js` ni la galería 3D.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #25.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en navegador que `/caso-thecrewel.html` muestra el `<h1>` corregido ("Crewel Work") y que las 8 nuevas portadas (`teamder-portada`, `oxpertaexpress-portada`, `travelperk-portada`, `vasquiat-portada`, `wetribu-portada`, `crewel-portada`, `amlul-portada`, `lamanso-portada`) están presentes en `/casos-de-exito.html` junto con el CTA de Behance. Sin errores de consola en ninguna de las dos.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #26 (cursor personalizado)
+
+**Qué:** tres conflictos reales: (1) el habitual y aditivo en `.claude/TASK-LOG.md` (las dos entradas de este PR — cursor personalizado y su ajuste de tamaño/transición — vs. las entradas de imágenes de Casos de Éxito y la resolución del PR #25). (2) En `src/main.js`, ambas ramas añadían un `import` nuevo en la misma línea (`initCustomCursor` de este PR vs. `initPlatformCarousel`/`initDisenoScrollVideos` de los PR #21/#24, ya en `main`) — de nuevo imports independientes, no alternativas; se conservaron los tres. (3) En `src/style.css`, el bloque de reglas `.custom-cursor` (este PR) y el bloque `.platform-carousel`/`.platform-card-*` (PR #24) se insertaron ambos al final del fichero en el mismo punto respecto al ancestro común, así que Git los marcó como un único conflicto aunque no se solapan — el bloque de HEAD llegó incompleto en el marcador (le faltaba la llave de cierre de `@media (pointer: coarse)`, que Git había desplazado justo después del separador `=======`); se reconstruyeron ambos bloques completos y balanceados, cursor primero y carrusel después, comprobando las llaves contra la versión original de cada rama.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #26.
+
+**Afecta:** `.claude/TASK-LOG.md`, `src/main.js`, `src/style.css` (los tres con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores (sin errores de sintaxis CSS). Confirmado en navegador: el cursor personalizado sigue al ratón, oculta el nativo (`cursor: none`) y activa `is-hover` correctamente al pasar sobre un enlace; `/publicidad-en-medios.html` sigue renderizando las 4 tarjetas del carrusel con sus estilos (`background-color: rgb(10, 10, 10)` en `.platform-card-inner`) intactos; `/diseno-de-marca.html` sigue generando los 14 `.dsv-item` de la galería 3D. Las tres funcionalidades, que tocan `main.js` y/o `style.css` desde PRs distintos, coexisten tras el merge. Sin errores de consola nuevos (los mensajes de fallo de HMR de `style.css` vistos durante la resolución eran residuales del estado a medio editar, no del resultado final — confirmado por navegación forzada tras terminar).

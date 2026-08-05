@@ -76,6 +76,8 @@ URLs are listed below grouped by section, with recommended sitemap priority and 
 
 - Internal pages have no `<link rel="canonical">` or `<meta property="og:url">` — only `index.html` does. Add canonicals (pointing to clean URLs) before submitting the sitemap to Google Search Console.
 - ~1,004 internal `<a href>` links across the HTMLs still point to `/page.html`. They work via Vercel's auto-redirect (308), but adding an extra hop. Consider a future find-and-replace to update them to clean URLs.
+- Sin fichero `.env` local, `src/supabaseClient.js` lanza `Error: supabaseUrl is required.` al evaluarse el módulo — al ser un throw de nivel superior en una dependencia transitiva de `main.js`, esto rompe silenciosamente `initAll()` en **todas** las páginas (no solo las que usan Supabase). Cualquier clon/worktree nuevo necesita copiar `.env.example` a `.env` antes de `npm run dev` (ver `supabase/README.md`).
+- Deuda de diseño: coexisten dos sistemas de "liquid glass" en `src/style.css` — `.liquid-glass` (distorsión SVG vía `feDisplacementMap`, para paneles siempre-cristal sobre fondo fijo; requiere inyectar el `<defs>` del filtro en el `<body>` de cada página que lo usa, ver `equipo.html`/`nuestra-historia.html`) y el de las tarjetas de "Plataformas que dominamos" en `publicidad-en-medios.html` (`color-mix()` + `backdrop-filter`, pensado para transicionar de negro sólido a cristal-de-color por tarjeta). No se han unificado — evaluar si conviene consolidarlos la próxima vez que se toque cualquiera de los dos.
 
 ## Lastmod Strategy
 
