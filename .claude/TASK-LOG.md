@@ -485,3 +485,17 @@ Los 5 vídeos fuente (`public/page-diseno/*.mp4`, aportados por el usuario, ~126
 - **`ScrollTrigger.refresh()` dentro del callback de `gsap.matchMedia()` rompía la detección de breakpoint:** se probó como intento de arreglar el punto anterior y provocó que a 1280px de ancho se activara la rama *mobile* (10 triggers por item en vez del pin de desktop). Documentado como anti-patrón en la cabecera del módulo para no repetirlo.
 
 **Verificado en local:** `npm run build` sin errores. En desktop (1280×720), recorriendo el scroll en 0/20/40/60/80/100%: en 0% no hay ningún vídeo visible, entre 20% y 80% hay siempre 2-3 en pantalla, y en 100% los **10 han salido del viewport** (0 visibles) — el vuelo ya no se detiene. Confirmado que 300px después del final del pin no queda ningún vídeo visible filtrándose en la sección siguiente, que la sección se comporta con su altura natural (720px, sin bloque fantasma) y que no hay scroll horizontal. En mobile (375px) confirmado que se activa la rama correcta (sin pin, 10 triggers por item, `position: relative`) y sin overflow horizontal. Sin errores de consola en ninguno de los dos.
+
+---
+
+## 2026-08-05 — Ajuste de tamaño, velocidad y densidad de la galería 3D
+
+**Qué:** tres ajustes de sensación sobre la galería, pedidos por el usuario tras validar la versión anterior: (1) **vídeos más grandes** — anchos subidos ~35% (de un rango de 17-30vw a 23-38vw); (2) **desplazamiento más lento** — el recorrido de scroll pasa de `+=220%` a `+=320%` (de ~1.580px a ~2.300px), así la misma animación se reparte sobre más scroll; (3) **más elementos en pantalla a la vez** — de 10 a 14 instancias y `stagger` de 0.3 a 0.18 (el nº de vídeos solapados en vuelo es ≈ `flightDuration / stagger`, así que pasa de ~3 a ~5), que era la queja de que "aparecen pocos elementos durante el scroll".
+
+**Refactor asociado:** los `.dsv-item` ya no se escriben a mano en el HTML — se generan en `src/diseno-scroll-videos.js` desde un array `ITEMS` (ancho + trayectoria + rotación por instancia) reutilizando los 5 clips. Con 14 instancias, mantener el markup a mano significaba 14 bloques duplicados de 4 líneas cada uno para elementos puramente decorativos (`aria-hidden`); ahora cantidad, tamaño y trayectoria se ajustan en un único sitio. Al reutilizar las mismas 5 URLs el navegador las cachea, así que 14 elementos siguen costando **solo 5 descargas** (verificado). En mobile solo se muestran los 5 primeros (uno por clip): la lista vertical no gana nada repitiéndolos y evita 14 vídeos decodificando a la vez.
+
+**Por qué:** feedback explícito del usuario tras probar la versión anterior en su navegador.
+
+**Afecta:** `src/diseno-scroll-videos.js`, `diseno-de-marca.html` (los 10 bloques `.dsv-item` se sustituyen por un `#dsv-stage` vacío con un comentario que apunta al módulo).
+
+**Verificado en local:** `npm run build` sin errores. En desktop (1280×720): 14 items, recorrido de 2.304px (antes 1.584px), entre el 20% y el 80% del scroll hay siempre **3-4 vídeos en pantalla** (antes 2-3) y al 100% los 14 han salido del viewport. Confirmado el gradiente de profundidad a mitad de vuelo (el más cercano ocupa el 31% del ancho del viewport, el más lejano el 4%), que los 14 `<video>` cargan (`readyState: 4`) con **solo 5 URLs únicas**, y que sigue habiendo 2.655px de separación entre el final de esta sección y el inicio de "Cómo lo hacemos" (sin regresión del solapamiento). En mobile (375px): 14 items en el DOM pero solo 5 visibles, sin pin, sin overflow horizontal. Sin errores de consola en ninguno de los dos.

@@ -375,49 +375,11 @@
     <section id="dsv-pin"
         class="relative w-full min-h-screen bg-black z-10 mt-[100vh] overflow-hidden flex flex-col gap-6 py-20 px-6 md:p-0 md:block"
         style="perspective: 1400px;">
+        <!-- Los .dsv-item se generan en runtime desde src/diseno-scroll-videos.js
+             (son decorativos y hay más instancias que clips — cantidad, tamaño
+             y trayectoria se ajustan desde el array ITEMS de ese módulo). -->
         <div id="dsv-stage" class="flex flex-col gap-6 md:gap-0 md:block md:absolute md:inset-0"
-            style="transform-style: preserve-3d;">
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-1.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-2.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-3.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-4.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-5.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-1.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-2.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-3.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-4.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-            <div class="dsv-item relative md:absolute w-full md:w-auto md:top-1/2 md:left-1/2 aspect-video rounded-2xl overflow-hidden shadow-2xl">
-                <video class="w-full h-full object-cover" src="/page-diseno/diseno-scroll-5.webm" autoplay muted
-                    loop playsinline aria-hidden="true"></video>
-            </div>
-        </div>
+            style="transform-style: preserve-3d;"></div>
     </section>
 
     <!-- Services Grid Section -->
