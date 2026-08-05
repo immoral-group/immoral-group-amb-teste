@@ -914,6 +914,18 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 
 ---
 
+## 2026-08-05 — Fix: cursor invisible en el dashboard interno
+
+**Qué:** la regla `cursor: none !important` que oculta el cursor nativo para el cursor personalizado (PR #26) vive en `src/style.css`, importado por **todas** las páginas — también `admin.js`, `ofertas.js`, `logosAdmin.js`, `roles.js` y `casosAdmin.js`, ninguna de las cuales llama a `initCustomCursor()` (eso solo pasa en `src/main.js`, el entrypoint del sitio público). Resultado: en todo el dashboard interno el cursor nativo se ocultaba sin que existiera ningún círculo que lo sustituyera — el ratón quedaba invisible. Se acotó la regla con `:has()` para que solo aplique cuando `.custom-cursor` existe de verdad en la página (`html:has(.custom-cursor) *`), en vez de tocar cada entrypoint del dashboard para excluirlo uno a uno.
+
+**Por qué:** reporte del usuario ("no se ve el mouse dentro del dashboard").
+
+**Afecta:** `src/style.css` únicamente.
+
+**Verificado en local:** `npm run build` sin errores. En `/admin.html` (dashboard), `getComputedStyle(document.body).cursor` devuelve `auto` y no existe ningún `.custom-cursor` en el DOM — cursor nativo visible. En `/index.html` (sitio público), `cursor` devuelve `none` y `.custom-cursor` sí existe — el efecto se mantiene intacto donde corresponde. Sin errores de consola nuevos.
+
+---
+
 ## 2026-08-05 — Influencer Marketing: sección "¿Qué podemos hacer por ti?" con el diseño de anillo scroll-driven
 
 **Qué:** en `influencer-marketing.html`, la sección "¿Qué podemos hacer por ti?" (antes 5 paneles verticales con imagen de fondo que se expandían al hover) se sustituyó por el componente de anillo scroll-driven "Cómo lo hacemos" ya usado en `diseno-de-marca.html` y `email-marketing.html` (motor compartido en `src/como-lo-hacemos-scroll.js`, sin cambios en el JS). Se reutilizó el copy de los 5 pasos existentes (Selección, Estrategia, Análisis, Gestión, Contenido) mapeado a la estructura `chlh-badge`/`chlh-title`/`chlh-description`/pills + `chlh-steps-data`, y se añadió un 5º estilo de anillo (`chlh-style-4`) porque las otras dos páginas solo tenían 4 pasos. La etiqueta visible de la sección se dejó como "¿Qué podemos hacer por ti?" (no "Cómo lo hacemos", para no perder el título original de esta sección en esta página).

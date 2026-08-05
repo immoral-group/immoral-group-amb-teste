@@ -1163,13 +1163,18 @@ html {
     transform: translate(-50%, -50%) scale(1.8);
 }
 
+/* Acotado a páginas donde initCustomCursor() creó el círculo (el sitio
+   público, vía src/main.js) — el dashboard interno (admin.js, ofertas.js,
+   casosAdmin.js, etc.) importa este mismo style.css pero nunca llama a
+   initCustomCursor(), así que sin este :has() el cursor nativo se ocultaba
+   ahí sin ningún reemplazo visible. */
 @media (pointer: fine) {
 
-    html,
-    body,
-    *,
-    *::before,
-    *::after {
+    html:has(.custom-cursor),
+    html:has(.custom-cursor) body,
+    html:has(.custom-cursor) *,
+    html:has(.custom-cursor) *::before,
+    html:has(.custom-cursor) *::after {
         cursor: none !important;
     }
 }
