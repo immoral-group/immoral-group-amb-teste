@@ -875,3 +875,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores. Confirmado en navegador que `/caso-thecrewel.html` muestra el `<h1>` corregido ("Crewel Work") y que las 8 nuevas portadas (`teamder-portada`, `oxpertaexpress-portada`, `travelperk-portada`, `vasquiat-portada`, `wetribu-portada`, `crewel-portada`, `amlul-portada`, `lamanso-portada`) están presentes en `/casos-de-exito.html` junto con el CTA de Behance. Sin errores de consola en ninguna de las dos.
+
+---
+
+## 2026-08-05 — Actualiza el vídeo de fondo de "Historia Fundador" con la versión más reciente
+
+**Qué:** en `nuestra-historia.html`, se sustituyó `public/imgs/nt-bg-2.mp4` (fondo en vídeo de la sección "Historia Fundador", introducido en la PR #18) por la versión actualizada del mismo vídeo ("GIF Marco.mp4") que el usuario dejó en la carpeta `Nuestra Historia/` del proyecto. Mismo nombre y ruta de archivo, no se tocó el HTML. El nuevo archivo es más ligero (7.6MB vs 10.2MB) y de menor duración (3.97s vs 5.33s).
+
+**Por qué:** petición explícita del usuario tras actualizar el archivo fuente.
+
+**Afecta:** `public/imgs/nt-bg-2.mp4`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `video.readyState`/`videoWidth`/`duration` que el nuevo vídeo carga correctamente (1920x1080, 3.97s, sin 404) en `/nuestra-historia.html`. Sin errores de consola nuevos.
