@@ -1104,3 +1104,13 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores. Confirmado en el texto renderizado de `/index.html` que "El crecimiento real empieza con una buena conversación." aparece inmediatamente antes de "No lo hacemos como los demás. Y por eso funciona.", como se pedía. Sin errores de consola.
+
+---
+
+## 2026-08-06 — Interacción de "red de nodos" extendida a todo el bloque negro de Nuestra Historia
+
+**Qué:** en `nuestra-historia.html`, la animación de puntos interactiva (antes limitada a una caja fija dentro de la columna izquierda de la sección "Así nació la idea") ahora cubre como fondo las 3 secciones negras contiguas (Origen y Equipo, Immoral Statement, Más que una agencia), agrupadas en un `<div>` común hasta el borde donde empieza la sección blanca de contacto. En `src/main.js` (función `initEquipoNetwork`): el listener de ratón pasó de escuchar en el contenedor de la rejilla (bloqueado por el contenido transparente que queda por delante) a escuchar en `window` con comprobación manual de límites; se añadió un "foco" de desenfoque (`backdrop-filter: blur`) que sigue al cursor en una capa intermedia (`z-5`, entre el fondo `z-0` y el texto `z-10`) y solo se activa cuando `elementFromPoint` confirma que hay texto real bajo el cursor (párrafos, títulos, enlaces, el recuadro liquid-glass) — nunca sobre el fondo vacío de puntos; y se ajustó la densidad/tamaño de los puntos (espaciado y radios) tras varias iteraciones de feedback visual, terminando un 10% más de puntos y un 10% más pequeños respecto al ajuste base.
+
+**Por qué:** petición del usuario para que la interacción "de bolitas" no quedara confinada a un recuadro pequeño sino que ocupara todo el espacio negro visible de la sección, con una capa de desenfoque sutil detrás del texto (sin afectar su legibilidad) y sin desenfocar las zonas vacías.
+
+**Afecta:** `nuestra-historia.html` (estructura de las 3 secciones negras + contenedor de la red de nodos), `src/main.js` (lógica de `initEquipoNetwork`: listener de ratón, foco de desenfoque, constantes de densidad/tamaño de la rejilla).
