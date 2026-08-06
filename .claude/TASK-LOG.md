@@ -988,3 +988,13 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** tras el merge, `npm run dev` arranca correctamente (el `predev` nuevo, `generate-case-studies.mjs`, falla con gracia por falta de tabla/Node 20, como está documentado, sin bloquear Vite); confirmado en el navegador que `.custom-cursor`/`.cc-dot` existen y `cursor: none` está aplicado en `/index.html`; sin marcadores de conflicto restantes en ningún fichero (`grep` limpio). Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Unificar fondo blanco/texto negro en Publicidad en Medios
+
+**Qué:** en `publicidad-en-medios.html`, las secciones "Impacto Real (KPIs)" ("La diferencia entre invertir en anuncios y construir resultados") y "Final CTA" ("¿Listo para dejar de quemar presupuesto...") pasaron de `bg-black`/texto blanco a `bg-white`/texto negro, dejando intactos todos los elementos azules (`#2f80ed`) del anillo, el botón y su hover.
+
+**Por qué:** el resto de páginas de servicio (`diseno-de-marca.html`, `gestion-de-redes.html`, `email-marketing.html`, `automatizacion-de-procesos.html`) ya tenían estas dos secciones en fondo blanco/texto negro, formando una franja blanca continua hasta el final del CTA; `publicidad-en-medios.html` era la única que rompía ese patrón con fondo negro. Petición del usuario para igualarla usando `diseno-de-marca.html` como referencia.
+
+**Afecta:** `publicidad-en-medios.html` (sección KPIs y sección Final CTA).
