@@ -988,3 +988,15 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** tras el merge, `npm run dev` arranca correctamente (el `predev` nuevo, `generate-case-studies.mjs`, falla con gracia por falta de tabla/Node 20, como está documentado, sin bloquear Vite); confirmado en el navegador que `.custom-cursor`/`.cc-dot` existen y `cursor: none` está aplicado en `/index.html`; sin marcadores de conflicto restantes en ningún fichero (`grep` limpio). Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Reordena el CTA "El crecimiento real empieza..." en el home
+
+**Qué:** en `index.html`, se movió la sección completa del CTA ("El crecimiento real empieza con una buena conversación." + fondo WebGL `#home-blackhole` + botón "SOLICITA UNA CONSULTORÍA") de su posición original (justo antes del footer, al final de la página) a justo antes de la sección "Why Us" ("No lo hacemos como los demás. Y por eso funciona."). Movimiento de bloque completo, sin cambios de contenido ni de estilos; `#home-blackhole` es autónomo (`src/home-blackhole.js` solo busca el elemento por id y no depende de su posición en el DOM), así que el cambio de orden no requirió tocar JS.
+
+**Por qué:** petición explícita del usuario.
+
+**Afecta:** `index.html` únicamente.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `querySelectorAll('section')` que la sección del CTA precede inmediatamente a la de "Why Us"; confirmado también en el texto renderizado de la página (`get_page_text`) que ambos bloques aparecen consecutivos en ese orden. Sin errores de consola nuevos.
