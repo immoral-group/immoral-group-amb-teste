@@ -26,7 +26,6 @@ uniform vec2 uResolution;
 uniform float uTime;
 uniform float uContrast;
 uniform sampler2D uDispTexture;
-uniform vec2 uFieldSize;
 uniform float uDispMax;
 uniform float uDispStrength;
 uniform float uCellSize;
@@ -43,7 +42,11 @@ vec2 screenCoord(vec2 fragCoord) {
 }
 
 vec2 sampleDisp(vec2 screenPx) {
-    vec2 uv = screenPx / (uFieldSize * uCellSize);
+    // uv debe cubrir toda la pantalla (0..1 de borde a borde del canvas) — la
+    // rejilla en sí solo tiene uFieldSize texels, pero eso ya lo resuelve la
+    // interpolación bilineal del sampler, no hay que "escalar" la UV por su
+    // resolución.
+    vec2 uv = screenPx / uResolution;
     vec2 enc = texture(uDispTexture, uv).rg;
     return (enc - 0.5) * 2.0 * uDispMax;
 }
@@ -113,7 +116,11 @@ vec3 orderedDither(vec3 color, ivec2 pixelCoord) {
 vec4 sampleText(vec2 screenPx) {
     vec2 local = (screenPx - uTextOrigin) / uTextSize;
     if (local.x < 0.0 || local.x > 1.0 || local.y < 0.0 || local.y > 1.0) return vec4(0.0);
-    return texture(uTextTexture, vec2(local.x, 1.0 - local.y));
+    // Sin flip: la textura se sube directamente desde el canvas 2D (fila 0 =
+    // arriba, sin UNPACK_FLIP_Y_WEBGL), y local.y ya crece de arriba a abajo
+    // igual que la V de la textura — invertirla (como se hacía antes) deja
+    // el texto boca abajo.
+    return texture(uTextTexture, vec2(local.x, local.y));
 }
 
 void main() {
@@ -127,6 +134,7 @@ void main() {
     float lum = n * 0.5 + 0.5;
     vec3 col = palette(lum);
     col = orderedDither(col, ivec2(gl_FragCoord.xy));
+    col *= 0.5; // fondo al 50% de opacidad (mezclado hacia negro); el texto se compone encima a fuerza plena
 
     if (uHasText > 0.5) {
         vec4 text = sampleText(warped);
@@ -208,7 +216,6 @@ export function createAutomationShaderScene(container, textBlockEl) {
         time: gl.getUniformLocation(prog, 'uTime'),
         contrast: gl.getUniformLocation(prog, 'uContrast'),
         dispTexture: gl.getUniformLocation(prog, 'uDispTexture'),
-        fieldSize: gl.getUniformLocation(prog, 'uFieldSize'),
         dispMax: gl.getUniformLocation(prog, 'uDispMax'),
         dispStrength: gl.getUniformLocation(prog, 'uDispStrength'),
         cellSize: gl.getUniformLocation(prog, 'uCellSize'),
@@ -269,13 +276,22 @@ export function createAutomationShaderScene(container, textBlockEl) {
             const offsetX = elRect.left - blockRect.left;
             const offsetY = elRect.top - blockRect.top;
             textCtx.font = `${style.fontWeight} ${fontSize}px ${style.fontFamily}`;
+            // tracking-tight aplica letter-spacing negativo; sin replicarlo aquí,
+            // measureText()/fillText() calculan el texto más ancho que el real y
+            // el centrado lo recorta contra los bordes del canvas.
+            textCtx.letterSpacing = style.letterSpacing;
 
             let lines;
             if (el.tagName === 'H1' || el.tagName === 'H2') {
+                // Cada segmento entre <br> puede seguir siendo más ancho que
+                // el propio elemento (el navegador lo envolvería solo); hay
+                // que aplicar wrapText también aquí o el texto se dibuja más
+                // ancho que el canvas y queda cortado en los bordes.
                 lines = el.innerHTML
                     .split(/<br\s*\/?>/i)
                     .map((s) => s.replace(/<[^>]+>/g, '').trim())
-                    .filter(Boolean);
+                    .filter(Boolean)
+                    .flatMap((segment) => wrapText(textCtx, segment, elRect.width));
             } else {
                 const text = (el.textContent || '').trim().replace(/\s+/g, ' ');
                 lines = wrapText(textCtx, text, elRect.width);
@@ -396,7 +412,11 @@ export function createAutomationShaderScene(container, textBlockEl) {
             resize();
         }
 
-        injectField(canvas.width, canvas.height);
+        // injectField trabaja en px CSS (mismas unidades que clientX/clientY),
+        // no en px de dispositivo del canvas — si no, en cualquier pantalla
+        // con devicePixelRatio != 1 el cursor se mapea a la celda equivocada
+        // de la rejilla y el efecto queda desalineado/imperceptible.
+        injectField(container.clientWidth, container.clientHeight);
         decayAndUploadField();
         updateTextOrigin();
 
@@ -405,7 +425,6 @@ export function createAutomationShaderScene(container, textBlockEl) {
         gl.uniform2f(u.resolution, canvas.width, canvas.height);
         gl.uniform1f(u.time, timeSeconds);
         gl.uniform1f(u.contrast, breathing.contrast);
-        gl.uniform2f(u.fieldSize, FIELD_COLS, FIELD_ROWS);
         gl.uniform1f(u.dispMax, DISP_MAX * dpr);
         gl.uniform1f(u.dispStrength, DISP_STRENGTH);
         gl.uniform1f(u.cellSize, cellSizePx);

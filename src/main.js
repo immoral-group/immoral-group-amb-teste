@@ -1,6 +1,5 @@
 import './style.css'
 import { initLoader } from './loader.js';
-import { initHeroAnimation } from './hero-animation.js';
 import { initFAQAccordion } from './faq-accordion.js';
 import { initFooter } from './footer.js';
 import { renderTeamMembers } from './team.js';
@@ -28,7 +27,6 @@ initLoader();
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded - Initializing scripts");
 
-    try { initHeroAnimation(); } catch (e) { console.error("Error in initHeroAnimation:", e); }
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
@@ -1752,7 +1750,6 @@ function initAll() {
     initCounters();
     initScrollAnimations();
     initGsapAnimations();
-    initHeroAnimation();
     initFAQAccordion();
     initGestionHero();
     initEmailHero();
