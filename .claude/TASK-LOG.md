@@ -1196,3 +1196,15 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `index.html` (sección CTA Home), `src/blackhole-scene.js` (constante `BASE_DIM`).
 
 **Verificado en local:** servidor Vite en `localhost:5191` (puerto alterno porque el 5174 estaba en uso por otra sesión sobre el mismo worktree). Confirmado por `getComputedStyle` que la sección tiene `border-image-source: linear-gradient(135deg, rgba(72,137,235,0.5), rgba(255,255,255,0.5), rgba(72,137,235,0.5))` y `border-style: solid`; confirmado por fetch del módulo servido que `BASE_DIM = 0.8`. Sin errores de consola nuevos (los únicos errores presentes son de Supabase por falta de variables de entorno en local, preexistentes y no relacionados).
+
+---
+
+## 2026-08-06 — El grid de cubos de "Publicidad en medios" sustituye al anillo shader de "Diseño de Marca"
+
+**Qué:** en `diseno-de-marca.html`, el fondo interactivo del hero (antes un shader WebGL2 raymarcheado en forma de anillo/escultura segmentada, paleta negro→azul→cian→blanco) se sustituyó por el mismo grid de cubos wireframe con nube de puntos brillantes que ya usa el hero de `publicidad-en-medios.html` (misma escena `three.js`, mismos colores blanco/negro, mismo comportamiento de auto-rotación y drag). `publicidad-en-medios.html` no se tocó. Se renombró el contenedor de `#diseno-marca-shader` a `#diseno-marca-cubes` y se reescribió `src/diseno-marca-hero.js` para montar `createHexCubesScene` (de `src/hex-cubes-scene.js`) en vez de `createDesignShaderScene`, replicando el wrapper de `src/publicidad-medios-cubes.js` (creación de `<canvas>`, espera de dimensiones del contenedor, `dispose()` en cleanup). El nombre de función exportado (`initDisenoMarcaHero`) y su import en `src/main.js` no cambiaron.
+
+**Por qué:** petición explícita del usuario de llevar el elemento interactivo de "Publicidad en medios" tal cual a la sección "Diseño de Marca y Contenidos", quitando el anillo de colores. Confirmado con el usuario: duplicar el mismo grid en ambas páginas (no mover), y eliminar el shader del anillo por quedar sin uso en ninguna otra página.
+
+**Afecta:** `diseno-de-marca.html` (id del contenedor del hero), `src/diseno-marca-hero.js` (reescrito). `src/design-shader-scene.js` eliminado (sin más referencias activas — solo quedaba mencionado en comentarios de `src/automation-shader-scene.js`, actualizados para no apuntar a un fichero inexistente).
+
+**Verificado en local:** `npm install` (node_modules no estaba instalado en este worktree) + servidor Vite en `localhost:5174` con un `.env` local de placeholders (gitignored) para evitar el crash preexistente de `supabaseClient.js` sin credenciales reales. Confirmado vía `getElementById`/`querySelector` que ambas páginas (`diseno-de-marca.html` y `publicidad-en-medios.html`) montan un `<canvas>` con contexto `WebGL2RenderingContext` activo dentro de sus contenedores respectivos, y que la consola no registra errores nuevos tras el cambio.
