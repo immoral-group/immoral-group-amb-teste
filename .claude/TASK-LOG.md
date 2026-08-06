@@ -991,6 +991,18 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 
 ---
 
+## 2026-08-06 — Reordena el CTA "El crecimiento real empieza..." en el home
+
+**Qué:** en `index.html`, se movió la sección completa del CTA ("El crecimiento real empieza con una buena conversación." + fondo WebGL `#home-blackhole` + botón "SOLICITA UNA CONSULTORÍA") de su posición original (justo antes del footer, al final de la página) a justo antes de la sección "Why Us" ("No lo hacemos como los demás. Y por eso funciona."). Movimiento de bloque completo, sin cambios de contenido ni de estilos; `#home-blackhole` es autónomo (`src/home-blackhole.js` solo busca el elemento por id y no depende de su posición en el DOM), así que el cambio de orden no requirió tocar JS.
+
+**Por qué:** petición explícita del usuario.
+
+**Afecta:** `index.html` únicamente.
+
+**Verificado en local:** preview con `npm run dev`; confirmado por `querySelectorAll('section')` que la sección del CTA precede inmediatamente a la de "Why Us"; confirmado también en el texto renderizado de la página (`get_page_text`) que ambos bloques aparecen consecutivos en ese orden. Sin errores de consola nuevos.
+
+---
+
 ## 2026-08-05 — Efecto liquid glass en tarjetas de servicios + reducción del wiggle de "Plataformas que dominamos"
 
 **Qué:** en `publicidad-en-medios.html` (sección "Plataformas que dominamos"), se redujo la amplitud y se ralentizó la duración del balanceo vertical continuo de cada tarjeta (`wig: [amplitud, duración]` en `src/platform-carousel.js`): de un rango de 5-8px/2.6-3.9s a uno de 2-3.5px/3.6-4.6s (amplitud máxima reducida en torno a un 55%). El fallback CSS de `--wig-a`/`--wig-dur` en `src/style.css` también se ajustó a los nuevos valores por defecto.
@@ -1067,6 +1079,8 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 
 **Por qué:** el resto de páginas de servicio (`diseno-de-marca.html`, `gestion-de-redes.html`, `email-marketing.html`, `automatizacion-de-procesos.html`) ya tenían estas dos secciones en fondo blanco/texto negro, formando una franja blanca continua hasta el final del CTA; `publicidad-en-medios.html` era la única que rompía ese patrón con fondo negro. Petición del usuario para igualarla usando `diseno-de-marca.html` como referencia.
 
+**Afecta:** `publicidad-en-medios.html` (sección KPIs y sección Final CTA).
+
 ---
 
 ## 2026-08-05 — Resuelto conflicto de merge en el PR #32 (liquid glass en botones de servicios + wiggle del carrusel)
@@ -1078,8 +1092,6 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
 
 **Verificado en local:** `npm run build` sin errores. Confirmado en navegador que en `/publicidad-en-medios.html` la sección KPI sigue en fondo blanco (`rgb(255, 255, 255)`, del PR ya mergeado) y el wiggle del carrusel de plataformas usa los valores reducidos (`--wig-a: 2.5px`, `--wig-dur: 4.2s`, dentro del rango nuevo); en `/gestion-de-redes.html` las 4 tarjetas `.brand-glass-card` están presentes sin `--brand` inline. Sin errores de consola en ninguna de las dos.
-
-**Afecta:** `publicidad-en-medios.html` (sección KPIs y sección Final CTA).
 
 ---
 
@@ -1108,3 +1120,15 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `index.html` (los 4 `.brand-item`) únicamente; sin cambios en `src/main.js`.
 
 **Verificado en local:** con hover real (`computer.hover` sobre las referencias de accesibilidad de cada logo, no coordenadas estimadas a mano) para las 4 verticales, confirmado visualmente que el cartoon queda centrado respecto al bloque completo (título + descripción + "Ver más"), no solo respecto al logo. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Resuelto conflicto de merge en el PR #33 (reordena el CTA de crecimiento en el home)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR — mover el bloque del CTA "El crecimiento real empieza..." en `index.html` — vs. las entradas de liquid glass/wiggle y la resolución del PR #32, ya en `main`). Se conservaron todas, en orden cronológico. De paso se corrigió un desorden preexistente en el fichero: la entrada "Unificar fondo blanco/texto negro en Publicidad en Medios" se había quedado sin su línea `**Afecta:**` en su sitio (desplazada al final de la entrada siguiente por un merge anterior) — se recolocó donde corresponde. Ningún otro fichero tuvo conflicto real: este PR solo mueve un bloque dentro de `index.html`, sin relación con `publicidad-en-medios.html`, `src/style.css` ni `src/platform-carousel.js`.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #33.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en el texto renderizado de `/index.html` que "El crecimiento real empieza con una buena conversación." aparece inmediatamente antes de "No lo hacemos como los demás. Y por eso funciona.", como se pedía. Sin errores de consola.
