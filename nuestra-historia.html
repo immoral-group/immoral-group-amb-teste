@@ -459,19 +459,22 @@
         </div>
 
     </section>
-    <!-- Sección Origen y Equipo -->
-    <!-- 'z-20' asegura que esta sección y su imagen superpuesta queden por encima de la anterior -->
-    <section class="relative w-full bg-black pb-32 pt-12 md:pt-0 z-20">
+    <!-- Bloque negro continuo: agrupa las 3 secciones oscuras (Origen y Equipo, Immoral Statement,
+         Más que una agencia) para que la red de nodos de fondo cubra TODO el negro de un extremo a otro,
+         no solo la primera sección -->
+    <div class="relative bg-black">
+        <!-- Red de Nodos "Equipo Conectado": cubre todo el bloque negro (desktop/tablet) -->
+        <div id="equipo-network" class="hidden md:block absolute inset-0 z-0"></div>
+
+        <!-- Sección Origen y Equipo -->
+        <!-- 'z-20' asegura que esta sección y su imagen superpuesta queden por encima de la anterior -->
+        <section class="relative w-full pb-32 pt-12 md:pt-0 z-20">
         <div class="w-full relative z-10">
             <!-- Grid superior: Imagen y Texto introductorio -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start mb-20">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start mb-20 md:min-h-[480px] xl:min-h-[560px]">
 
-                <!-- Columna Izquierda: Red de Nodos "Equipo Conectado" -->
-                <!-- Contenida dentro de la sección negra, sin invadir la franja gris anterior -->
+                <!-- Columna Izquierda: espacio reservado para que el texto quede a la derecha; la red de nodos ahora es fondo de toda la sección -->
                 <div class="relative z-10 w-full flex justify-center md:justify-start">
-                    <!-- Desktop/tablet: red de nodos con física (Matter.js) -->
-                    <div id="equipo-network" class="hidden md:block w-full h-[480px] xl:h-[560px]"></div>
-
                     <!-- Móvil: versión ligera sin física, solo CSS. Estructura "hub": centro + satélites, igual que en desktop -->
                     <div class="block md:hidden w-full h-[360px] relative overflow-hidden" aria-hidden="true">
                         <!-- Rejilla estática de fondo: fija, nunca se mueve (como en desktop) -->
@@ -581,8 +584,8 @@
             </div>
         </div>
     </section>
-    <!-- Sección Immoral Statement (Dark) -->
-    <section class="relative w-full bg-black py-24 overflow-hidden">
+        <!-- Sección Immoral Statement (Dark) -->
+        <section class="relative w-full py-24 overflow-hidden">
 
         <div class="max-w-full mx-auto px-6 xl:px-16 w-full relative z-10">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -626,11 +629,13 @@
             </div>
         </div>
     </section>
-    <!-- Sección Más que una agencia -->
-    <section class="relative w-full bg-black py-24 xl:py-32">
+        <!-- Sección Más que una agencia -->
+        <section class="relative w-full py-24 xl:py-32">
 
         <!-- Contenedor con px-16 como pediste -->
-        <div class="w-full px-6 xl:px-16">
+        <!-- 'relative z-10': sin esto el contenido queda sin apilar y el desenfoque de fondo (z-5)
+             pintaría por delante del texto en vez de por detrás -->
+        <div class="relative z-10 w-full px-6 xl:px-16">
 
             <!-- Parte Superior: Grid 2 Columnas -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 mb-24 items-start">
@@ -728,7 +733,8 @@
                 </div>
             </div>
         </div>
-    </section>
+        </section>
+    </div>
     <!-- Sección Principal de Contacto -->
     <section class="w-full relative pt-8 pb-20 px-4 sm:px-8 xl:px-12 mx-auto bg-white">
         <!-- Grid ajustado: en XL el calendario ocupa más espacio (col-span-2 vs col-span-3) -->
