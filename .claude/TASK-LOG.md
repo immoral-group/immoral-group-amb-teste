@@ -1058,3 +1058,25 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `manifesto.html`.
 
 **Verificado en local:** captura de pantalla de las 4 tarjetas — con `stroke-width="1"` el trazo queda fino y limpio. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Unificar fondo blanco/texto negro en Publicidad en Medios
+
+**Qué:** en `publicidad-en-medios.html`, las secciones "Impacto Real (KPIs)" ("La diferencia entre invertir en anuncios y construir resultados") y "Final CTA" ("¿Listo para dejar de quemar presupuesto...") pasaron de `bg-black`/texto blanco a `bg-white`/texto negro, dejando intactos todos los elementos azules (`#2f80ed`) del anillo, el botón y su hover.
+
+**Por qué:** el resto de páginas de servicio (`diseno-de-marca.html`, `gestion-de-redes.html`, `email-marketing.html`, `automatizacion-de-procesos.html`) ya tenían estas dos secciones en fondo blanco/texto negro, formando una franja blanca continua hasta el final del CTA; `publicidad-en-medios.html` era la única que rompía ese patrón con fondo negro. Petición del usuario para igualarla usando `diseno-de-marca.html` como referencia.
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #32 (liquid glass en botones de servicios + wiggle del carrusel)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (las 5 entradas de este PR — liquid glass en tarjetas de servicios/valores, su ajuste de color tras feedback, el revert en manifesto.html, y los dos ajustes de grosor de trazo de iconos — vs. la entrada de "Unificar fondo blanco/texto negro en Publicidad en Medios", ya en `main`). Se conservaron todas, en orden cronológico. `publicidad-en-medios.html` y `src/style.css`, tocados por ambos lados, se automergearon sin conflicto real: cada PR editó regiones distintas del mismo fichero (el wiggle del carrusel y las clases `.brand-glass-*` por un lado, las secciones KPI/CTA por otro).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #32.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en navegador que en `/publicidad-en-medios.html` la sección KPI sigue en fondo blanco (`rgb(255, 255, 255)`, del PR ya mergeado) y el wiggle del carrusel de plataformas usa los valores reducidos (`--wig-a: 2.5px`, `--wig-dur: 4.2s`, dentro del rango nuevo); en `/gestion-de-redes.html` las 4 tarjetas `.brand-glass-card` están presentes sin `--brand` inline. Sin errores de consola en ninguna de las dos.
+
+**Afecta:** `publicidad-en-medios.html` (sección KPIs y sección Final CTA).
