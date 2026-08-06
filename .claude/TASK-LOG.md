@@ -1184,3 +1184,15 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Por qué:** petición del usuario para que la interacción "de bolitas" no quedara confinada a un recuadro pequeño sino que ocupara todo el espacio negro visible de la sección, con una capa de desenfoque sutil detrás del texto (sin afectar su legibilidad) y sin desenfocar las zonas vacías.
 
 **Afecta:** `nuestra-historia.html` (estructura de las 3 secciones negras + contenedor de la red de nodos), `src/main.js` (lógica de `initEquipoNetwork`: listener de ratón, foco de desenfoque, constantes de densidad/tamaño de la rejilla).
+
+---
+
+## 2026-08-06 — Delimita la sección CTA "El crecimiento real empieza..." con borde y sube la opacidad base del fondo
+
+**Qué:** en `index.html`, a la sección del CTA "El crecimiento real empieza con una buena conversación." (la que contiene `#home-blackhole`) se le añadió un borde de 1px en las 4 caras con degradado sutil azul→blanco→azul (`rgba(72,137,235,0.5)` → `rgba(255,255,255,0.5)` → `rgba(72,137,235,0.5)`, vía `border-image`) para delimitarla visualmente de las secciones vecinas. En `src/blackhole-scene.js` se bajó `BASE_DIM` de `0.9` a `0.8`, lo que sube la opacidad visible del fondo animado (el disco de acreción) en su estado de reposo, antes de que el cursor pase por encima — la interacción de fondo en sí (el brillo que sigue al mouse) no se tocó.
+
+**Por qué:** petición explícita del usuario de reforzar la separación visual de esa sección con una línea delgada en los bordes, y de que el fondo animado se viera un poco más incluso sin hover, sin eliminar la interacción existente.
+
+**Afecta:** `index.html` (sección CTA Home), `src/blackhole-scene.js` (constante `BASE_DIM`).
+
+**Verificado en local:** servidor Vite en `localhost:5191` (puerto alterno porque el 5174 estaba en uso por otra sesión sobre el mismo worktree). Confirmado por `getComputedStyle` que la sección tiene `border-image-source: linear-gradient(135deg, rgba(72,137,235,0.5), rgba(255,255,255,0.5), rgba(72,137,235,0.5))` y `border-style: solid`; confirmado por fetch del módulo servido que `BASE_DIM = 0.8`. Sin errores de consola nuevos (los únicos errores presentes son de Supabase por falta de variables de entorno en local, preexistentes y no relacionados).
