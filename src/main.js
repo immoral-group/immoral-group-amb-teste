@@ -1,6 +1,5 @@
 import './style.css'
 import { initLoader } from './loader.js';
-import { initHeroAnimation } from './hero-animation.js';
 import { initFAQAccordion } from './faq-accordion.js';
 import { initFooter } from './footer.js';
 import { renderTeamMembers } from './team.js';
@@ -11,6 +10,7 @@ import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
+import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
@@ -27,7 +27,6 @@ initLoader();
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded - Initializing scripts");
 
-    try { initHeroAnimation(); } catch (e) { console.error("Error in initHeroAnimation:", e); }
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
@@ -1757,11 +1756,11 @@ function initAll() {
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
+    try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
     initImmoralEcosystem();
     initCounters();
     initScrollAnimations();
     initGsapAnimations();
-    initHeroAnimation();
     initFAQAccordion();
     initGestionHero();
     initEmailHero();
