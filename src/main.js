@@ -1,6 +1,5 @@
 import './style.css'
 import { initLoader } from './loader.js';
-import { initHeroAnimation } from './hero-animation.js';
 import { initFAQAccordion } from './faq-accordion.js';
 import { initFooter } from './footer.js';
 import { renderTeamMembers } from './team.js';
@@ -11,6 +10,7 @@ import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
+import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
@@ -27,7 +27,6 @@ initLoader();
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded - Initializing scripts");
 
-    try { initHeroAnimation(); } catch (e) { console.error("Error in initHeroAnimation:", e); }
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
@@ -1224,6 +1223,7 @@ function initHeroPhysics() {
 // (sin física ni colisiones), por eso ya no usa Matter.js para esta sección.
 let networkFrameId = null;
 let networkCanvas = null;
+let networkBlurSpot = null;
 let networkResizeHandler = null;
 let networkMouseCleanup = null;
 let networkObserver = null;
@@ -1251,6 +1251,10 @@ function initEquipoNetwork() {
     if (networkCanvas) {
         networkCanvas.remove();
         networkCanvas = null;
+    }
+    if (networkBlurSpot) {
+        networkBlurSpot.remove();
+        networkBlurSpot = null;
     }
 
     // En móvil no se anima con JS: el fallback CSS del HTML ya cubre esa vista
@@ -1285,6 +1289,28 @@ function initEquipoNetwork() {
         networkCanvas = canvas;
         const ctx = canvas.getContext('2d');
 
+        // "Foco" de desenfoque que sigue al ratón: va POR DETRÁS del texto (z-5: por encima del
+        // canvas z-0, por debajo de los wrappers de contenido z-10) para que solo se note en los
+        // huecos alrededor de las letras — nunca sobre el propio texto, que queda siempre nítido.
+        // Sutil a propósito: poco radio de blur y un halo pequeño.
+        const blurSpot = document.createElement('div');
+        blurSpot.setAttribute('aria-hidden', 'true');
+        blurSpot.style.position = 'absolute';
+        blurSpot.style.zIndex = '5';
+        blurSpot.style.pointerEvents = 'none';
+        blurSpot.style.width = '220px';
+        blurSpot.style.height = '220px';
+        blurSpot.style.borderRadius = '50%';
+        blurSpot.style.left = '0px';
+        blurSpot.style.top = '0px';
+        blurSpot.style.transform = 'translate(-50%, -50%)';
+        blurSpot.style.backdropFilter = 'blur(4px)';
+        blurSpot.style.webkitBackdropFilter = 'blur(4px)';
+        blurSpot.style.opacity = '0';
+        blurSpot.style.transition = 'opacity 0.25s ease';
+        (currentContainer.parentElement || currentContainer).appendChild(blurSpot);
+        networkBlurSpot = blurSpot;
+
         function resizeCanvas() {
             const dpr = window.devicePixelRatio || 1;
             canvas.width = w * dpr;
@@ -1296,10 +1322,15 @@ function initEquipoNetwork() {
         requestAnimationFrame(() => { canvas.style.opacity = '1'; });
 
         // Puntos de la rejilla: pequeños, fijos, cubren todo el contenedor. Se recalculan si cambia el tamaño.
-        const GRID_SPACING = Math.min(w, h) / 9;
-        const DOT_RADIUS = 1.6;
-        const ACTIVE_RADIUS_MAX = 6.5;
-        const CORE_RADIUS = 8;
+        // Espaciado proporcional al contenedor (tamaño original): a mayor contenedor, rejilla más
+        // grande y con menos puntos — así se ve como en la versión original, no como una rejilla densa.
+        // Otro +10% de puntos sobre el ajuste anterior (divisor 9.44 → 9.9, mismo criterio: espaciado
+        // dividido por sqrt(1.1) porque el nº de puntos crece con 1/espaciado²).
+        const GRID_SPACING = Math.min(w, h) / 9.9;
+        // Otro -10% de tamaño sobre el ajuste anterior en cada tipo de punto.
+        const DOT_RADIUS = 1.3;
+        const ACTIVE_RADIUS_MAX = 5.27;
+        const CORE_RADIUS = 6.5;
         const ACTIVATION_RADIUS = GRID_SPACING * 3.2;
         const HOVER_RADIUS = 46;
         const HOVER_BOOST = 1.7;
@@ -1330,20 +1361,50 @@ function initEquipoNetwork() {
         const liveMouse = { x: -9999, y: -9999 };
         const stickyMouse = { x: w / 2, y: h / 2 };
         let hasInteracted = false;
+        // Escucha en 'window', no en el contenedor: el fondo (z-0) queda detrás de todo el
+        // contenido de las secciones (z-10), así que un listener en el propio contenedor nunca
+        // recibiría el mousemove (el contenido lo tapa, aunque sea transparente). Con 'window'
+        // el movimiento se detecta siempre; luego se comprueba a mano si cae dentro del área.
+        const TEXT_SELECTOR = 'p, h1, h2, h3, h4, span, a, li, .liquid-glass';
         const handleMouseMove = (e) => {
-            const rect = canvas.getBoundingClientRect();
-            liveMouse.x = e.clientX - rect.left;
-            liveMouse.y = e.clientY - rect.top;
-            stickyMouse.x = liveMouse.x;
-            stickyMouse.y = liveMouse.y;
-            hasInteracted = true;
+            const rect = currentContainer.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const inBounds = x >= 0 && x <= w && y >= 0 && y <= h;
+            if (inBounds) {
+                liveMouse.x = x;
+                liveMouse.y = y;
+                stickyMouse.x = x;
+                stickyMouse.y = y;
+                hasInteracted = true;
+            } else {
+                liveMouse.x = -9999;
+                liveMouse.y = -9999;
+            }
+
+            // El desenfoque solo se activa justo sobre texto real (párrafos, títulos, el recuadro
+            // liquid-glass...); en el fondo vacío de puntos no debe notarse nada. 'elementFromPoint'
+            // ignora automáticamente el canvas y el propio spot, porque ambos tienen pointer-events:none.
+            const hit = inBounds ? document.elementFromPoint(e.clientX, e.clientY) : null;
+            const overText = !!(hit && hit.closest(TEXT_SELECTOR));
+            if (overText) {
+                blurSpot.style.left = x + 'px';
+                blurSpot.style.top = y + 'px';
+                blurSpot.style.opacity = '1';
+            } else {
+                blurSpot.style.opacity = '0';
+            }
         };
-        const handleMouseLeave = () => { liveMouse.x = -9999; liveMouse.y = -9999; };
-        currentContainer.addEventListener('mousemove', handleMouseMove);
-        currentContainer.addEventListener('mouseleave', handleMouseLeave);
+        const handleMouseLeave = () => {
+            liveMouse.x = -9999;
+            liveMouse.y = -9999;
+            blurSpot.style.opacity = '0';
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseleave', handleMouseLeave);
         networkMouseCleanup = () => {
-            currentContainer.removeEventListener('mousemove', handleMouseMove);
-            currentContainer.removeEventListener('mouseleave', handleMouseLeave);
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseleave', handleMouseLeave);
         };
 
         // El foco persigue al ratón (con inercia, no salto instantáneo). Antes del primer contacto
@@ -1482,7 +1543,8 @@ function initImmoralEcosystem() {
         const bg = section.querySelector(`[data-bg="${target}"]`);
         const body = item.querySelector('.brand-body');
         const header = item.querySelector('.brand-header');
-        const logo = item.querySelector('img'); // New: Target logic on image
+        const logo = item.querySelector('img:not(.brand-cartoon)'); // New: Target logic on image
+        const cartoon = item.querySelector('.brand-cartoon');
 
         const light = item.querySelector('.brand-light');
 
@@ -1508,6 +1570,11 @@ function initImmoralEcosystem() {
                 // Ensure pure opacity 1 and glow
                 light.classList.add('opacity-100', 'shadow-[0_0_10px_rgba(255,255,255,0.8)]', 'scale-125');
             }
+            // 5. Desplegar Cartoon (a la izquierda del logo, en simultáneo con el acordeón)
+            if (cartoon) {
+                cartoon.classList.remove('opacity-0', 'translate-x-6', 'scale-90');
+                cartoon.classList.add('opacity-100', 'translate-x-0', 'scale-100');
+            }
         });
 
         // --- MOUSE LEAVE: CLOSE & RESET ---
@@ -1531,6 +1598,11 @@ function initImmoralEcosystem() {
                 light.classList.add('animate-pulse');
                 // Remove glow and fixed opacity, let pulse handle it (pulse oscillates opacity)
                 light.classList.remove('opacity-100', 'shadow-[0_0_10px_rgba(255,255,255,0.8)]', 'scale-125');
+            }
+            // 5. Ocultar Cartoon
+            if (cartoon) {
+                cartoon.classList.add('opacity-0', 'translate-x-6', 'scale-90');
+                cartoon.classList.remove('opacity-100', 'translate-x-0', 'scale-100');
             }
         });
     });
@@ -1746,11 +1818,11 @@ function initAll() {
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
+    try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
     initImmoralEcosystem();
     initCounters();
     initScrollAnimations();
     initGsapAnimations();
-    initHeroAnimation();
     initFAQAccordion();
     initGestionHero();
     initEmailHero();
