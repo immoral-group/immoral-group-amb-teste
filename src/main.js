@@ -1,6 +1,5 @@
 import './style.css'
 import { initLoader } from './loader.js';
-import { initHeroAnimation } from './hero-animation.js';
 import { initFAQAccordion } from './faq-accordion.js';
 import { initFooter } from './footer.js';
 import { renderTeamMembers } from './team.js';
@@ -11,6 +10,7 @@ import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
+import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
@@ -27,7 +27,6 @@ initLoader();
 document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded - Initializing scripts");
 
-    try { initHeroAnimation(); } catch (e) { console.error("Error in initHeroAnimation:", e); }
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
@@ -1544,7 +1543,8 @@ function initImmoralEcosystem() {
         const bg = section.querySelector(`[data-bg="${target}"]`);
         const body = item.querySelector('.brand-body');
         const header = item.querySelector('.brand-header');
-        const logo = item.querySelector('img'); // New: Target logic on image
+        const logo = item.querySelector('img:not(.brand-cartoon)'); // New: Target logic on image
+        const cartoon = item.querySelector('.brand-cartoon');
 
         const light = item.querySelector('.brand-light');
 
@@ -1570,6 +1570,11 @@ function initImmoralEcosystem() {
                 // Ensure pure opacity 1 and glow
                 light.classList.add('opacity-100', 'shadow-[0_0_10px_rgba(255,255,255,0.8)]', 'scale-125');
             }
+            // 5. Desplegar Cartoon (a la izquierda del logo, en simultáneo con el acordeón)
+            if (cartoon) {
+                cartoon.classList.remove('opacity-0', 'translate-x-6', 'scale-90');
+                cartoon.classList.add('opacity-100', 'translate-x-0', 'scale-100');
+            }
         });
 
         // --- MOUSE LEAVE: CLOSE & RESET ---
@@ -1593,6 +1598,11 @@ function initImmoralEcosystem() {
                 light.classList.add('animate-pulse');
                 // Remove glow and fixed opacity, let pulse handle it (pulse oscillates opacity)
                 light.classList.remove('opacity-100', 'shadow-[0_0_10px_rgba(255,255,255,0.8)]', 'scale-125');
+            }
+            // 5. Ocultar Cartoon
+            if (cartoon) {
+                cartoon.classList.add('opacity-0', 'translate-x-6', 'scale-90');
+                cartoon.classList.remove('opacity-100', 'translate-x-0', 'scale-100');
             }
         });
     });
@@ -1808,11 +1818,11 @@ function initAll() {
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
+    try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
     initImmoralEcosystem();
     initCounters();
     initScrollAnimations();
     initGsapAnimations();
-    initHeroAnimation();
     initFAQAccordion();
     initGestionHero();
     initEmailHero();
