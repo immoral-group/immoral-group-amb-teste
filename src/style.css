@@ -1190,7 +1190,10 @@ html {
    (distinto por tarjeta) que al hover pasan a vidrio esmerilado con tinte del color de marca.
    Nota: es un sistema de "glass" independiente de .liquid-glass (arriba) — ese usa distorsión
    SVG sobre blanco fijo; este usa color-mix() con el --brand de cada plataforma porque necesita
-   transicionar desde negro sólido y variar de color por tarjeta. Ver project-context.md. */
+   transicionar desde negro sólido y variar de color por tarjeta. Ver project-context.md.
+   .brand-glass-card comparte estas mismas reglas (mismos selectores agrupados abajo) para
+   reutilizar el efecto, en versión neutra sin --brand, en tarjetas fuera del carrusel
+   (gestion-de-redes.html, automatizacion-de-procesos.html) sin el balanceo ni el Flip de GSAP. */
 .platform-carousel-viewport {
     overflow: visible;
 }
@@ -1206,12 +1209,12 @@ html {
 }
 
 .platform-card-wave {
-    animation: platform-card-wave var(--wig-dur, 3s) ease-in-out infinite;
+    animation: platform-card-wave var(--wig-dur, 4s) ease-in-out infinite;
 }
 
 @keyframes platform-card-wave {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(calc(var(--wig-a, 6px) * -1)); }
+    50% { transform: translateY(calc(var(--wig-a, 2.5px) * -1)); }
 }
 
 .platform-carousel .platform-card:nth-child(1) .platform-card-wave { animation-delay: 0s; }
@@ -1220,8 +1223,13 @@ html {
 .platform-carousel .platform-card:nth-child(4) .platform-card-wave { animation-delay: .9s; }
 .platform-carousel .platform-card:nth-child(5) .platform-card-wave { animation-delay: 1.2s; }
 
-.platform-card-inner {
+.platform-card-inner,
+.brand-glass-card {
     background: #0a0a0a;
+}
+
+.platform-card-inner,
+.brand-glass-card {
     border: 1.5px solid transparent;
     transition: background .6s cubic-bezier(.22, 1, .36, 1),
                 box-shadow .6s cubic-bezier(.22, 1, .36, 1),
@@ -1230,8 +1238,17 @@ html {
                 transform .6s cubic-bezier(.22, 1, .36, 1);
 }
 
+/* A diferencia de .platform-card-inner (transparente en reposo, el color solo aparece
+   al hover), esta sí lleva un reborde blanco translúcido visible en reposo para separar
+   la tarjeta de su fondo negro sin depender del hover. */
+.brand-glass-card {
+    border-color: rgba(255, 255, 255, .3);
+}
+
 .platform-card-inner::before,
-.platform-card-inner::after {
+.brand-glass-card::before,
+.platform-card-inner::after,
+.brand-glass-card::after {
     content: '';
     position: absolute;
     inset: 0;
@@ -1241,11 +1258,13 @@ html {
     pointer-events: none;
 }
 
-.platform-card-inner::before {
+.platform-card-inner::before,
+.brand-glass-card::before {
     background: radial-gradient(130% 110% at 12% -15%, rgba(255, 255, 255, .85), transparent 60%);
 }
 
-.platform-card-inner::after {
+.platform-card-inner::after,
+.brand-glass-card::after {
     background: radial-gradient(45% 35% at 100% 8%, rgba(255, 255, 255, .55), transparent 70%),
                 radial-gradient(35% 25% at 4% 100%, rgba(255, 255, 255, .3), transparent 70%);
     mix-blend-mode: overlay;
@@ -1267,7 +1286,27 @@ html {
                 0 10px 18px rgba(0, 0, 0, .3);
 }
 
+/* Versión neutra (sin --brand) de la misma mecánica de vidrio esmerilado, para tarjetas
+   de servicio genéricas donde no aplica un color por-tarjeta como en el carrusel. */
+.brand-glass-card:hover {
+    background: linear-gradient(155deg,
+                rgba(255, 255, 255, .22) 0%,
+                rgba(255, 255, 255, .08) 55%,
+                rgba(255, 255, 255, .16) 100%),
+                rgba(10, 10, 10, .55);
+    backdrop-filter: blur(30px) saturate(140%) brightness(0.95);
+    -webkit-backdrop-filter: blur(30px) saturate(140%) brightness(0.95);
+    border-color: rgba(255, 255, 255, .75);
+    transform: translateY(-6px);
+    box-shadow: inset 0 1.5px 2px rgba(255, 255, 255, .8),
+                inset 0 -18px 28px -12px rgba(0, 0, 0, .4),
+                0 24px 45px -12px rgba(255, 255, 255, .15),
+                0 10px 18px rgba(0, 0, 0, .3);
+}
+
 .platform-card-inner:hover::before,
-.platform-card-inner:hover::after {
+.brand-glass-card:hover::before,
+.platform-card-inner:hover::after,
+.brand-glass-card:hover::after {
     opacity: 1;
 }

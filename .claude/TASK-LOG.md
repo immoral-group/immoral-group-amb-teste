@@ -1000,3 +1000,107 @@ Las posiciones/tamaños salen de un **PRNG con semilla** (`makeRng`) en vez de `
 **Afecta:** `index.html` únicamente.
 
 **Verificado en local:** preview con `npm run dev`; confirmado por `querySelectorAll('section')` que la sección del CTA precede inmediatamente a la de "Why Us"; confirmado también en el texto renderizado de la página (`get_page_text`) que ambos bloques aparecen consecutivos en ese orden. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Efecto liquid glass en tarjetas de servicios + reducción del wiggle de "Plataformas que dominamos"
+
+**Qué:** en `publicidad-en-medios.html` (sección "Plataformas que dominamos"), se redujo la amplitud y se ralentizó la duración del balanceo vertical continuo de cada tarjeta (`wig: [amplitud, duración]` en `src/platform-carousel.js`): de un rango de 5-8px/2.6-3.9s a uno de 2-3.5px/3.6-4.6s (amplitud máxima reducida en torno a un 55%). El fallback CSS de `--wig-a`/`--wig-dur` en `src/style.css` también se ajustó a los nuevos valores por defecto.
+
+El efecto de vidrio esmerilado con tinte de marca que ya usaban esas tarjetas (`.platform-card-inner:hover`, con `color-mix()` sobre `--brand`) se extrajo a dos clases CSS reutilizables en `src/style.css`: `.brand-glass-card` (fondo negro sólido en reposo + vidrio esmerilado al hover — misma variante que las tarjetas de plataformas) y `.brand-glass-hover` (igual pero sin forzar el fondo negro en reposo, para tarjetas sobre fondo claro). Se aplicaron a:
+- Las 4 tarjetas de "¿Qué podemos hacer por tí?" en `gestion-de-redes.html` y en `automatizacion-de-procesos.html`, sustituyendo el efecto anterior (borde con gradiente cónico girando + `box-shadow` de brillo) por el vidrio esmerilado, y simplificando la estructura de 3 divs anidados por tarjeta a un único div.
+- Las 4 tarjetas de "Nuestros Valores" en `manifesto.html`, sustituyendo el `hover:bg-black` plano + `hover:rotate-2` por el mismo vidrio esmerilado, conservando el fondo claro (`bg-gray-50`) en reposo.
+
+**Ajuste tras feedback visual del usuario (mismo día, antes de commitear):** la primera versión usaba `color-mix()` sobre un `--brand` por página (`#00c7e6` en las de servicio, `#4889eb` en manifesto, igual que el carrusel de plataformas) y dejaba el borde transparente en reposo. El usuario probó el resultado en local y pidió quitar "los colores raros" del hover y recuperar el reborde claro que las tarjetas tenían antes en reposo (en vez del negro sin borde que quedaba). Se corrigió: `.brand-glass-card`/`.brand-glass-hover` dejaron de depender de `--brand` — su hover ahora usa un tinte neutro blanco/gris (`rgba(255,255,255,.08-.22)` sobre `rgba(10,10,10,.55)`, sin `color-mix`) y llevan un `border-color` visible en reposo: blanco translúcido (`rgba(255,255,255,.3)`) para las tarjetas sobre fondo negro, gris (`rgba(0,0,0,.12)`) para las de manifesto sobre fondo claro. `.platform-card-inner` (el carrusel de plataformas) no se tocó — conserva su color por plataforma, que sí era el comportamiento deseado ahí. Se quitó el `style="--brand:...` inline de las 12 tarjetas afectadas al quedar sin uso.
+
+**Por qué:** petición explícita del usuario: el balanceo permanente de las tarjetas de plataformas resultaba demasiado llamativo, y quería extender ese mismo efecto de vidrio a otras tarjetas del sitio para dar consistencia visual entre secciones/servicios — pero en su versión neutra/gris, no con los colores de marca del carrusel.
+
+**Afecta:** `src/style.css`, `src/platform-carousel.js`, `gestion-de-redes.html`, `automatizacion-de-procesos.html`, `manifesto.html`, `.claude/project-context.md` (nueva convención `.brand-glass-card`/`.brand-glass-hover`). (Durante la verificación en local se cambió temporalmente el puerto de `vite-dev` en `.claude/launch.json` para evitar un conflicto con otra sesión — revertido antes de commitear, no forma parte de este cambio.)
+
+**Verificado en local:** sin errores de consola nuevos en ninguna de las 3 páginas modificadas (los únicos errores presentes, `TypeError: Failed to fetch` en el handler de navegación SPA de `src/main.js`, son preexistentes y no relacionados con este cambio). Confirmado por inspección de CSSOM y estilos computados en las 3 páginas que: (1) los nuevos valores de `--wig-a`/`--wig-dur` se renderizan correctamente en `publicidad-en-medios.html`; (2) `.brand-glass-card`/`.brand-glass-hover` están presentes en las 12 tarjetas afectadas (4+4+4), sin `--brand` inline, con `border-color` visible en reposo (blanco translúcido en las de fondo negro, gris en las de manifesto) y fondo de reposo correcto; (3) al forzar `:hover` real (mouse move + espera), el gradiente de fondo pasa al tinte neutro blanco/gris esperado (sin `color-mix`), confirmado leyendo `getComputedStyle().backgroundImage`. La sesión de navegador de este agente no permitió capturas de pantalla (`the Browser pane is not displayed`), por lo que las transiciones animadas (elevación, blur) se verificaron por estado computado en vez de visualmente cuadro a cuadro — el propio usuario confirmó el resultado visual en su navegador tras el primer intento y pidió este ajuste, que quedó pendiente de una segunda confirmación suya.
+
+---
+
+## 2026-08-05 — Revertido el liquid glass en "Nuestros Valores" (manifesto.html), texto a negro
+
+**Qué:** tras un segundo repaso visual, el usuario pidió quitar por completo el efecto de vidrio esmerilado de las 4 tarjetas de "Nuestros Valores" en `manifesto.html` (aplicado hace un momento en la misma sesión, ver entrada anterior) y dejarlas con su diseño original: `bg-gray-50 hover:bg-black`, `border border-gray-200 hover:border-black`, `hover:rotate-2`. Además, pidió que todo el texto (título "01. Servicio"/etc. y párrafo) pase de azul/gris a negro puro, dejando únicamente los iconos en azul. Se añadió `group-hover:text-white` al título (antes no lo tenía) para que siga siendo legible cuando el fondo cambia a negro al hover, ya que antes era azul sobre negro (buen contraste) y ahora sería negro sobre negro sin ese ajuste.
+
+**Detalle no obvio, documentado en `project-context.md`:** los iconos (`<img class="... brightness-0 group-hover:invert">`) nunca han llegado a renderizarse en negro pese al `brightness-0` — `.fade-in-up` (para la animación de aparición al hacer scroll) fija su propio `filter: blur(...)` con la misma especificidad de selector, y gana en el cascade por orden de aparición en `style.css`. El resultado neto es que los iconos siempre se han visto en su color azul original del PNG, coincidiendo con lo que pedía el usuario sin necesidad de tocarlos.
+
+Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, se eliminó por completo de `src/style.css` (no se deja como código muerto) — `.brand-glass-card` (usada en `gestion-de-redes.html`/`automatizacion-de-procesos.html`) no se tocó.
+
+**Por qué:** feedback directo del usuario tras ver el resultado en `localhost`: quería quitar el vidrio de esta sección concreta y unificar el texto en negro, con el azul reservado solo para los iconos.
+
+**Afecta:** `manifesto.html`, `src/style.css` (eliminada `.brand-glass-hover`), `.claude/project-context.md`.
+
+**Verificado en local:** recargada `manifesto.html` en el servidor de desarrollo; confirmado por estilos computados que título y párrafo son `rgb(0,0,0)`, la tarjeta ya no tiene la clase `brand-glass-hover`, y el fondo/borde en reposo son los originales (`bg-gray-50`/`border-gray-200`). Sin errores de consola nuevos (los `Failed to fetch` presentes son preexistentes, ver entrada anterior).
+
+---
+
+## 2026-08-05 — "Nuestros Valores": título en negro y rediseño de iconos de Innovación/Resultados
+
+**Qué:** en `manifesto.html`, el bloque de título a la izquierda de "Nuestros Valores" ("Nuestros"/"Valores" + los dos párrafos "No los repetimos porque suena bien."/"Lo vivimos cada día") pasa de azul (`text-[#4889eb]`) a negro puro. Los iconos PNG de las tarjetas 03 (Innovación, antes un icono combinado de cerebro+engranaje) y 04 (Resultados, antes un documento con signo de dólar) se sustituyeron por SVG inline minimalistas de una sola figura — una bombilla para Innovación y una flecha ascendente para Resultados — con el mismo trazo azul `#4889eb` y grosor fino que ya tenían los iconos 01 (engranaje) y 02 (círculos superpuestos), que sirvieron de referencia de estilo. Los iconos 01 y 02 no se tocaron (siguen siendo los PNG originales).
+
+**Por qué:** petición explícita del usuario tras revisar el resultado en local: quería el texto del bloque de título también en negro (ya lo había pedido para las tarjetas en la entrada anterior), y consideró los iconos de Innovación/Resultados demasiado recargados frente a la sobriedad de los otros dos.
+
+**Afecta:** `manifesto.html`.
+
+**Verificado en local:** confirmado por estilos computados que los dos `<h2>` y los dos `<p>` del bloque de título, y los 4 `<h4>` de las tarjetas, son `rgb(0,0,0)`; los 2 SVG nuevos tienen sus `<path>` con `stroke="#4889eb"`. Capturas de pantalla del scroll por la sección confirman visualmente el resultado — título negro, iconos 03/04 simples y coherentes con 01/02, tarjeta en hover con texto blanco legible sobre fondo negro. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Ajuste de grosor de trazo en los iconos nuevos de "Nuestros Valores"
+
+**Qué:** los SVG de Innovación y Resultados (creados en la entrada anterior) usaban `stroke-width="1.5"`, visiblemente más fino que el trazo de los iconos PNG originales de Servicio/Transparencia. Se subió a `stroke-width="2.5"` en ambos SVG (las 4 `<path>` de los dos iconos) tras comparar visualmente varias capturas del navegador a distintos grosores (1.5 → 2 → 2.5) contra los iconos 01/02 en su tamaño real de render (48px).
+
+**Por qué:** feedback directo del usuario tras ver el resultado: "se ven de distinto relleno" — el trazo más fino hacía que los iconos nuevos parecieran más débiles/ligeros que los dos originales pese a compartir color y estilo de línea.
+
+**Afecta:** `manifesto.html`.
+
+**Verificado en local:** comparación visual directa en capturas de pantalla de las 4 tarjetas en fila — a `stroke-width="2.5"` el peso visual de bombilla/flecha queda a la par de engranaje/círculos. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Trazo de los iconos de Innovación/Resultados, mucho más fino
+
+**Qué:** el `stroke-width="2.5"` de la entrada anterior resultó excesivo — el usuario lo vio "muy grueso" en el navegador. Se bajó a `stroke-width="1"` en los dos SVG (bombilla de Innovación, flecha de Resultados).
+
+**Por qué:** feedback directo del usuario tras ver el resultado en `localhost`.
+
+**Afecta:** `manifesto.html`.
+
+**Verificado en local:** captura de pantalla de las 4 tarjetas — con `stroke-width="1"` el trazo queda fino y limpio. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-05 — Unificar fondo blanco/texto negro en Publicidad en Medios
+
+**Qué:** en `publicidad-en-medios.html`, las secciones "Impacto Real (KPIs)" ("La diferencia entre invertir en anuncios y construir resultados") y "Final CTA" ("¿Listo para dejar de quemar presupuesto...") pasaron de `bg-black`/texto blanco a `bg-white`/texto negro, dejando intactos todos los elementos azules (`#2f80ed`) del anillo, el botón y su hover.
+
+**Por qué:** el resto de páginas de servicio (`diseno-de-marca.html`, `gestion-de-redes.html`, `email-marketing.html`, `automatizacion-de-procesos.html`) ya tenían estas dos secciones en fondo blanco/texto negro, formando una franja blanca continua hasta el final del CTA; `publicidad-en-medios.html` era la única que rompía ese patrón con fondo negro. Petición del usuario para igualarla usando `diseno-de-marca.html` como referencia.
+
+**Afecta:** `publicidad-en-medios.html` (sección KPIs y sección Final CTA).
+
+---
+
+## 2026-08-05 — Resuelto conflicto de merge en el PR #32 (liquid glass en botones de servicios + wiggle del carrusel)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (las 5 entradas de este PR — liquid glass en tarjetas de servicios/valores, su ajuste de color tras feedback, el revert en manifesto.html, y los dos ajustes de grosor de trazo de iconos — vs. la entrada de "Unificar fondo blanco/texto negro en Publicidad en Medios", ya en `main`). Se conservaron todas, en orden cronológico. `publicidad-en-medios.html` y `src/style.css`, tocados por ambos lados, se automergearon sin conflicto real: cada PR editó regiones distintas del mismo fichero (el wiggle del carrusel y las clases `.brand-glass-*` por un lado, las secciones KPI/CTA por otro).
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #32.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en navegador que en `/publicidad-en-medios.html` la sección KPI sigue en fondo blanco (`rgb(255, 255, 255)`, del PR ya mergeado) y el wiggle del carrusel de plataformas usa los valores reducidos (`--wig-a: 2.5px`, `--wig-dur: 4.2s`, dentro del rango nuevo); en `/gestion-de-redes.html` las 4 tarjetas `.brand-glass-card` están presentes sin `--brand` inline. Sin errores de consola en ninguna de las dos.
+
+---
+
+## 2026-08-06 — Resuelto conflicto de merge en el PR #33 (reordena el CTA de crecimiento en el home)
+
+**Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR — mover el bloque del CTA "El crecimiento real empieza..." en `index.html` — vs. las entradas de liquid glass/wiggle y la resolución del PR #32, ya en `main`). Se conservaron todas, en orden cronológico. De paso se corrigió un desorden preexistente en el fichero: la entrada "Unificar fondo blanco/texto negro en Publicidad en Medios" se había quedado sin su línea `**Afecta:**` en su sitio (desplazada al final de la entrada siguiente por un merge anterior) — se recolocó donde corresponde. Ningún otro fichero tuvo conflicto real: este PR solo mueve un bloque dentro de `index.html`, sin relación con `publicidad-en-medios.html`, `src/style.css` ni `src/platform-carousel.js`.
+
+**Por qué:** petición explícita del usuario para poder mergear el PR #33.
+
+**Afecta:** `.claude/TASK-LOG.md` (único fichero con conflicto real).
+
+**Verificado en local:** `npm run build` sin errores. Confirmado en el texto renderizado de `/index.html` que "El crecimiento real empieza con una buena conversación." aparece inmediatamente antes de "No lo hacemos como los demás. Y por eso funciona.", como se pedía. Sin errores de consola.
