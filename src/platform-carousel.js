@@ -7,37 +7,37 @@ const PLATFORMS = [
     {
         icon: '/imgs/publi-ico-1.svg', alt: 'Meta', iconClass: 'h-7', color: '#1877F2',
         desc: 'Te acompañamos desde la visibilidad hasta la conversión, con estrategias claras y recorridos personalizados para el usuario objetivo.',
-        wig: [6, 3.2]
+        wig: [2.5, 4.2]
     },
     {
         icon: '/imgs/publi-ico-2.svg', alt: 'Google Ads', iconClass: 'h-8', invert: true, color: '#FFCD1F', glassDark: 0.15, glass: [80, 65, 75],
         desc: 'Estamos presentes cuando te buscan y también cuando aún no saben que te necesitan.',
-        wig: [7, 2.8]
+        wig: [3, 3.8]
     },
     {
         icon: '/imgs/publi-ico-4.svg', alt: 'TikTok', iconClass: 'h-8', invert: true, color: '#25F4EE',
         desc: 'Combinamos creatividad y datos para crear contenido que encaja de forma natural en el feed y genera impacto.',
-        wig: [8, 2.6]
+        wig: [3.5, 3.6]
     },
     {
         icon: '/imgs/publi-ico-6.svg', alt: 'YouTube', iconClass: 'h-7', color: '#FF0000',
         desc: 'Diseñamos campañas para construir recuerdo, explicar propuestas de valor y acompañar al usuario a lo largo del funnel.',
-        wig: [6.5, 3.9]
+        wig: [2.5, 4.6]
     },
     {
         icon: '/imgs/publi-ico-3.svg', alt: 'LinkedIn', iconClass: 'h-10', color: '#0073B1',
         desc: 'Conectamos tu marca con los perfiles que toman decisiones, de forma directa, profesional y relevante.',
-        wig: [5, 3.6]
+        wig: [2, 4.4]
     },
     {
         icon: '/imgs/publi-ico-7.svg', alt: 'Pinterest', iconClass: 'h-7', color: '#E60023',
         desc: 'Aparecemos cuando tu marca todavía está siendo inspiración, un canal de descubrimiento antes de que exista una búsqueda activa.',
-        wig: [7.5, 3.0]
+        wig: [3, 4]
     },
     {
         icon: '/imgs/publi-ico-5.svg', alt: 'Spotify', iconClass: 'h-10', invert: true, color: '#1ED760',
         desc: 'Impactamos a tu audiencia en momentos de atención real, cuando escucha, conecta y está receptiva al mensaje.',
-        wig: [5.5, 3.4]
+        wig: [2.2, 4.2]
     },
 ];
 
