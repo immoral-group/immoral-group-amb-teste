@@ -35,14 +35,14 @@
     <!-- Menú Light -->
     <nav class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100]">
         <a href="index.html" aria-label="Immoral — ir al inicio">
-            <div><img src="/imgs/Menues/logo-menu-oscuro.png" alt=""></div>
+            <div><img src="/imgs/Menues/logo-menu-claro.png" alt=""></div>
         </a>
         <div>
-            <div class="list-none flex flex-row items-center gap-12 text-black">
+            <div class="list-none flex flex-row items-center gap-12 text-white">
 
                 <div class="w-35 items-center flex flex-col relative" id="dropdownButton">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes Somos
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-0 top-full z-[100] w-50 hidden font-medium text-sm capitalize transition-all ease-out duration-300"
                         id="dropdown">
@@ -72,7 +72,7 @@
 
                 <div class="w-30 items-center flex flex-col relative" id="dropdownButton2">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button2">Servicios
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-1/2 -translate-x-1/2 top-full z-[100] hidden w-52 font-medium text-sm capitalize transition-all ease-out duration-300"
                         id="dropdown2">
@@ -119,7 +119,7 @@
                 </div>
                 <div class="w-30 items-center flex flex-col relative" id="dropdownButton3">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button3">Verticales
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-0 top-full z-[100] hidden w-max font-medium capitalize transition-all ease-out duration-300"
                         id="dropdown3">
@@ -346,7 +346,7 @@
     </div>
 
     <!-- Horizontal Scroll Hero Section -->
-    <section id="hero-pin" class="relative w-full h-[auto] lg:h-[100vh] overflow-hidden bg-white">
+    <section id="hero-pin" class="relative w-full h-[auto] lg:h-[100vh] overflow-hidden bg-black">
 
         <!-- Fixed Background Icon (Common to both) -->
         <div id="hero-bg"
@@ -362,21 +362,110 @@
             <div
                 class="w-full lg:w-screen h-auto min-h-screen lg:h-full flex flex-col justify-center px-6 lg:px-24 py-24 lg:py-0 relative shrink-0">
 
+                <!-- Connecting Lines (Decorative): 4 tramos independientes que llenan casi toda la
+                     distancia entre cada icono y su vecino, con el mismo hueco chico (icono + ~2 unidades)
+                     en ambos extremos que ya se veía bien en Facebook. Cada uno se revela con un efecto
+                     "trim path" real (clip-path cuyo rect crece con <animate> nativo de SVG) — el trazo en
+                     sí queda punteado SIEMPRE (stroke-dasharray fijo), así el recorte solo revela más
+                     puntos progresivamente. El glow va por CSS `drop-shadow` (ver .social-connect-glow en
+                     style.css) en vez de <feGaussianBlur>: ese filtro estaba en unidades del viewBox, que al
+                     escalarse al tamaño real del contenedor se convertía en un blur de ~30-40px — mucho más
+                     grande que el hueco entre puntos (dasharray "1 0.9"), así que fundía los puntos en un
+                     bloque sólido en vez de dejarlos brillar como puntos. drop-shadow, al ir en píxeles CSS
+                     reales, no tiene ese problema de escala. -->
+                <svg id="social-connect-lines" viewBox="0 0 100 100" preserveAspectRatio="none"
+                    class="absolute inset-0 w-full h-full hidden lg:block pointer-events-none z-0 animate-float-medium"
+                    aria-hidden="true">
+                    <defs>
+                        <clipPath id="social-connect-clip-1" clipPathUnits="userSpaceOnUse">
+                            <rect x="0" y="-2" width="0" height="4"
+                                transform="translate(15.79 18.61) rotate(4.55)">
+                                <animate attributeName="width" from="0" to="49.2" begin="0.3s" dur="1.2s"
+                                    fill="freeze" />
+                            </rect>
+                        </clipPath>
+                        <clipPath id="social-connect-clip-2" clipPathUnits="userSpaceOnUse">
+                            <rect x="0" y="-2" width="0" height="4"
+                                transform="translate(70.89 25.40) rotate(46.13)">
+                                <animate attributeName="width" from="0" to="21" begin="1.5s" dur="1.2s"
+                                    fill="freeze" />
+                            </rect>
+                        </clipPath>
+                        <clipPath id="social-connect-clip-3" clipPathUnits="userSpaceOnUse">
+                            <rect x="0" y="-2" width="0" height="4"
+                                transform="translate(21.2 79.82) rotate(-17.75)">
+                                <animate attributeName="width" from="0" to="36.2" begin="2.7s" dur="1.2s"
+                                    fill="freeze" />
+                            </rect>
+                        </clipPath>
+                        <clipPath id="social-connect-clip-4" clipPathUnits="userSpaceOnUse">
+                            <rect x="0" y="-2" width="0" height="4"
+                                transform="translate(61.33 65.68) rotate(-39.86)">
+                                <animate attributeName="width" from="0" to="31" begin="3.9s" dur="1.2s"
+                                    fill="freeze" />
+                            </rect>
+                        </clipPath>
+                    </defs>
+
+                    <!-- Cada tramo va en dos capas: la copia de GLOW no está dentro de ningún
+                         clip-path (un <filter>/drop-shadow dentro de un <g clip-path> se recorta al
+                         límite exacto del clip en vez de dejar que el resplandor se expanda — por
+                         eso no se veía nada de glow antes), y aparece con un fundido de opacidad +
+                         desenfoque. La copia NÍTIDA sigue yendo dentro del clip-path para el efecto
+                         "trim path" de revelado progresivo, sin ningún filtro. -->
+
+                    <!-- Tramo 1: Facebook → Pinterest -->
+                    <path class="social-connect-glow-1" d="M 15.79,18.61 L 64.81,22.51" fill="none"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke-dasharray="1 0.9" />
+                    <g clip-path="url(#social-connect-clip-1)">
+                        <path d="M 15.79,18.61 L 64.81,22.51" fill="none" stroke="#ffffff" stroke-opacity="0.9"
+                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                    </g>
+
+                    <!-- Tramo 2: Pinterest → Instagram -->
+                    <path class="social-connect-glow-2" d="M 70.89,25.40 L 85.40,40.49" fill="none"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke-dasharray="1 0.9" />
+                    <g clip-path="url(#social-connect-clip-2)">
+                        <path d="M 70.89,25.40 L 85.40,40.49" fill="none" stroke="#ffffff" stroke-opacity="0.9"
+                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                    </g>
+
+                    <!-- Tramo 3: TikTok → YouTube -->
+                    <path class="social-connect-glow-3" d="M 21.2,79.82 L 55.66,68.81" fill="none"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke-dasharray="1 0.9" />
+                    <g clip-path="url(#social-connect-clip-3)">
+                        <path d="M 21.2,79.82 L 55.66,68.81" fill="none" stroke="#ffffff" stroke-opacity="0.9"
+                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                    </g>
+
+                    <!-- Tramo 4: YouTube → Instagram -->
+                    <path class="social-connect-glow-4" d="M 61.33,65.68 L 85.11,45.80" fill="none"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke-dasharray="1 0.9" />
+                    <g clip-path="url(#social-connect-clip-4)">
+                        <path d="M 61.33,65.68 L 85.11,45.80" fill="none" stroke="#ffffff" stroke-opacity="0.9"
+                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                    </g>
+                </svg>
+
                 <!-- Floating Icons (Decorative) -->
                 <img src="/imgs/ico-gestion-1.svg" alt=""
-                    class="absolute top-[15%] left-[10%] w-12 h-12 hidden lg:block animate-float-slow">
+                    class="absolute top-[15%] left-[10%] w-12 h-12 hidden lg:block animate-float-slow drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-2.svg" alt=""
-                    class="absolute top-[20%] right-[30%] w-10 h-10 hidden lg:block animate-float-medium">
+                    class="absolute top-[20%] right-[30%] w-10 h-10 hidden lg:block animate-float-medium drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-3.svg" alt=""
-                    class="absolute bottom-[15%] left-[15%] w-14 h-14 hidden lg:block animate-float-fast">
+                    class="absolute bottom-[15%] left-[15%] w-14 h-14 hidden lg:block animate-float-fast drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-4.svg" alt=""
-                    class="absolute top-[40%] right-[10%] w-12 h-12 hidden lg:block animate-float-slow">
+                    class="absolute top-[40%] right-[10%] w-12 h-12 hidden lg:block animate-float-slow drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-5.svg" alt=""
-                    class="absolute bottom-[30%] right-[40%] w-8 h-8 hidden lg:block animate-float-medium">
+                    class="absolute bottom-[30%] right-[40%] w-8 h-8 hidden lg:block animate-float-medium drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
 
                 <div class="max-w-5xl relative z-10">
                     <span class="block text-gray-500 text-lg mb-6 tracking-wide">Gestión de Redes Sociales:</span>
-                    <h1 class="text-5xl md:text-6xl font-black text-black leading-[0.9] tracking-tight mb-8">
+                    <h1 class="text-5xl md:text-6xl font-black text-white leading-[0.9] tracking-tight mb-8">
                         <span class="text-[#2F80ED]">Estrategia</span>, Creatividad<br>
                         <span class="text-[#2F80ED]">y Tecnología</span> para<br>
                         Crecer
@@ -393,16 +482,16 @@
             <div
                 class="w-full lg:w-screen h-auto min-h-screen lg:h-full flex items-center justify-center px-6 lg:px-24 py-24 lg:py-0 relative shrink-0">
                 <div class="max-w-3xl space-y-8">
-                    <p class="text-lg md:text-xl text-gray-600 font-light leading-relaxed">
+                    <p class="text-lg md:text-xl text-white font-normal leading-relaxed">
                         En Immoral, nos encargamos de todo el proceso, desde la planificación hasta la interacción
                         diaria, para que tu marca tenga una presencia coherente, atractiva y efectiva.
                     </p>
 
                     <div class="space-y-2">
-                        <h3 class="text-3xl md:text-4xl font-black text-black leading-tight">
+                        <h3 class="text-3xl md:text-4xl font-black text-white leading-tight">
                             No publicamos por publicar.
                         </h3>
-                        <h3 class="text-3xl md:text-4xl font-black text-black leading-tight">
+                        <h3 class="text-3xl md:text-4xl font-black text-white leading-tight">
                             No buscamos interacciones vacías.
                         </h3>
                     </div>
@@ -414,7 +503,7 @@
 
                     <div class="pt-8">
                         <a href="contacto.html"
-                            class="inline-block px-10 py-4 border border-black text-black font-medium text-sm tracking-widest hover:bg-black hover:text-white transition-colors duration-300">
+                            class="inline-block px-10 py-4 border border-white text-white font-medium text-sm tracking-widest hover:bg-white hover:text-black transition-colors duration-300">
                             HABLEMOS
                         </a>
                     </div>
