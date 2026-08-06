@@ -182,7 +182,7 @@ export function createBlackholeScene(container) {
     const maskCtx = maskCanvas.getContext('2d');
     const GLOW_RADIUS = 110;
     const GLOW_RADIUS_HOVER = GLOW_RADIUS * 1.4;
-    const BASE_DIM = 0.9;
+    const BASE_DIM = 0.75;
     const FOLLOW_EASE = 0.08;
 
     const liveMouse = { x: 0, y: 0 };
