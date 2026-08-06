@@ -1095,6 +1095,34 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 
 ---
 
+## 2026-08-06 — Cartoons de las 4 verticales junto al logo, en hover, en el home
+
+**Qué:** en la sección "Ecosistema Immoral" del home (`#immoral-ecosystem`, los 4 logos imfashion/imfilms/imcontent/immoralia a la derecha del titular "No somos una agencia..."), se añadió el personaje/mascota ilustrado de cada vertical (aportados por el usuario en la carpeta `Cartoons/`) junto a su logo correspondiente. Cada cartoon es una `<img>` posicionada en `absolute right-full` respecto a `.brand-header` (así queda anclada verticalmente a la altura del logo, sin desplazarse cuando el acordeón de descripción se expande debajo), oculta por defecto (`opacity-0 translate-x-6 scale-90`) y revelada con una transición de 500ms (fade + slide + scale) exactamente al mismo tiempo que el acordeón se despliega hacia abajo — ambos toggles viven en los mismos listeners `mouseenter`/`mouseleave` de `initImmoralEcosystem()` (`src/main.js`), que ya controlaban el fondo, el acordeón y el brillo del logo, para garantizar la sincronía pedida sin depender de dos mecanismos distintos. Se corrigió de paso un bug que esta tarea habría introducido: el selector `item.querySelector('img')` usado para "resaltar el logo" habría capturado el nuevo cartoon (por ser ahora el primer `<img>` del contenedor) en vez del logo real; se acotó a `item.querySelector('img:not(.brand-cartoon)')`.
+
+**Assets:** los 4 PNG originales (1080px de alto, 350-520KB cada uno, con transparencia) se redimensionaron a 700px de alto conservando el canal alfa (`public/imgs/cartoon-fashion.png`, `cartoon-films.png`, `cartoon-content.png`, `cartoon-immoralia.png`, 150-265KB cada uno).
+
+**Por qué:** petición explícita del usuario.
+
+**Afecta:** `index.html` (los 4 `.brand-item`), `src/main.js` (`initImmoralEcosystem`), 4 imágenes nuevas en `public/imgs/`.
+
+**Verificado en local:** preview con `npm run dev`; confirmado visualmente con hover real (vía `computer.hover` sobre las coordenadas exactas de cada `.brand-item`, medidas con `getBoundingClientRect`) que los 4 cartoons se despliegan correctamente a la izquierda de su logo, en simultáneo con el acordeón y el cambio de fondo, para las 4 verticales. Sin errores de consola nuevos.
+
+**Nota sobre la verificación:** durante la primera pasada, simular el hover con `dispatchEvent(new MouseEvent('mouseenter'))` y leer `getComputedStyle` inmediatamente después arrojó `opacity: 0` a pesar de que las clases correctas sí estaban aplicadas (confirmado por `classList`) — incluso forzando `!important` inline. Se descartó como bug real al reproducirse el mismo síntoma en el acordeón `.brand-body` preexistente (no tocado por este cambio) y al confirmar con elementos de control (`<div>`/`<img>` nuevos insertados en el DOM) que el motor de estilos del navegador de la sesión de pruebas funcionaba con normalidad — es decir, un artefacto puntual del entorno de automatización de esta sesión al leer estilos computados justo tras un evento sintético, no reproducible con una interacción de ratón real (`computer.hover`), que sí mostró el resultado esperado de forma consistente en las 4 verticales.
+
+---
+
+## 2026-08-06 — Centra los cartoons respecto a la altura del bloque desplegado completo
+
+**Qué:** ajuste sobre el cambio anterior (cartoons de las 4 verticales en el home): el cartoon estaba centrado verticalmente respecto a `.brand-header` (solo la fila del logo), así que al abrirse el acordeón de descripción debajo, el personaje quedaba pegado arriba en vez de centrado en el bloque completo. Se movió cada `<img class="brand-cartoon">` de ser hijo de `.brand-header` a ser hijo directo de `.brand-item` (que pasa a `relative`), de forma que el `top-1/2 -translate-y-1/2` centra respecto a la altura total del ítem — que ya incluye el acordeón vía CSS grid, así que el centrado se recalcula solo, de forma animada, a medida que el acordeón se expande.
+
+**Por qué:** feedback explícito del usuario tras el cambio anterior.
+
+**Afecta:** `index.html` (los 4 `.brand-item`) únicamente; sin cambios en `src/main.js`.
+
+**Verificado en local:** con hover real (`computer.hover` sobre las referencias de accesibilidad de cada logo, no coordenadas estimadas a mano) para las 4 verticales, confirmado visualmente que el cartoon queda centrado respecto al bloque completo (título + descripción + "Ver más"), no solo respecto al logo. Sin errores de consola nuevos.
+
+---
+
 ## 2026-08-06 — Resuelto conflicto de merge en el PR #33 (reordena el CTA de crecimiento en el home)
 
 **Qué:** único conflicto real, puramente aditivo en `.claude/TASK-LOG.md` (la entrada de este PR — mover el bloque del CTA "El crecimiento real empieza..." en `index.html` — vs. las entradas de liquid glass/wiggle y la resolución del PR #32, ya en `main`). Se conservaron todas, en orden cronológico. De paso se corrigió un desorden preexistente en el fichero: la entrada "Unificar fondo blanco/texto negro en Publicidad en Medios" se había quedado sin su línea `**Afecta:**` en su sitio (desplazada al final de la entrada siguiente por un merge anterior) — se recolocó donde corresponde. Ningún otro fichero tuvo conflicto real: este PR solo mueve un bloque dentro de `index.html`, sin relación con `publicidad-en-medios.html`, `src/style.css` ni `src/platform-carousel.js`.
