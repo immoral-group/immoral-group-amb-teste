@@ -1196,3 +1196,67 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `index.html` (sección CTA Home), `src/blackhole-scene.js` (constante `BASE_DIM`).
 
 **Verificado en local:** servidor Vite en `localhost:5191` (puerto alterno porque el 5174 estaba en uso por otra sesión sobre el mismo worktree). Confirmado por `getComputedStyle` que la sección tiene `border-image-source: linear-gradient(135deg, rgba(72,137,235,0.5), rgba(255,255,255,0.5), rgba(72,137,235,0.5))` y `border-style: solid`; confirmado por fetch del módulo servido que `BASE_DIM = 0.8`. Sin errores de consola nuevos (los únicos errores presentes son de Supabase por falta de variables de entorno en local, preexistentes y no relacionados).
+
+---
+
+## 2026-08-06 — Botón "SOLICITA UNA AUDITORÍA" en el CTA de la home, con el diseño del botón de Publicidad en Medios
+
+**Qué:** en `index.html`, el botón del CTA final del hero (`<section>` con `#home-blackhole`, "El crecimiento real empieza con una buena conversación.") se reemplazó. Antes era un botón tipo "pill" (`rounded-lg`, fondo blanco, texto azul, hover invertido). Ahora usa el mismo diseño que el botón "SOLICITA UNA AUDITORÍA GRATUITA" de `publicidad-en-medios.html` (línea 788): cuadrado azul (`#2f80ed`) con icono de flecha (`/imgs/btn-ico.svg`) a la izquierda, caja de texto con borde azul y fondo blanco que se expande en azul al hover (`group-hover`), con el texto en negro pasando a blanco. El texto se dejó como **"SOLICITA UNA AUDITORÍA"**, sin la palabra "GRATUITA", a petición explícita del usuario. Se añadió `bg-white` explícito en el span del texto (el original de `publicidad-en-medios.html` lo heredaba de la sección blanca contenedora; aquí la sección del hero es negra, así que había que fijarlo para que el texto negro siguiera siendo legible).
+
+**Por qué:** petición del usuario de traer el estilo de botón de la página de Publicidad en Medios a la home, sin la palabra "gratis"/"gratuita", y sin tocar el botón original de Publicidad en Medios.
+
+**Afecta:** `index.html` (sección CTA Home). No se tocó `publicidad-en-medios.html` ni ninguna de las otras 5 páginas de servicio que repiten el mismo botón (influencer-marketing, email-marketing, gestion-de-redes, diseno-de-marca, automatizacion-de-procesos) — siguen con el texto y comportamiento originales sin cambios.
+
+**Verificado en local:** servidor Vite en `localhost:5199` (puerto alterno; requirió `npm install` porque el worktree no tenía `node_modules`). Confirmado por `getComputedStyle` del enlace: `border: 2px solid rgb(47, 128, 237)`, fondo del icono `rgb(47, 128, 237)`, fondo del texto `rgb(255, 255, 255)`, color de texto `rgb(0, 0, 0)`; texto visible en página "SOLICITA UNA AUDITORÍA"; `fetch('/imgs/btn-ico.svg')` devuelve 200. Cambio de puerto en `.claude/launch.json` revertido a 5174 tras la prueba.
+
+---
+
+## 2026-08-06 — Hallazgo: falta de `.env` en el worktree rompía todas las interacciones JS del sitio en local
+
+**Qué:** al verificar el botón de la entrada anterior, el usuario reportó que ninguna interacción se veía en su servidor local. Diagnóstico: este worktree no tenía fichero `.env` (solo `.env.example`). `src/supabaseClient.js` llama a `createClient(url, key)` de forma síncrona a nivel de módulo con esas variables `undefined`, lo que lanza `Error: supabaseUrl is required` **durante la evaluación del módulo**. Como `main.js` importa de forma estática `team.js` → `jobOpenings.js` / `partnerLogos.js` → `supabaseClient.js`, esa excepción interrumpía la carga de `main.js` entero — por eso ninguna interacción (loader, fondo animado del hero, cursor personalizado, hovers, etc.) se ejecutaba en local, en cualquier página del sitio, no solo en la home. No es un bug de código nuevo ni relacionado con el cambio del botón: es un problema de configuración local del worktree, presente ya antes de esta tarea.
+
+**Fix:** se copió el fichero de variables de entorno ya existente en la carpeta raíz del repo (fuera de este worktree, a nivel de `.claude/worktrees/../..`) a `.env` dentro de este worktree. `.env` está en `.gitignore`, por lo que no se versiona ni se sube al PR.
+
+**Por qué:** indicación explícita del usuario ("seguro es por los datos faltantes, utiliza el archivo... titulado como env") tras no ver las interacciones; se confirmó la hipótesis y se corrigió.
+
+**Afecta:** ningún fichero del repo (el `.env` creado no se versiona). Aplica solo a la configuración local de este worktree para poder verificar cambios con `npm run dev`.
+
+**Nota para quien retome este worktree:** cualquier worktree nuevo de este repo necesita su propio `.env` (copiado de `.env.example` y relleno con las credenciales reales, disponibles en el fichero `env` de la raíz del proyecto) antes de correr `npm run dev` — si no, todas las páginas fallan en silencio a nivel de JS.
+
+**Efecto colateral detectado y revertido:** el script `predev` (`scripts/generate-case-studies.mjs`, que regenera los `caso-*.html` a partir de datos) se ejecuta automáticamente en cada `npm run dev` y reescribió 20 páginas de casos de éxito — pero solo con diferencias de fin de línea (LF→CRLF), sin ningún cambio de contenido (`git diff --ignore-space-at-eol` vacío). Se revirtieron esos 20 ficheros con `git checkout` para no meter ruido ajeno a esta tarea en el diff.
+
+---
+
+## 2026-08-06 — Bug real corregido: el hover del botón de la home no ponía el fondo azul
+
+**Qué:** en el botón "SOLICITA UNA AUDITORÍA" de `index.html` (ver entradas anteriores del mismo día), el texto sí cambiaba a blanco en hover (`group-hover:text-white`) pero el fondo se quedaba blanco en vez de deslizarse en azul, dejando el texto ilegible (blanco sobre blanco). Causa: se había puesto `bg-white` directamente en el `<span>` del texto (necesario porque, a diferencia de la sección blanca de `publicidad-en-medios.html`, la sección de la home es negra) — ese fondo opaco, al tener `z-10` igual que el propio span, quedaba pintado por encima del `<span>` overlay azul (`z-index: auto`) que se desliza en hover, tapándolo permanentemente sin importar su posición. Fix: se quitó `bg-white` del span de texto (que ahora queda transparente, igual que en el original) y se puso `bg-white` en el `<a>` contenedor — así el overlay azul, que sigue por debajo del texto (z-10) pero por encima del fondo del propio `<a>`, sí queda visible al deslizarse.
+
+**Por qué:** feedback directo del usuario tras varias rondas de confusión por problemas de entorno (puertos de servidor distintos, `.env` faltante) que enmascaraban este bug real.
+
+**Afecta:** `index.html` (clases del `<a>` y su primer `<span>` de texto en la sección CTA Home).
+
+**Verificado:** por `getComputedStyle` vía fetch al servidor Vite local — `backgroundColor` del `<a>` es blanco, del `<span>` de texto es transparente (`rgba(0,0,0,0)`).
+
+---
+
+## 2026-08-06 — Quitado el borde degradado de la sección CTA Home y subida la opacidad del fondo animado (+15%)
+
+**Qué:** en `index.html`, se eliminó el `style` inline de la sección CTA Home (`border: 1px solid; border-image: linear-gradient(...)`) que delimitaba la sección con una línea azul→blanco→azul. En `src/blackhole-scene.js` se bajó `BASE_DIM` de `0.75` a `0.64` (−15% relativo, equivalente a +15% de opacidad visible del fondo animado en su estado de reposo) — la interacción del fondo (brillo que sigue al cursor) no se tocó.
+
+**Por qué:** petición explícita del usuario tras validar el fix del botón.
+
+**Afecta:** `index.html` (sección CTA Home, atributo `style` eliminado), `src/blackhole-scene.js` (constante `BASE_DIM`).
+
+**Verificado:** por fetch directo a los ficheros servidos por Vite — `BASE_DIM = 0.64` presente en `src/blackhole-scene.js`, `border-image: linear-gradient` ausente del `index.html` servido.
+
+---
+
+## 2026-08-06 — Efecto de fondo (agujero negro) de la home ampliado para cubrir todo el ancho de la franja
+
+**Qué:** en `src/blackhole-scene.js`, el disco de partículas se veía como un círculo centrado con márgenes negros a los lados en vez de cubrir todo el ancho de la sección CTA Home. Se aplicó zoom óptico bajando el FOV de la cámara de `40°` a `14°` (mismo ángulo/posición de cámara, "vista casi cenital", sin tocar geometría ni shader) para que el disco llegue hasta los bordes horizontales. Como el zoom agranda también cada línea individual del disco, se redujo la geometría de cada streak (`CylinderGeometry` de `(0.01, 0.12, 2.2, 3)` a `(0.004, 0.045, 0.8, 3)`) para que no se vieran demasiado gruesas, y se subió `instanceCount` en dos pasos (1800 → 3200 → 4200) para compensar la menor densidad aparente y añadir más líneas azules a petición del usuario. También se subió el multiplicador final de opacidad del shader de `0.8` a `0.96` (+20%) para que las líneas destaquen más. Se probó además un glow aditivo extra en el canvas de la máscara de brillo (`drawMask()`) que resaltaba las líneas cerca del cursor, pero el usuario pidió revertirlo tras verlo — el mecanismo de brillo/revelado al pasar el mouse quedó exactamente como estaba antes de esa prueba.
+
+**Por qué:** petición explícita del usuario, en varias rondas de ajuste fino sobre el mismo efecto: primero ampliar el disco al ancho completo, luego afinar el grosor de las líneas, luego más líneas y opacidad, y finalmente descartar el glow adicional probado.
+
+**Afecta:** `src/blackhole-scene.js` (`camera` FOV, `streakGeo`, `instanceCount`, multiplicador de `vOpacity` en el shader). No se tocó la lógica de interacción del cursor (`onPointerMove`, `onEnter`, `onLeave`, `drawMask` fuera del experimento revertido).
+
+**Verificado:** por fetch directo al módulo servido por Vite tras cada cambio (valores de `PerspectiveCamera(...)`, `instanceCount = ...` y el multiplicador `* 0.96` confirmados en el código servido).
