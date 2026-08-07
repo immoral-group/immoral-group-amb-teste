@@ -1049,46 +1049,154 @@ function initHeroPhysics() {
     // Detectar si es mobile
     const isMobile = window.innerWidth < 768;
 
-    // Tamaños más pequeños en mobile
-    const TEAM_CIRCLE_SIZE_MIN = isMobile ? 50 : 90;
-    const TEAM_CIRCLE_SIZE_MAX = isMobile ? 70 : 130;
+    // Burbujas de cristal (glassmorphism) con el nombre de cada caso de éxito.
+    // Más pequeñas en mobile.
+    const CASE_CIRCLE_SIZE_MIN = isMobile ? 42 : 55;
+    const CASE_CIRCLE_SIZE_MAX = isMobile ? 58 : 72;
     const DOT_SIZE = isMobile ? 15 : 25;
+    const TEXTURE_SIZE = 500; // Tamaño de referencia del canvas, escalado luego al radio real.
 
-    const TEAM_IMAGES = ['/imgs/port1.png', '/imgs/port2.png', '/imgs/port3.png', '/imgs/port4.png'];
     const DOT_COLORS = ['#3B82F6', '#67E8F9'];
 
-    function processImage(src) {
-        return new Promise((resolve) => {
-            const img = new Image();
-            img.crossOrigin = "Anonymous";
-            img.onload = () => {
-                const size = 500;
-                const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
-                const ctx = canvas.getContext('2d');
-                ctx.beginPath();
-                ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-                ctx.closePath();
-                ctx.clip();
-                const minDim = Math.min(img.width, img.height);
-                const sx = (img.width - minDim) / 2;
-                const sy = (img.height - minDim) / 2;
-                ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-                resolve(canvas.toDataURL());
-            };
-            img.onerror = () => resolve(src);
-            img.src = src;
+    // Lee los nombres directamente de la rejilla de casos de éxito más abajo
+    // en la página (#casos-grid, generada en build desde Supabase). Al añadir
+    // o quitar un caso desde /casos-admin, esa rejilla se regenera y estas
+    // burbujas quedan sincronizadas automáticamente, sin cableado adicional.
+    function getCaseStudyNames() {
+        return Array.from(document.querySelectorAll('#casos-grid .case-card h3'))
+            .map((h3) => h3.textContent.trim())
+            .filter(Boolean);
+    }
+
+    // Reparte `text` en líneas que quepan dentro de maxWidth con la fuente actual del ctx.
+    function wrapText(ctx, text, maxWidth) {
+        const words = text.split(/\s+/);
+        const lines = [];
+        let line = '';
+
+        words.forEach((word) => {
+            const candidate = line ? `${line} ${word}` : word;
+            if (ctx.measureText(candidate).width <= maxWidth || !line) {
+                line = candidate;
+            } else {
+                lines.push(line);
+                line = word;
+            }
         });
+        if (line) lines.push(line);
+
+        return lines;
+    }
+
+    // Busca el tamaño de fuente más grande (dentro de un rango razonable) cuyas líneas
+    // repartidas quepan dentro del círculo de radio útil `effectiveRadius` (el radio real
+    // de la burbuja ya con el padding interior descontado), con un máximo de 3 líneas.
+    // El ancho disponible se calcula por línea según la cuerda del círculo a esa altura
+    // (más estrecho cerca de arriba/abajo), no con un ancho fijo, para que ninguna línea
+    // — ni la primera ni la última de un nombre en 2-3 líneas — llegue a tocar el borde.
+    function fitTextToCircle(ctx, text, effectiveRadius) {
+        const MAX_FONT = 92;
+        const MIN_FONT = 14;
+        const MAX_LINES = 3;
+
+        const chordWidthAt = (yOffset) => 2 * Math.sqrt(Math.max(0, effectiveRadius * effectiveRadius - yOffset * yOffset));
+
+        for (let fontSize = MAX_FONT; fontSize >= MIN_FONT; fontSize -= 2) {
+            ctx.font = `800 ${fontSize}px Lexend, sans-serif`;
+            const lineHeight = fontSize * 1.15;
+
+            // Primera pasada: usar el ancho más generoso (a la altura del centro) solo para estimar cuántas líneas hacen falta.
+            let lines = wrapText(ctx, text, chordWidthAt(0));
+
+            // Repartir de nuevo usando el ancho disponible en la línea más exterior (la más
+            // estrecha), así todas las líneas quedan dentro del área real del círculo.
+            for (let pass = 0; pass < 3; pass++) {
+                const blockHeight = lines.length * lineHeight;
+                const outerY = Math.max(0, blockHeight / 2 - lineHeight / 2);
+                const safeWidth = chordWidthAt(outerY);
+                const rewrapped = wrapText(ctx, text, safeWidth);
+                if (rewrapped.length === lines.length) { lines = rewrapped; break; }
+                lines = rewrapped;
+            }
+
+            const blockHeight = lines.length * lineHeight;
+            if (lines.length > MAX_LINES || blockHeight > effectiveRadius * 2) continue;
+
+            // Verificación real, línea por línea: `wrapText` no puede partir una palabra
+            // suelta (p. ej. "TRAVELPERK"), así que sin esto una palabra más ancha que su
+            // hueco se aceptaba igual "de un tirón" y acababa sobresaliendo del círculo,
+            // tapada por las burbujas vecinas. Aquí se descarta ese tamaño de fuente si
+            // cualquier línea, a su propia altura, no entra en el ancho real disponible.
+            const fits = lines.every((line, i) => {
+                const lineCenterY = -blockHeight / 2 + lineHeight / 2 + i * lineHeight;
+                const availableWidth = chordWidthAt(Math.abs(lineCenterY));
+                return ctx.measureText(line).width <= availableWidth;
+            });
+
+            if (fits) {
+                return { lines, lineHeight };
+            }
+        }
+
+        // Último recurso (no debería alcanzarse con nombres reales): tamaño mínimo tal cual.
+        ctx.font = `800 ${MIN_FONT}px Lexend, sans-serif`;
+        const lines = wrapText(ctx, text, chordWidthAt(0)).slice(0, MAX_LINES);
+        return { lines, lineHeight: MIN_FONT * 1.15 };
+    }
+
+    // Dibuja una pequeña burbuja azul plana con el nombre del caso de éxito dentro,
+    // y la devuelve como data URL usable como textura de sprite en Matter.js.
+    function createGlassBubbleTexture(name) {
+        const size = TEXTURE_SIZE;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        const center = size / 2;
+        const radius = center;
+
+        ctx.beginPath();
+        ctx.arc(center, center, radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#3980E4';
+        ctx.fill();
+
+        // Padding interior: el texto nunca puede acercarse al borde a menos de esto.
+        const innerPadding = size * 0.16;
+        const effectiveRadius = radius - innerPadding;
+        const { lines, lineHeight } = fitTextToCircle(ctx, name.toUpperCase(), effectiveRadius);
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#ffffff';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
+        ctx.shadowBlur = size * 0.01;
+
+        const blockHeight = lines.length * lineHeight;
+        const startY = center - blockHeight / 2 + lineHeight / 2;
+        lines.forEach((line, i) => {
+            ctx.fillText(line, center, startY + i * lineHeight);
+        });
+
+        return canvas.toDataURL();
     }
 
     async function startPhysics() {
         // Verificar de nuevo si el contenedor existe (por si cambió la página durante el await)
         if (!document.getElementById('hero-physics')) return;
 
-        const processedImages = await Promise.all(TEAM_IMAGES.map(processImage));
+        // Esperar a que Lexend esté realmente cargada: el canvas dibuja el texto una sola
+        // vez y de forma síncrona, así que si la fuente aún no está lista en este punto,
+        // usaría la fuente de reserva para siempre (a diferencia del texto normal del DOM,
+        // que sí se redibuja solo cuando la fuente termina de cargar).
+        if (document.fonts && document.fonts.ready) {
+            await document.fonts.ready;
+        }
 
-        // Verificar OTRA VEZ después del await
+        // Una burbuja de cristal por cada caso de éxito que exista ahora mismo en la rejilla.
+        const caseNames = getCaseStudyNames();
+        const bubbleTextures = caseNames.map(createGlassBubbleTexture);
+
         const currentContainer = document.getElementById('hero-physics');
         if (!currentContainer) return;
 
@@ -1136,15 +1244,18 @@ function initHeroPhysics() {
         Composite.add(world, [ground, leftWall, rightWall, topWall]);
 
         const bodies = [];
-        processedImages.forEach((imgSrc) => {
-            const radius = TEAM_CIRCLE_SIZE_MIN + Math.random() * (TEAM_CIRCLE_SIZE_MAX - TEAM_CIRCLE_SIZE_MIN);
-            const x = Math.random() * (currentContainer.clientWidth * 0.3) + (currentContainer.clientWidth * 0.05);
-            const y = Math.random() * (currentContainer.clientHeight / 2);
+        bubbleTextures.forEach((texture) => {
+            const radius = CASE_CIRCLE_SIZE_MIN + Math.random() * (CASE_CIRCLE_SIZE_MAX - CASE_CIRCLE_SIZE_MIN);
+            // Una burbuja por caso de éxito puede ser bastante más que las 4 imágenes de equipo
+            // originales, así que se les da una zona más ancha para caer/asentarse — si no,
+            // con muchos casos se amontonan unas sobre otras y se tapan entre sí.
+            const x = Math.random() * (currentContainer.clientWidth * 0.65) + (currentContainer.clientWidth * 0.05);
+            const y = Math.random() * (currentContainer.clientHeight * 0.85);
             const circle = Bodies.circle(x, y, radius, {
                 restitution: 0.5,
                 friction: 0.01,
                 frictionAir: 0.005,
-                render: { sprite: { texture: imgSrc, xScale: (radius * 2) / 500, yScale: (radius * 2) / 500 } }
+                render: { sprite: { texture: texture, xScale: (radius * 2) / TEXTURE_SIZE, yScale: (radius * 2) / TEXTURE_SIZE } }
             });
             bodies.push(circle);
         });
