@@ -27,6 +27,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const GRID_PAGE = join(ROOT, 'casos-de-exito.html');
 const GENERATED_MARKER = '<!-- AUTO-GENERATED FROM SUPABASE — NO EDITAR A MANO, usa /casos-admin -->';
+const CASOS_ABIERTOS_DIR = join(ROOT, 'public', 'videos', 'casos-abiertos');
 
 // Vite carga .env solo para su propio proceso — un script Node suelto
 // ejecutado vía predev/prebuild no lo recibe automáticamente. En Vercel las
@@ -494,6 +495,57 @@ function resultsHtml(results) {
                   </div>`).join('\n');
 }
 
+// En el hero de la página de detalle, si existe un vídeo del "caso abierto"
+// para este slug (public/videos/casos-abiertos/<slug>.mp4) se muestra ese
+// vídeo en vez del logo — de momento solo Nutfruit y AMLUL lo tienen; el
+// resto de casos sigue mostrando su logo como siempre.
+function hasHeroVideo(cs) {
+  return existsSync(join(CASOS_ABIERTOS_DIR, `${cs.slug}.mp4`));
+}
+
+// Con vídeo: pegado al borde derecho de la pantalla (fuera del contenedor
+// con padding), grande, como si saliera del borde — el texto reserva hueco
+// a la derecha (xl:pr-[50vw]) para no quedar debajo. Sin vídeo: layout
+// original en fila con el logo pequeño a la derecha, sin cambios.
+function heroSectionHtml(cs) {
+  const header = `<header class="mb-6 xl:mb-8">
+            <p class="text-blue-500 text-xl xl:text-3xl font-light leading-relaxed mb-4 block-reveal">Caso de Éxito:</p>
+            <h1 class="text-black text-4xl xl:text-6xl font-black leading-tight xl:leading-[78px] block-reveal">${escapeHtml(cs.brand_name)}</h1>
+          </header>`;
+  const description = `<div
+            class="text-black text-lg xl:text-xl font-light leading-relaxed xl:leading-relaxed max-w-2xl reveal-lines">
+            ${textToParagraphs(cs.description)}
+          </div>`;
+
+  if (hasHeroVideo(cs)) {
+    return `<section class="relative w-full py-8 xl:py-16 z-[5] xl:min-h-[620px]">
+    <div class="max-w-[95%] mx-auto px-4 xl:px-16 mt-40 mb-20 xl:pr-[50vw]">
+      <div class="reveal-group">
+        ${header}
+        ${description}
+      </div>
+    </div>
+    <video
+      class="w-full max-w-lg mx-auto mt-8 rounded object-cover xl:mx-0 xl:mt-0 xl:absolute xl:right-0 xl:top-1/2 xl:-translate-y-1/2 xl:w-[48vw] xl:max-w-3xl xl:h-[560px] xl:rounded-l-3xl xl:rounded-r-none"
+      src="/videos/casos-abiertos/${cs.slug}.mp4" autoplay muted loop playsinline></video>
+  </section>`;
+  }
+
+  return `<section class="relative w-full py-8 xl:py-16 z-[5]">
+    <div class="max-w-[95%] mx-auto px-4 xl:px-16 mt-40 mb-20">
+      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-8 xl:gap-16">
+        <div class="reveal-group flex-1">
+          ${header}
+          ${description}
+        </div>
+        <div class="flex-shrink-0 xl:pr-20">
+          <img class="w-24 h-20 xl:w-60 xl:h-24 object-contain" src="${escapeHtml(cs.logo_url)}" alt="Logo de ${escapeHtml(cs.brand_name)}" />
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
 function renderDetailPage(cs) {
   const results = cs.case_study_results;
   const testimonials = cs.case_study_testimonials.map((t) => ({ ...t, avatarUrl: cs.logo_url, brandName: cs.brand_name }));
@@ -523,25 +575,7 @@ ${HEAD_BOTTOM}
 ${NAV_AND_MOBILE_MENU}
 
   <!-- Hero Section - Case Study -->
-  <section class="relative w-full py-8 xl:py-16 z-[5]">
-    <div class="max-w-[95%] mx-auto px-4 xl:px-16 mt-40 mb-20">
-      <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-8 xl:gap-16">
-        <div class="reveal-group flex-1">
-          <header class="mb-6 xl:mb-8">
-            <p class="text-blue-500 text-xl xl:text-3xl font-light leading-relaxed mb-4 block-reveal">Caso de Éxito:</p>
-            <h1 class="text-black text-4xl xl:text-6xl font-black leading-tight xl:leading-[78px] block-reveal">${escapeHtml(cs.brand_name)}</h1>
-          </header>
-          <div
-            class="text-black text-lg xl:text-xl font-light leading-relaxed xl:leading-relaxed max-w-2xl reveal-lines">
-            ${textToParagraphs(cs.description)}
-          </div>
-        </div>
-        <div class="flex-shrink-0 xl:pr-20">
-          <img class="w-24 h-20 xl:w-60 xl:h-24 object-contain" src="${escapeHtml(cs.logo_url)}" alt="Logo de ${escapeHtml(cs.brand_name)}" />
-        </div>
-      </div>
-    </div>
-  </section>
+  ${heroSectionHtml(cs)}
   <!-- Challenge Section -->
   <section class="relative w-full bg-black py-12 xl:py-16 z-[5]">
     <div class="max-w-7xl mx-auto px-4 xl:px-16">
