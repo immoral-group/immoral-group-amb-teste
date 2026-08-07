@@ -386,7 +386,7 @@
             </div>
             <!-- Imagen -->
             <div class="w-full xl:w-1/2 flex justify-end items-center">
-                <img src="/imgs/img-manifesto-vision.png" alt="Vision Architecture" class="w-10/12">
+                <img src="/imgs/img-manifesto-vision.webp" alt="Vision Architecture" class="w-10/12">
             </div>
         </div>
     </section>
@@ -394,9 +394,9 @@
     <!-- Seccion 2: Misión (Fondo Azul) -->
     <section class="w-full bg-black text-white py-20 xl:py-32 px-6 sm:px-12 xl:px-24">
         <div class="max-w-[1400px] mx-auto flex flex-col-reverse xl:flex-row gap-16 items-center">
-            <!-- Imagen -->
+            <!-- Efecto interactivo (grid de cubos, cámara fija) -->
             <div class="w-full xl:w-1/2">
-                <img src="/imgs/img-manifesto-mision.png" alt="Mission Mountain" class="w-10/12">
+                <div id="manifesto-mision-cubes" class="w-10/12 aspect-square" aria-hidden="true"></div>
             </div>
             <!-- Texto -->
             <div class="reveal-group w-full xl:w-1/2">
@@ -519,17 +519,19 @@
     <!-- Seccion CTA -->
     <section
         class="w-full relative min-h-[70vh] flex items-center justify-start overflow-hidden py-20 px-6 sm:px-12 xl:px-24">
-        <!-- Background Image -->
-        <img src="/imgs/bg-manifesto-2.png" alt="Sky Background"
-            class="absolute inset-0 w-full h-full object-cover z-0">
+        <!-- Background Video -->
+        <video class="absolute inset-0 w-full h-full object-cover z-0" autoplay muted loop playsinline
+            disablepictureinpicture aria-hidden="true" tabindex="-1">
+            <source src="/imgs/escalera.webm" type="video/webm">
+        </video>
         <!-- Overlay opcional si necesitas oscurecer -->
         <div class="absolute inset-0 z-10"></div>
 
         <div class="reveal-group relative z-20 text-left w-full max-w-4xl">
-            <h2 class="block-reveal font-black text-5xl sm:text-6xl xl:text-8xl text-black leading-tight">
+            <h2 class="block-reveal font-black text-5xl sm:text-6xl xl:text-8xl text-white leading-tight">
                 Porque imaginar<br>no es suficiente.
             </h2>
-            <p class="reveal-lines font-light text-xl sm:text-2xl text-black mt-8 leading-relaxed max-w-2xl">
+            <p class="reveal-lines font-light text-xl sm:text-2xl text-white mt-8 leading-relaxed max-w-2xl">
                 Nosotros creamos soluciones reales que impulsan marcas, automatizan procesos y escalan negocios con
                 inteligencia.
             </p>
