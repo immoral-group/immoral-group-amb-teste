@@ -1,7 +1,7 @@
-import { createHexCubesScene } from './hex-cubes-scene.js';
+import { createParticleTowerScene } from './particle-tower-scene.js';
 
-// Replaces the old Spline iframe in publicidad-en-medios.html with the hex-cubes
-// WebGL background, scoped to its own container (not the full window).
+// Replaces the old Spline iframe in publicidad-en-medios.html with the floating
+// particle-tower WebGL background, scoped to its own container (not the full window).
 let sceneHandle = null;
 let cubesCanvas = null;
 
@@ -42,7 +42,7 @@ export function initPublicidadMediosCubes() {
         currentContainer.appendChild(canvas);
         cubesCanvas = canvas;
 
-        sceneHandle = createHexCubesScene(canvas, currentContainer);
+        sceneHandle = createParticleTowerScene(canvas, currentContainer);
     }
 
     start();
