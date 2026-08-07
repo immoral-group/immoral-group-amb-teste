@@ -526,6 +526,30 @@ function initCasosFilter() {
     applyFilters();
 }
 
+// --- 8b. VIDEO AL HACER HOVER EN CADA CASO DE ÉXITO ---
+// Cada tarjeta de la rejilla trae su propio <video> (silencioso, en loop, sin
+// autoplay) superpuesto a la portada. Solo se reproduce mientras el cursor
+// está encima; al salir se pausa y vuelve a mostrarse la portada estática.
+function initCaseCardVideos() {
+    document.querySelectorAll('.case-card').forEach((card) => {
+        const video = card.querySelector('.case-card-video');
+        if (!video) return;
+
+        card.addEventListener('mouseenter', () => {
+            video.currentTime = 0;
+            video.classList.remove('opacity-0');
+            // El vídeo puede no existir para algún caso futuro sin fichero asociado;
+            // play() devuelve una promesa que rechaza en ese caso, así que se ignora.
+            video.play().catch(() => {});
+        });
+
+        card.addEventListener('mouseleave', () => {
+            video.classList.add('opacity-0');
+            video.pause();
+        });
+    });
+}
+
 // --- 9. TESTIMONIALS CAROUSEL ---
 function initTestimonialsCarousel() {
     const container = document.getElementById('testimonials-carousel');
@@ -1812,6 +1836,7 @@ function initAll() {
     initJobOpenings();
     initPartnerLogos();
     initCasosFilter();
+    initCaseCardVideos();
     initTestimonialsCarousel();
     initStackingCards();
     setupServiceEvents();

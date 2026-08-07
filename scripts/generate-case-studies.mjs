@@ -620,6 +620,8 @@ function caseCardHtml(cs) {
                             src="${escapeHtml(cs.cover_image_url)}"
                             alt="${escapeHtml(cs.cover_image_alt)}"
                             loading="lazy" />
+                        <video class="case-card-video absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300"
+                            src="/videos/casos/${cs.slug}.mp4" muted loop playsinline preload="none"></video>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent">
                             <div class="absolute top-4 left-4 right-4 flex items-start justify-between gap-2">
                                 <span class="case-tag">${escapeHtml(cs.sector)}</span>
