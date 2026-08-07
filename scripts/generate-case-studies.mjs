@@ -505,7 +505,7 @@ function hasHeroVideo(cs) {
 
 // Con vídeo: pegado al borde derecho de la pantalla (fuera del contenedor
 // con padding), grande, como si saliera del borde — el texto reserva hueco
-// a la derecha (xl:pr-[44vw]) para no quedar debajo. Sin vídeo: layout
+// a la derecha (xl:pr-[50vw]) para no quedar debajo. Sin vídeo: layout
 // original en fila con el logo pequeño a la derecha, sin cambios.
 function heroSectionHtml(cs) {
   const header = `<header class="mb-6 xl:mb-8">
@@ -518,15 +518,15 @@ function heroSectionHtml(cs) {
           </div>`;
 
   if (hasHeroVideo(cs)) {
-    return `<section class="relative w-full py-8 xl:py-16 z-[5] xl:min-h-[560px]">
-    <div class="max-w-[95%] mx-auto px-4 xl:px-16 mt-40 mb-20 xl:pr-[44vw]">
+    return `<section class="relative w-full py-8 xl:py-16 z-[5] xl:min-h-[620px]">
+    <div class="max-w-[95%] mx-auto px-4 xl:px-16 mt-40 mb-20 xl:pr-[50vw]">
       <div class="reveal-group">
         ${header}
         ${description}
       </div>
     </div>
     <video
-      class="w-full max-w-lg mx-auto mt-8 rounded object-cover xl:mx-0 xl:mt-0 xl:absolute xl:right-0 xl:top-1/2 xl:-translate-y-1/2 xl:w-[42vw] xl:max-w-2xl xl:h-[480px] xl:rounded-l-3xl xl:rounded-r-none"
+      class="w-full max-w-lg mx-auto mt-8 rounded object-cover xl:mx-0 xl:mt-0 xl:absolute xl:right-0 xl:top-1/2 xl:-translate-y-1/2 xl:w-[48vw] xl:max-w-3xl xl:h-[560px] xl:rounded-l-3xl xl:rounded-r-none"
       src="/videos/casos-abiertos/${cs.slug}.mp4" autoplay muted loop playsinline></video>
   </section>`;
   }
