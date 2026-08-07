@@ -1199,6 +1199,18 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 
 ---
 
+## 2026-08-06 — El grid de cubos de "Publicidad en medios" sustituye al anillo shader de "Diseño de Marca"
+
+**Qué:** en `diseno-de-marca.html`, el fondo interactivo del hero (antes un shader WebGL2 raymarcheado en forma de anillo/escultura segmentada, paleta negro→azul→cian→blanco) se sustituyó por el mismo grid de cubos wireframe con nube de puntos brillantes que ya usa el hero de `publicidad-en-medios.html` (misma escena `three.js`, mismos colores blanco/negro, mismo comportamiento de auto-rotación y drag). `publicidad-en-medios.html` no se tocó. Se renombró el contenedor de `#diseno-marca-shader` a `#diseno-marca-cubes` y se reescribió `src/diseno-marca-hero.js` para montar `createHexCubesScene` (de `src/hex-cubes-scene.js`) en vez de `createDesignShaderScene`, replicando el wrapper de `src/publicidad-medios-cubes.js` (creación de `<canvas>`, espera de dimensiones del contenedor, `dispose()` en cleanup). El nombre de función exportado (`initDisenoMarcaHero`) y su import en `src/main.js` no cambiaron.
+
+**Por qué:** petición explícita del usuario de llevar el elemento interactivo de "Publicidad en medios" tal cual a la sección "Diseño de Marca y Contenidos", quitando el anillo de colores. Confirmado con el usuario: duplicar el mismo grid en ambas páginas (no mover), y eliminar el shader del anillo por quedar sin uso en ninguna otra página.
+
+**Afecta:** `diseno-de-marca.html` (id del contenedor del hero), `src/diseno-marca-hero.js` (reescrito). `src/design-shader-scene.js` eliminado (sin más referencias activas — solo quedaba mencionado en comentarios de `src/automation-shader-scene.js`, actualizados para no apuntar a un fichero inexistente).
+
+**Verificado en local:** `npm install` (node_modules no estaba instalado en este worktree) + servidor Vite en `localhost:5174` con un `.env` local de placeholders (gitignored) para evitar el crash preexistente de `supabaseClient.js` sin credenciales reales. Confirmado vía `getElementById`/`querySelector` que ambas páginas (`diseno-de-marca.html` y `publicidad-en-medios.html`) montan un `<canvas>` con contexto `WebGL2RenderingContext` activo dentro de sus contenedores respectivos, y que la consola no registra errores nuevos tras el cambio.
+
+---
+
 ## 2026-08-06 — Fondo a negro en el hero inicial de Gestión de Redes Sociales
 
 **Qué:** en `gestion-de-redes.html`, la sección hero de scroll horizontal (`#hero-pin`, sus dos slides) pasa de fondo blanco a negro (`bg-white`→`bg-black`). Se invirtieron a blanco los textos que eran negros: el `<h1>` del slide 1 ("Estrategia, Creatividad y Tecnología para Crecer"), los dos `<h3>` del slide 2 ("No publicamos por publicar." / "No buscamos interacciones vacías.") y el botón "HABLEMOS" (antes `border-black text-black` con hover `bg-black`/`text-white`, ahora `border-white text-white` con hover `bg-white`/`text-black`, manteniendo el mismo patrón de inversión al hacer hover). El isotipo de fondo del hero (`public/imgs/ico-bg-gestion.svg`, único uso en todo el repo, referenciado solo desde esta sección) cambió su trazo de `stroke:#000` a `stroke:#fff` para seguir siendo visible sobre el nuevo fondo negro. No se tocaron los textos en gris (`text-gray-500`/`text-gray-600`) ni los iconos flotantes decorativos (azules, `#2b75db`), ya que la petición del usuario se limitaba al fondo, al texto negro y al isotipo.
