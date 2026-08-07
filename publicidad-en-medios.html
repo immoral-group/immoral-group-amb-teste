@@ -344,10 +344,16 @@
 
 
     <!-- Hero Section -->
-    <section class="relative w-full min-h-[200vh] z-[1] bg-black text-white flex flex-col md:flex-row">
+    <!-- md:grid stacks the text column and the particle background in the same
+         grid cell (both md:[grid-area:1/1]) so the particle field spans the full
+         section width and sits behind the text, instead of being confined to its
+         own half-width column with a visible seam where it used to start. -->
+    <section class="relative w-full min-h-[200vh] z-[1] bg-black text-white flex flex-col md:grid">
 
-        <!-- Left Side: Text (Scrolls) -->
-        <div class="w-full md:w-1/2 relative z-10">
+        <!-- Left Side: Text (Scrolls). md:pointer-events-none so drag-to-rotate on the
+             particle background behind it keeps working even when the cursor is over
+             this column — there are no links/buttons in this block to click anyway. -->
+        <div class="w-full md:w-1/2 relative z-10 md:[grid-area:1/1] md:pointer-events-none">
             <!-- First Text Block -->
             <div class="min-h-screen flex flex-col justify-center px-6 md:px-12 lg:px-24">
                 <div class="space-y-6 md:space-y-8 pt-20 md:pt-0">
@@ -391,8 +397,9 @@
             </div>
         </div>
 
-        <!-- Right Side: Hex Cubes WebGL background (sticky on desktop, static block on mobile) -->
-        <div class="w-full md:w-1/2 h-[50vh] md:h-screen md:sticky md:top-0 right-0 z-0" id="publi-medios-cubes" aria-hidden="true">
+        <!-- Particle-tower WebGL background: full section width (sticky on desktop,
+             static block on mobile) so the field isn't confined to a half-width box. -->
+        <div class="w-full h-[50vh] md:h-screen md:sticky md:top-0 z-0 md:[grid-area:1/1]" id="publi-medios-cubes" aria-hidden="true">
         </div>
     </section>
 
@@ -620,7 +627,7 @@
 
                         <!-- Estilo 2: puntos pequeños en movimiento, azul de marca -->
                         <g id="chlh-style-1" class="chlh-ring-style chlh-spin-slow" style="opacity:0">
-                            <circle cx="200" cy="200" r="170" fill="none" stroke="#2f80ed" stroke-width="13"
+                            <circle cx="200" cy="200" r="170" fill="none" stroke="#2f80ed" stroke-width="3.553875"
                                 stroke-linecap="round" stroke-dasharray="4 27.35" transform="rotate(-90 200 200)" />
                         </g>
 

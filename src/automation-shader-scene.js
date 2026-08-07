@@ -9,7 +9,7 @@
 // (inspeccionado su bundle JS para entender la técnica: rejilla JS + textura
 // RG8 + snap del offset al tamaño de celda del dither — no es una copia
 // literal de su shader, es una reimplementación propia con la paleta de
-// marca ya usada en design-shader-scene.js).
+// marca negro/azul/cian/blanco usada en otros shaders del sitio).
 
 import gsap from 'gsap';
 
@@ -75,9 +75,8 @@ float plasma(vec2 p, float t) {
     return v / 5.0;
 }
 
-// Negro -> azul de marca -> cian de la web -> blanco (misma paleta que
-// design-shader-scene.js, reutilizada aquí para que los dos heroes shader
-// del sitio compartan identidad de color).
+// Negro -> azul de marca -> cian de la web -> blanco (misma paleta que otros
+// heroes shader del sitio, para que compartan identidad de color).
 vec3 palette(float a) {
     vec3 black = vec3(0.0);
     vec3 blue = vec3(0.231, 0.510, 0.965);
@@ -130,11 +129,7 @@ void main() {
     vec2 uv = (warped / uResolution) * 2.0 - 1.0;
     uv.x *= uResolution.x / uResolution.y;
 
-    float n = plasma(uv * 1.6 * uContrast, uTime) * uContrast;
-    float lum = n * 0.5 + 0.5;
-    vec3 col = palette(lum);
-    col = orderedDither(col, ivec2(gl_FragCoord.xy));
-    col *= 0.5; // fondo al 50% de opacidad (mezclado hacia negro); el texto se compone encima a fuerza plena
+    vec3 col = vec3(0.0); // fondo negro sólido; se conserva warp() para que el cursor siga distorsionando el texto
 
     if (uHasText > 0.5) {
         vec4 text = sampleText(warped);

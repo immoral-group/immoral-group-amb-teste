@@ -599,8 +599,7 @@
 
     <!-- CTA Home -->
     <section
-        class="w-full max-w-full relative flex flex-col items-center min-h-[60vh] sm:min-h-[70vh] xl:min-h-[50vh] pt-16 sm:pt-24 xl:pt-32 pb-16 sm:pb-24 xl:pb-32 overflow-hidden bg-black"
-        style="border: 1px solid; border-image: linear-gradient(135deg, rgba(72,137,235,0.5), rgba(255,255,255,0.5), rgba(72,137,235,0.5)) 1;">
+        class="w-full max-w-full relative flex flex-col items-center min-h-[60vh] sm:min-h-[70vh] xl:min-h-[50vh] pt-16 sm:pt-24 xl:pt-32 pb-16 sm:pb-24 xl:pb-32 overflow-hidden bg-black">
         <div id="home-blackhole" class="absolute inset-0 z-10 pointer-events-auto" aria-hidden="true"></div>
         <div class="reveal-group relative z-20 flex flex-col items-center pointer-events-none">
             <h2 class="font-black text-white text-2xl sm:text-4xl xl:text-5xl text-center pointer-events-none">El
@@ -615,8 +614,18 @@
                 No necesitas más ruidos. Necesitas una estretegia que funcione, procesos que fluyan y un equipo que
                 piense como tú</h3>
             <a href="contacto.html"
-                class="px-6 py-3 rounded-lg text-base sm:text-lg font-light ml-0 xl:ml-3 mt-4 sm:mt-5 bg-white text-blue-500 transition-colors duration-200 cursor-pointer hover:bg-black hover:text-white pointer-events-auto z-30">SOLICITA
-                UNA CONSULTORÍA</a>
+                class="group inline-flex items-center border-2 border-[#2f80ed] overflow-hidden relative transition-all duration-300 mt-4 sm:mt-5 pointer-events-auto z-30 bg-white">
+                <span class="flex items-center justify-center w-14 h-14 bg-[#2f80ed] relative z-10 shrink-0">
+                    <img src="/imgs/btn-ico.svg" alt="" class="w-5 h-5">
+                </span>
+                <span
+                    class="relative px-8 py-4 text-sm md:text-base font-medium text-black uppercase tracking-widest z-10 group-hover:text-white transition-colors duration-300">
+                    SOLICITA UNA AUDITORÍA
+                </span>
+                <span
+                    class="absolute inset-0 bg-[#2f80ed] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out"
+                    style="left: 56px;"></span>
+            </a>
         </div>
     </section>
     <!--! Why Us (Nuevo Diseño Dark) -->
