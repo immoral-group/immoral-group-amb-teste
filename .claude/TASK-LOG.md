@@ -1199,6 +1199,18 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 
 ---
 
+## 2026-08-06 — El grid de cubos de "Publicidad en medios" sustituye al anillo shader de "Diseño de Marca"
+
+**Qué:** en `diseno-de-marca.html`, el fondo interactivo del hero (antes un shader WebGL2 raymarcheado en forma de anillo/escultura segmentada, paleta negro→azul→cian→blanco) se sustituyó por el mismo grid de cubos wireframe con nube de puntos brillantes que ya usa el hero de `publicidad-en-medios.html` (misma escena `three.js`, mismos colores blanco/negro, mismo comportamiento de auto-rotación y drag). `publicidad-en-medios.html` no se tocó. Se renombró el contenedor de `#diseno-marca-shader` a `#diseno-marca-cubes` y se reescribió `src/diseno-marca-hero.js` para montar `createHexCubesScene` (de `src/hex-cubes-scene.js`) en vez de `createDesignShaderScene`, replicando el wrapper de `src/publicidad-medios-cubes.js` (creación de `<canvas>`, espera de dimensiones del contenedor, `dispose()` en cleanup). El nombre de función exportado (`initDisenoMarcaHero`) y su import en `src/main.js` no cambiaron.
+
+**Por qué:** petición explícita del usuario de llevar el elemento interactivo de "Publicidad en medios" tal cual a la sección "Diseño de Marca y Contenidos", quitando el anillo de colores. Confirmado con el usuario: duplicar el mismo grid en ambas páginas (no mover), y eliminar el shader del anillo por quedar sin uso en ninguna otra página.
+
+**Afecta:** `diseno-de-marca.html` (id del contenedor del hero), `src/diseno-marca-hero.js` (reescrito). `src/design-shader-scene.js` eliminado (sin más referencias activas — solo quedaba mencionado en comentarios de `src/automation-shader-scene.js`, actualizados para no apuntar a un fichero inexistente).
+
+**Verificado en local:** `npm install` (node_modules no estaba instalado en este worktree) + servidor Vite en `localhost:5174` con un `.env` local de placeholders (gitignored) para evitar el crash preexistente de `supabaseClient.js` sin credenciales reales. Confirmado vía `getElementById`/`querySelector` que ambas páginas (`diseno-de-marca.html` y `publicidad-en-medios.html`) montan un `<canvas>` con contexto `WebGL2RenderingContext` activo dentro de sus contenedores respectivos, y que la consola no registra errores nuevos tras el cambio.
+
+---
+
 ## 2026-08-06 — Adelgaza los puntos del anillo "Cómo lo hacemos" y fondo negro sólido en el hero de Automatización
 
 **Qué:** en las 6 páginas de servicio con sección "Cómo lo hacemos" (`publicidad-en-medios.html`, `influencer-marketing.html`, `gestion-de-redes.html`, `email-marketing.html`, `diseno-de-marca.html`, `automatizacion-de-procesos.html`), el `stroke-width` del anillo de puntos azules (`chlh-style-1`, el estilo activo en el paso "Planificación Estratégica Automatizada") bajó de `13` a `3.553875` (-73% acumulado, en 4 iteraciones sucesivas de ajuste visual pedidas por el usuario). Además, en `src/automation-shader-scene.js` el fondo animado del hero de Automatización de Procesos (shader WebGL2 "plasma" con paleta de color en movimiento) pasó a negro sólido (`vec3(0.0)`) eliminando el cálculo de `plasma`/`palette`/`orderedDither` para el color de fondo, pero conservando intacta la distorsión del texto por el cursor (`warp()` sigue aplicándose a `sampleText`), que es la interacción real de esa sección.

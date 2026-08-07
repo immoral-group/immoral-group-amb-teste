@@ -9,7 +9,7 @@
 // (inspeccionado su bundle JS para entender la técnica: rejilla JS + textura
 // RG8 + snap del offset al tamaño de celda del dither — no es una copia
 // literal de su shader, es una reimplementación propia con la paleta de
-// marca ya usada en design-shader-scene.js).
+// marca negro/azul/cian/blanco usada en otros shaders del sitio).
 
 import gsap from 'gsap';
 
@@ -75,9 +75,8 @@ float plasma(vec2 p, float t) {
     return v / 5.0;
 }
 
-// Negro -> azul de marca -> cian de la web -> blanco (misma paleta que
-// design-shader-scene.js, reutilizada aquí para que los dos heroes shader
-// del sitio compartan identidad de color).
+// Negro -> azul de marca -> cian de la web -> blanco (misma paleta que otros
+// heroes shader del sitio, para que compartan identidad de color).
 vec3 palette(float a) {
     vec3 black = vec3(0.0);
     vec3 blue = vec3(0.231, 0.510, 0.965);
