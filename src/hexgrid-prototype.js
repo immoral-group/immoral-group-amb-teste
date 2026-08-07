@@ -1,4 +1,4 @@
-import { createHexCubesScene } from './hex-cubes-scene.js';
+import { createParticleTowerScene } from './particle-tower-scene.js';
 
 const canvas = document.getElementById('hex-canvas');
-createHexCubesScene(canvas, document.body);
+createParticleTowerScene(canvas, document.body);

@@ -1338,3 +1338,216 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Por qué:** el glow seguía sin verse tras dos intentos anteriores (subir la intensidad, sumar el desenfoque) — la causa de fondo no era la intensidad ni el tamaño del trazo, sino esta interacción específica entre `filter` y `clip-path` en SVG.
 
 **Afecta:** `gestion-de-redes.html` (cada tramo pasa de 1 `<path>` dentro de un `<g clip-path>` a 2: una copia de glow sin clip + la copia nítida dentro del `<g clip-path>`, ahora sin filtro), `src/style.css` (`@keyframes social-connect-glowfade` con `opacity`+`filter`, clases `.social-connect-glow-1` a `-4`, reemplazando `@keyframes social-connect-blurin`/`.social-connect-seg-1` a `-4`).
+
+---
+
+## 2026-08-06 — Rediseño completo del elemento interactivo 3D de "Publicidad en medios"
+
+**Qué:** sustitución completa de la escena Three.js de la sección hero de `publicidad-en-medios.html`. Se elimina la rejilla isométrica de cubos wireframe con hover-por-cubo (`src/hex-cubes-scene.js`) y se sustituye por un único campo de ~4500 partículas circulares sueltas (sin wireframe ni estructura de cubos), un 25% más grandes que las specks anteriores, que flotan libremente con un bobeo sinusoidal individual por partícula. Al pasar el mouse sobre toda el área (ya no por-cubo, sino hover del contenedor completo), todas las partículas convergen — con un ligero efecto de cascada, no en bloque — hacia un eje vertical fijo en el centro de la escena, apilándose en una columna/torre; al salir el mouse, la torre se mantiene formada ~0.45s y luego se disuelve de vuelta al campo flotante. Se retiró también el drag-to-rotate manual (ya no aplica al no haber cubos que "agarrar") dejando solo una rotación ambiental automática de cámara. Nuevo fichero `src/particle-tower-scene.js` (export `createParticleTowerScene`), que sustituye a `src/hex-cubes-scene.js` (eliminado).
+
+**Por qué:** petición explícita del usuario de rediseñar por completo este elemento interactivo con un comportamiento nuevo (partículas flotantes que convergen en una torre al hover) en vez de iterar sobre el diseño de cubos existente.
+
+**Afecta:** `src/particle-tower-scene.js` (nuevo), `src/hex-cubes-scene.js` (eliminado), `src/publicidad-medios-cubes.js` (actualiza el import/llamada al nuevo nombre de función), `src/hexgrid-prototype.js` (idem, prototipo de iteración visual en `prototipo-hexgrid.html`).
+
+**Verificado en local:** dev server Vite propio para este worktree (node_modules propio instalado, ya que el worktree no lo compartía con el checkout principal) con un `.env` local de valores de relleno (no reales, gitignorado) para que `supabaseClient.js` no lanzara error de arranque. Verificación por inspección de píxeles del canvas (`getImageData`, ya que el panel de navegador de esta sesión permaneció oculto/sin foco, lo que suspende `requestAnimationFrame` tanto del render loop como del ticker de GSAP): confirmado el estado flotante inicial (campo disperso de partículas), un estado intermedio de convergencia con cascada visible, y el estado de torre completo (columna vertical sólida de puntos individuales) forzando el valor de progreso y renderizando manualmente. Ajustada la opacidad base (0.85→0.55) y el radio de la columna de la torre (0.38→0.6) tras comprobar que con los valores iniciales los puntos superpuestos se fusionaban en un bloque sin textura visible.
+
+---
+
+## 2026-08-06 — Ajustes de feedback sobre el rediseño del elemento de "Publicidad en medios"
+
+**Qué:** en `src/particle-tower-scene.js`, tras feedback de que la interacción anterior "no se notaba" (formación rápida y poco clara): partículas un 35% más grandes que las specks originales (antes 25%, `SPECK_BASE_SIZE` 0.06→0.065) y un 20% menos numerosas (4500→3600) con el campo flotante un poco más ancho (`FIELD_RADIUS_XZ` 4.3→4.6, `FIELD_RADIUS_Y` 2.6→2.8) para que se vean más separadas en reposo; la torre pasa a ser notablemente más grande (`TOWER_HEIGHT` 4.1→5.6, `TOWER_COLUMN_RADIUS` 0.6→0.75); el `stagger` por partícula ya usaba el mismo orden que su altura final en la torre, pero se amplió su rango (`STAGGER_SPAN` 0.5→0.85) y se ralentizó mucho la formación (`duration` de convergencia 1.1s→2.8s) para que se note claramente cómo se van apilando desde la base hacia arriba; se quitó el "hold" de 0.45s antes de disolver — ahora la disolución arranca inmediatamente al salir el mouse (`duration` 1.6s, sin `delayedCall`); y se reactivó el drag manual de la cámara (`OrbitControls.enableRotate` false→true) para poder ver la torre formada desde distintos ángulos con clic y arrastre, conservando la rotación ambiental automática.
+
+**Por qué:** feedback directo del usuario tras ver la primera versión: la interacción resultaba "rara"/poco clara, pedía partículas y torre más grandes, separación visible en el estado flotante, una formación más lenta y fluida donde se note el apilado, disolución inmediata (sin espera) al salir el mouse, y la posibilidad de rotar la vista de la torre con clic.
+
+**Afecta:** `src/particle-tower-scene.js` (constantes de tamaño/cantidad/torre/tiempos, controles de cámara, lógica de `onPointerLeave`).
+
+**Verificado en local:** mismo dev server Vite del worktree. Verificación de nuevo por inspección de píxeles del canvas (mismo motivo: panel de navegador oculto suspende `requestAnimationFrame`), forzando el progreso de convergencia a 0, 0.5 y 1 y renderizando manualmente sobre un canvas compuesto con fondo negro para inspección visual — confirmado que en progreso intermedio la base de la torre ya está sólidamente formada mientras el resto de partículas sigue en cascada desde el campo flotante, y que la torre completa es visiblemente más alta y gruesa que la versión anterior. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Segunda ronda de feedback: el campo flotante debía llenar el lienzo, no verse como un círculo
+
+**Qué:** en `src/particle-tower-scene.js`, tras feedback de que "aparecían bolitas de la nada" en vez de que la torre se armara con las que ya flotaban, y de que el campo flotante seguía viéndose como un círculo/óvalo compacto en el centro sin usar el espacio negro disponible:
+
+1. **Partículas otro 30% más grandes** sobre el tamaño de la ronda anterior (`SPECK_BASE_SIZE` 0.065→0.085) — confirmado con el usuario que la base de referencia era el tamaño ya visible, no el original de 0.048.
+2. **El campo flotante pasó de una distribución elipsoidal a una caja rectangular** (`randomInBox` en vez de `randomInEllipsoid` — luego eliminada por el punto 3): una forma elipsoidal siempre se ve como un óvalo sin importar cuánto se agrande, que es exactamente el problema reportado.
+3. **Bug real encontrado durante la verificación:** la caja se generaba alineada a los ejes del mundo (X/Y/Z), pero la cámara de esta escena está en una posición diagonal (9.5, 7, 11.5) mirando al origen — "derecha de pantalla" y "profundidad" no coinciden con los ejes del mundo en ese ángulo, así que la caja se veía sesgada y parcialmente recortada en vez de rellenar el rectángulo visible. Se corrigió generando el campo en los ejes reales de la cámara (`camera.matrixWorld.extractBasis` para obtener right/up/forward), en vez de en los ejes del mundo.
+4. **Tamaño del campo calculado dinámicamente a partir del frustum de la cámara** (FOV, aspecto del contenedor, distancia cámara↔objetivo) en vez de una constante fija — así el campo llena de verdad el rectángulo visible del contenedor (usando el espacio de los lados y de arriba/abajo que pedía el usuario) en lugar de adivinar un tamaño fijo. Se recalcula en cada `resize()`.
+5. **`STAGGER_SPAN`** reducido de 0.85 a 0.6 — con el campo mucho más ancho, cada partícula individual necesitaba más tiempo de recorrido propio para no verse como un salto/snap rápido de un extremo al otro.
+6. Profundidad del campo (`FIELD_RADIUS_Z`, ahora relativa a los ejes de cámara) mantenida moderada (1.3) a propósito: con `sizeAttenuation` activo en el material, una profundidad muy amplia hace que las partículas lejanas se vean mucho más pequeñas/tenues que las cercanas, y al converger hacia la profundidad más media de la torre "aparentarían" volverse más grandes/brillantes de golpe — justo la sensación de "aparecer de la nada" reportada.
+
+**Por qué:** feedback directo del usuario: la torre debía construirse solo con las partículas ya visibles flotando (no con puntos que parecen surgir de la nada), el campo flotante debía verse claramente disperso — no como un círculo — aprovechando el espacio negro de los lados y de arriba, y las partículas debían ser aún más grandes (confirmado un 30% sobre el tamaño ya visible en la última versión, no sobre el original).
+
+**Afecta:** `src/particle-tower-scene.js` (generación del campo de partículas — de elipsoide fijo a caja dinámica alineada a la cámara —, constantes de tamaño/margen/profundidad, `STAGGER_SPAN`).
+
+**Verificado en local:** mismo dev server Vite del worktree. Se detectó el bug de alineación de ejes precisamente gracias a la verificación visual (capturas por inspección de píxeles del canvas compuesto sobre fondo negro, forzando el progreso a 0, 0.3, 0.6 y 1): la primera versión de la caja mostraba un recorte diagonal claramente anómalo en vez de un rectángulo limpio, lo que llevó a diagnosticar y corregir el desalineamiento de ejes cámara/mundo antes de dar el cambio por terminado. Tras la corrección, las capturas confirman que el campo en reposo llena el rectángulo completo del contenedor (esquinas incluidas) sin ninguna forma circular, y que la torre sigue formándose con una cascada clara de base a techo.
+
+---
+
+## 2026-08-06 — Tercera ronda de feedback: dispersión, tamaño, velocidad, puntos con glow y giro ambiental de cámara
+
+**Qué:** en `src/particle-tower-scene.js`, a partir de capturas reales del usuario mostrando el elemento embebido en la página (el bloque de texto a la izquierda, la sección negra a la derecha):
+
+1. **Dispersión aún mayor:** `FRUSTUM_MARGIN` 0.85→0.92 (con el campo ya correctamente alineado a los ejes de cámara de la ronda anterior, se puede acercar el margen a 1 sin recortes).
+2. **Partículas otro 25% más grandes** sobre el tamaño de la ronda anterior (`SPECK_BASE_SIZE` 0.085→0.106).
+3. **Puntos con glow:** un 8% de las partículas (`GLOW_FRACTION`) ahora se renderizan en un `THREE.Points` separado, con blending aditivo, 1.8× el tamaño base y opacidad 0.9, para que destaquen sobre el resto en vez de que todos los puntos se vean idénticos. Técnicamente: dos `BufferGeometry` con `setDrawRange` distinto sobre el mismo array de posiciones compartido (no hay dos copias de los datos, `updateParticles` sigue escribiendo el array una sola vez). Para que los puntos con glow no queden todos agrupados en la punta de la torre (ya que son literalmente el último tramo del array), se añadió un `slotOrder` — una permutación aleatoria que se recalcula en cada `generateField()` — de forma que la altura final en la torre y el momento de la cascada de cada partícula ya no dependen de su índice crudo en el array, sino de su posición en esa permutación.
+4. **Armado y desarmado mucho más lentos y suaves:** duración de convergencia 2.8s→4.5s, duración de disolución 1.6s→4s (segundos siguen arrancando de inmediato al entrar/salir el mouse, solo se alargó la duración de cada tramo).
+5. **Se desactivó el auto-rotate ambiental de la cámara** (`controls.autoRotate` true→false, se mantiene `enableRotate` para poder seguir arrastrando manualmente). El usuario reportó que la pieza se veía "ladeada" al terminar de desarmarse — causa real: la cámara llevaba toda la interacción rotando lentamente sola, así que el ángulo de vista al final de una interacción de varios segundos ya no coincidía con el ángulo inicial. El wiggle individual de cada partícula ya aporta suficiente vida al estado de reposo sin necesidad de mover la cámara.
+
+**Por qué:** feedback directo del usuario a partir de capturas reales renderizadas en la página: pedía más dispersión aprovechando toda la sección negra, partículas más grandes, un armado/desarmado mucho más lento y fluido donde se note el apilado, variación visual entre partículas (glow en algunas), y que al desarmarse no quedara "ladeado" — señalando que el wiggle existente ya bastaba, no hacía falta que siguiera girando.
+
+**Afecta:** `src/particle-tower-scene.js` (constantes de tamaño/margen/glow, generación del campo — `slotOrder`, split en dos `Points`/`BufferGeometry`/material —, duraciones de las animaciones de hover, configuración de `OrbitControls`).
+
+**Verificado en local:** mismo dev server Vite del worktree. Verificación por inspección de píxeles del canvas compuesto sobre fondo negro, forzando el progreso a 0, 0.5 y 1: confirmado que el campo en reposo llena el rectángulo completo con partículas visiblemente más grandes y puntos de glow dispersos por todo el campo (no agrupados en un punto), que en progreso intermedio la base de la torre se forma con una cascada visible mientras el glow aparece disperso tanto en el campo como en la torre, y que la torre completa conserva puntos de glow brillantes distribuidos en toda su altura (confirmando que el `slotOrder` funciona). Sin errores de consola nuevos. El desactivado del auto-rotate es un cambio de configuración directo (`autoRotate: false`) cuyo efecto —que la cámara no rote sola— no requiere verificación visual adicional más allá de confirmar que el valor quedó aplicado en el código.
+
+---
+
+## 2026-08-06 — Cuarta ronda de feedback: menos densidad, tamaño, velocidad y reseteo de cámara al desarmarse
+
+**Qué:** en `src/particle-tower-scene.js`, a partir de una captura anotada por el usuario (líneas verdes señalando espacio negro que las partículas no estaban aprovechando):
+
+1. **Menos partículas** para que se note más espacio negro entre ellas: `PARTICLE_COUNT` 3600→2700 (con el margen del campo ya al máximo razonable de la ronda anterior, la palanca que queda para "menos apilado" es reducir la cantidad, no el área).
+2. **Partículas un 10% más pequeñas**: `SPECK_BASE_SIZE` 0.106→0.095 (el tamaño de las partículas con glow se reduce proporcionalmente, ya que se define como un múltiplo del tamaño base).
+3. **Animación un poco más rápida**: duración de convergencia 4.5s→3.8s, duración de disolución 4s→3.3s (ambas ligeramente más rápidas, no un cambio drástico — "un tris").
+4. **La cámara vuelve siempre a su posición original al desarmarse, sin importar si el usuario la giró manualmente con el mouse.** Causa real: aunque el auto-rotate ambiental ya se había desactivado en la ronda anterior, el drag manual (`OrbitControls.enableRotate`, que sigue activo para poder ver la torre desde otros ángulos) deja la cámara en cualquier ángulo al momento de disolverse; como el campo flotante se genera una sola vez alineado al ángulo de cámara *original*, verlo desde un ángulo distinto lo hace parecer "en perspectiva"/sesgado. Se añadió un tween de GSAP sobre `camera.position` que se dispara en `pointerleave` junto con la disolución, llevando la cámara de vuelta a la posición original (`DEFAULT_CAMERA_POS`) con la misma duración y easing que la disolución, con `camera.lookAt()` en cada frame del tween. Se desactiva `OrbitControls.enableDamping` mientras dura ese tween (para que la inercia de un arrastre reciente no compita con el tween) y se reactiva al terminar; si el usuario vuelve a pasar el mouse antes de que termine, `onPointerEnter` mata ese tween y restaura el damping de inmediato, dejando la cámara donde esté en ese momento (no la fuerza de vuelta) para no interrumpir una interacción en curso.
+
+**Por qué:** feedback directo del usuario con una captura anotada: los puntos seguían viéndose muy apilados y pedía usar más el espacio negro disponible, la animación necesitaba un ajuste de velocidad y las partículas ser un poco más pequeñas; también reportó (con una segunda captura) que tras girar la torre con el mouse, al desarmarse quedaba visualmente "en perspectiva"/ladeada, y pidió que volviera siempre a la posición inicial sin importar si el usuario la había girado o no.
+
+**Afecta:** `src/particle-tower-scene.js` (`PARTICLE_COUNT`, `SPECK_BASE_SIZE`, duraciones de `onPointerEnter`/`onPointerLeave`, nuevo tween de reseteo de cámara en `onPointerLeave` con su correspondiente limpieza en `onPointerEnter` y `dispose()`).
+
+**Verificado en local:** mismo dev server Vite del worktree. Para el reseteo de cámara (imposible de observar en tiempo real vía captura estática, ya que depende de una interacción temporal y el panel del navegador de esta sesión permanece oculto, lo que además detiene el ticker de GSAP): se expuso un hook de depuración temporal para (1) mover la cámara a una posición simulando un arrastre manual, (2) disparar `onPointerLeave` y confirmar que se crea exactamente 1 tween activo sobre `camera.position` con `enableDamping` en `false`, (3) saltar ese tween directamente a su `progress(1)` (sin esperar tiempo real) y confirmar que `camera.position` queda exactamente en `DEFAULT_CAMERA_POS` y `enableDamping` vuelve a `true` vía `onComplete`; y por separado, (4) repetir el escenario pero disparando `onPointerEnter` a mitad del reseteo, confirmando que el tween se mata (0 tweens activos), el damping se restaura de inmediato, y la cámara se queda exactamente donde estaba en ese momento (no se fuerza de vuelta). Los cuatro hooks de depuración se retiraron antes de cerrar el cambio. Para densidad/tamaño: capturas por inspección de píxeles confirmando visualmente menos partículas por área y tamaño reducido, con la torre y el glow aún visibles correctamente. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Quinta ronda: más separación y el campo llegando al borde real de su contenedor
+
+**Qué:** en `src/particle-tower-scene.js`, a partir de una captura anotada por el usuario preguntando por qué el campo se sentía "delimitado" cerca de su borde izquierdo:
+
+1. **`FRUSTUM_MARGIN`** 0.92→0.98 — el margen de seguridad para evitar que las partículas se recorten justo en el borde del frustum se había quedado conservador de rondas anteriores; con la caja ya correctamente alineada a los ejes de la cámara, se puede acercar mucho más a 1 sin problema, dejando solo el mínimo margen para que el wiggle individual de cada partícula no la empuje más allá del borde real en algún frame puntual.
+2. **`PARTICLE_COUNT`** 2700→2100 — menos partículas todavía, para que se note más separación entre ellas (misma lógica de rondas anteriores: con el área del campo ya prácticamente al máximo, la palanca que queda para "más separadas" es reducir la cantidad).
+
+**Por qué:** el usuario, viendo la página embebida en un viewport ancho, señaló con una captura que el campo de partículas parecía tener un borde "delimitado" antes de llegar al negro real de la sección, y preguntó por qué no se podía separar más las partículas entre sí y llevarlas hasta ese borde.
+
+**Afecta:** `src/particle-tower-scene.js` (`FRUSTUM_MARGIN`, `PARTICLE_COUNT`).
+
+**Verificado en local:** mismo dev server Vite del worktree, redimensionado a 2000×1050 para reproducir el viewport ancho de la captura del usuario (contenedor resultante ≈993×1050, coherente con el diseño de dos columnas al 50%). Capturas por inspección de píxeles del canvas compuesto sobre fondo negro confirmando que, en reposo, las partículas ahora llegan visiblemente mucho más cerca de los 4 bordes del contenedor que antes, con más espacio negro entre ellas; y que la torre completa conserva su forma sólida y sus puntos de glow con el conteo reducido. Hook de depuración temporal retirado antes de cerrar el cambio. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Sexta ronda: eliminar la "línea" divisoria — el campo de partículas pasa a ocupar toda la sección, no solo su mitad
+
+**Qué:** en `publicidad-en-medios.html`, la sección hero pasó de un layout `flex md:flex-row` (columna de texto al 50% | columna de canvas al 50%, una al lado de la otra) a un layout `flex md:grid` con ambas columnas superpuestas en la misma celda de grid (`md:[grid-area:1/1]`) en escritorio: el contenedor del canvas (`#publi-medios-cubes`) pasa de `md:w-1/2` a ancho completo (`w-full`, sin ese modificador), quedando como capa de fondo (`z-0`) detrás de la columna de texto (que mantiene su `md:w-1/2` y su `z-10`, por lo que sigue ocupando visualmente la misma mitad izquierda de siempre y queda legible por encima). En mobile no cambia nada — el layout sigue siendo `flex-col` apilado (texto arriba, canvas debajo, sin overlap), tal como estaba.
+
+Como `generateField()` en `src/particle-tower-scene.js` ya calculaba el tamaño del campo dinámicamente a partir del `clientWidth`/`clientHeight` real del contenedor (ver rondas anteriores), no hizo falta tocar ese fichero: al duplicarse el ancho del contenedor, el campo se redimensiona solo y automáticamente para llenar toda la sección.
+
+**Por qué:** el usuario, con una captura señalando el borde donde antes empezaban las partículas, pidió explícitamente que no se sintiera "una línea" ahí, sino que el campo ocupara todo el fondo negro de la sección inicial sin margen definido, evitando únicamente la zona donde está el texto.
+
+**Afecta:** `publicidad-en-medios.html` (clases del `<section>` del hero y de sus dos hijos directos — texto y `#publi-medios-cubes`). `src/particle-tower-scene.js` sin cambios.
+
+**Verificado en local:** mismo dev server Vite del worktree, viewport 2000×1050. Confirmado por `getComputedStyle` que ambos hijos comparten `grid-area: 1 / 1`, que el contenedor del canvas mide el ancho completo de la sección (~1985px) con `position: sticky` y `z-index: 0`, y que la columna de texto mide la mitad (~992px) con `position: relative` y `z-index: 10` (por encima). Capturas por inspección de píxeles del canvas (con una línea roja de referencia marcando dónde estaba el antiguo límite al 50%) confirmando densidad de partículas equivalente en ambos lados de esa línea — ya no hay salto visible de densidad. Verificado también en viewport móvil que el layout sigue apilado (`display: flex`, canvas en `position: static` debajo del texto), sin cambios de comportamiento respecto a antes. Hook de depuración temporal retirado antes de cerrar el cambio. Sin errores de consola.
+
+---
+
+## 2026-08-06 — Séptima ronda: sin partículas detrás del texto, torre de vuelta al lado derecho
+
+**Qué:** en `src/particle-tower-scene.js`, tras hacer el campo de partículas de ancho completo en la ronda anterior, el usuario pidió que respetara la columna de texto (cero partículas detrás de ella) y que la torre volviera a formarse en el lado derecho, sin recrear una "línea" dura de separación:
+
+1. **Zona segura de texto**: nueva función `sampleTextSafeU()` que muestrea la posición horizontal normalizada de cada partícula (`u`, donde 0 = centro de la sección, coincidiendo con el borde derecho de la columna de texto que ya es exactamente `md:w-1/2` por CSS) restringida a `u ∈ [0, FRUSTUM_MARGIN]` — es decir, solo en la mitad derecha. Para que el límite no se sienta como una pared, la densidad de aceptación sube de forma lineal en los primeros `TEXT_FEATHER_U = 0.18` unidades de `u` en vez de saltar directo a densidad completa justo en el borde.
+2. **`PARTICLE_COUNT`** 2100→1050 — al ocupar ahora solo la mitad del ancho (la mitad derecha) en vez del ancho completo, se redujo a la mitad para mantener la misma densidad por área que se tenía en la ronda anterior, en vez de duplicarla.
+3. **La torre se desplazó al lado derecho**: se añadió `TOWER_CENTER_U = 0.5` (misma escala normalizada) y un nuevo vector `scratchTowerCenter`, calculado en cada `generateField()` como `controls.target + camRight * (TOWER_CENTER_U * hHalf)` — el eje de la torre (antes fijo en el centro de la escena) ahora se desplaza hacia la mitad del lado derecho, coincidiendo con dónde estaba cuando el canvas era solo la columna derecha.
+
+Los puntos con glow (de la ronda anterior) no se tocaron — seguían implementados correctamente; se confirmó que sí se ven en las capturas de esta ronda.
+
+**Por qué:** feedback directo del usuario tras ver el campo de ancho completo: pidió explícitamente respetar el texto (sin partículas detrás), que la torre volviera a armarse en el lado derecho como antes, pero manteniendo el mismo estilo de dispersión ya logrado (no re-apretar las partículas), y confirmó que quería mantener los puntos con glow (no todas las partículas).
+
+**Afecta:** `src/particle-tower-scene.js` (`PARTICLE_COUNT`, nuevas constantes `TEXT_ZONE_U`/`TEXT_FEATHER_U`/`TOWER_CENTER_U`, nueva función `sampleTextSafeU()`, nuevo vector `scratchTowerCenter`, lógica de `generateField()` para `ox` y para el centro de `towerX`/`towerZ`).
+
+**Verificado en local:** mismo dev server Vite del worktree, viewport 2000×1050. Capturas por inspección de píxeles del canvas compuesto sobre fondo negro con una línea roja de referencia marcando el centro exacto de la sección (borde de la columna de texto): confirmado que el lado izquierdo de esa línea queda completamente vacío (cero partículas) tanto en reposo como con la torre formada, que justo a la derecha de la línea la densidad sube gradualmente en vez de saltar de golpe, y que la torre completa se forma claramente en el lado derecho con varios puntos de glow visibles (halos brillantes). Hook de depuración temporal retirado antes de cerrar el cambio. Sin errores de consola nuevos (el único error visto en consola correspondía a una carga anterior durante la edición, no al estado final).
+
+---
+
+## 2026-08-06 — Octava ronda: torre inclinada, más glow, y arreglo del arrastre con el mouse
+
+**Qué:** tres correcciones a partir de una captura del usuario mostrando la torre claramente ladeada:
+
+1. **Torre inclinada → corregida.** Causa real: la cámara de esta escena está inclinada hacia abajo (posición Y=7 mirando a un objetivo en Y=0.5), y la torre se construía con altura en el eje Y del *mundo* y el jitter de su columna en X/Z del *mundo*. Una vertical en el eje del mundo se ve recta solo si está justo en el eje óptico de la cámara; al desplazar la torre hacia la derecha (ronda anterior, `TOWER_CENTER_U`), quedó fuera de ese eje y la distorsión de perspectiva ("keystoning", el mismo efecto de "edificio inclinado" al fotografiar hacia arriba con la cámara torcida) se hizo visible. Solución en `src/particle-tower-scene.js`: la torre ahora se construye enteramente sobre los ejes propios de la cámara (`camUpAxis` para la altura, `camRight`/`camForward` para el jitter circular de la columna) en vez de los ejes del mundo — así se mantiene perfectamente vertical en pantalla sin importar cuánto se desplace hacia la derecha.
+2. **Glow +15%**: `GLOW_SIZE_MULT` 1.8→2.07 (exactamente +15%) y `GLOW_OPACITY` 0.9→1 (subida hasta el máximo posible, ya que 0.9×1.15 supera el límite de 1).
+3. **Arrastre con el mouse no funcionaba bien → arreglado.** Causa real: al hacer el canvas de ancho completo (ronda anterior), la columna de texto (que sigue ocupando visualmente la mitad izquierda, ahora con `z-index` superior) capturaba los eventos de puntero en esa zona antes de que llegaran al canvas — cualquier intento de arrastre iniciado sobre o cerca del texto nunca llegaba a `OrbitControls`. Solución en `publicidad-en-medios.html`: `md:pointer-events-none` en la columna de texto (no tiene enlaces ni botones, así que es seguro) para que todos los eventos de puntero atraviesen hasta el canvas en toda la sección.
+
+**Por qué:** feedback directo del usuario con una captura mostrando la torre inclinada, más la petición de aumentar el glow un 15% y la observación de que girar la pieza con el mouse no funcionaba bien.
+
+**Afecta:** `src/particle-tower-scene.js` (`GLOW_SIZE_MULT`, `GLOW_OPACITY`, reconstrucción de `towerX`/`towerY`/`towerZ` en `generateField()` sobre ejes de cámara), `publicidad-en-medios.html` (columna de texto del hero, clase `md:pointer-events-none`).
+
+**Verificado en local:** mismo dev server Vite del worktree, viewport 2000×1050. Para la torre: captura por inspección de píxeles confirmando que ahora es una columna perfectamente vertical (bordes paralelos), sin ninguna inclinación. Para el arrastre: confirmado por `document.elementFromPoint()` que un punto situado exactamente sobre la columna de texto ahora resuelve al `<canvas>` (antes resolvía al div de texto), y confirmado disparando manualmente una secuencia `pointerdown`→`pointermove`→`pointerup` directamente sobre el canvas que `OrbitControls` sigue respondiendo correctamente (la posición de la cámara cambió como se esperaba de un arrastre). Hook de depuración temporal retirado antes de cerrar el cambio. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Novena ronda: pivote de rotación en el centro real de la torre, y desarme al salir de la zona real de partículas
+
+**Qué:** dos ajustes finales sobre la interacción en `src/particle-tower-scene.js`:
+
+1. **Pivote de rotación corregido.** `OrbitControls.target` estaba fijo en el centro original de la escena (`0, 0.5, 0`), pero la torre vive desplazada a la derecha (`TOWER_CENTER_U`, rondas anteriores) — al arrastrar para girar, la cámara orbitaba alrededor de ese punto lejano y la torre se barría fuera de encuadre en vez de girar sobre sí misma, exactamente el "gira mal, no deja ver bien las perspectivas" reportado. Se guarda ahora un vector persistente `towerCenterWorld` (calculado una vez en `generateField()`, a diferencia de los vectores `scratch*` que se reutilizan y no persisten) con la posición real del centro de la torre. Al entrar en la zona de partículas (`startConverge()`), `controls.target` se anima con GSAP hacia `towerCenterWorld` en la misma duración que la convergencia; al salir (`startDissolve()`), vuelve a animarse hacia `IDLE_TARGET` (el centro original) en la misma duración que la disolución. Así arrastrar con el mouse ahora orbita alrededor de la torre mientras está formada, y alrededor del centro de la escena cuando está flotando.
+2. **El desarme ahora se dispara al salir de la zona real de partículas, no de todo el contenedor.** El contenedor (`#publi-medios-cubes`) abarca la sección completa desde la ronda de "sin línea divisoria", pero las partículas solo viven en su mitad derecha (pasado `TEXT_ZONE_U`). Antes, `pointerenter`/`pointerleave` estaban atados al contenedor completo, así que mover el mouse hacia la mitad izquierda vacía (sin partículas, pero técnicamente dentro del contenedor ancho) no desarmaba la torre. Se sustituyó ese patrón por seguimiento de posición: un listener de `pointermove` calcula la posición horizontal fraccional del cursor dentro del contenedor y dispara `startConverge()`/`startDissolve()` exactamente al cruzar `PARTICLE_ZONE_FRACTION = 0.5` (la misma frontera que `TEXT_ZONE_U`), con un `pointerleave` como red de seguridad para cuando el cursor sale del contenedor directamente por un borde sin pasar antes por esa frontera.
+
+Como consecuencia de estos cambios también se corrigió un detalle interno: el cálculo del campo (`generateField()`) ahora se ancla siempre a `IDLE_TARGET` (un punto fijo) en vez de a `controls.target` (que ahora puede estar a mitad de una animación hacia la torre) — así el layout del campo no depende de en qué momento de la interacción se dispare un `resize()`.
+
+**Por qué:** feedback directo del usuario: girar la torre con el mouse no dejaba ver bien sus perspectivas (pivote incorrecto), y quitar el mouse de la zona donde están las partículas debía deshacer el efecto de inmediato — actualmente solo se deshacía al salir de todo el contenedor ancho, no de la zona real donde están las partículas.
+
+**Afecta:** `src/particle-tower-scene.js` (`IDLE_TARGET`, nuevo vector persistente `towerCenterWorld`, referencias de `controls.target`→`IDLE_TARGET` dentro de `generateField()`, sustitución de `onPointerEnter`/`onPointerLeave` por `startConverge()`/`startDissolve()` + detección de zona por `pointermove` con `PARTICLE_ZONE_FRACTION`).
+
+**Verificado en local:** mismo dev server Vite del worktree, viewport 2000×1050. Se expuso un hook de depuración temporal para: (1) simular un movimiento de mouse a fracción horizontal 0.7 (dentro de la zona de partículas) y confirmar que se crea un tween activo sobre `controls.target`, que al saltarlo a su fin coincide exactamente con `towerCenterWorld`; (2) simular un movimiento a fracción 0.3 (fuera de la zona de partículas, pero dentro del contenedor ancho) y confirmar que `insideParticleZone` pasa a `false` y el tween de `controls.target` devuelve el valor exactamente a `IDLE_TARGET` al completarse. Ambos resultados coincidieron exactamente con lo esperado. Captura visual adicional confirmando que la torre sigue formándose recta y con el glow reforzado de la ronda anterior. Hook de depuración temporal retirado antes de cerrar el cambio. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Décima ronda: revertido el pivote de rotación por regresión (torre volvía a inclinarse y desplazarse)
+
+**Qué:** el usuario confirmó (tras recarga forzada) que la torre seguía inclinándose y además ahora se desplazaba hacia la izquierda al formarse — regresión introducida por el propio arreglo del pivote de rotación de la ronda anterior. Causa raíz identificada: mover `controls.target` hacia `towerCenterWorld` hace que `OrbitControls` **reoriente la cámara** para mirar hacia ese nuevo punto (cambia sus vectores reales de up/right en tiempo de render), pero la geometría de la torre se calcula una sola vez en `generateField()` usando los vectores de cámara de ESE momento (con la cámara mirando a `IDLE_TARGET`). Al reorientarse la cámara durante la convergencia, esos vectores ya no coinciden con los usados para construir la torre — reintroduciendo exactamente el mismo problema de inclinación de la ronda 8, más un desplazamiento visible por el cambio de encuadre.
+
+Se revirtió específicamente la parte que causaba el problema: en `startConverge()`/`startDissolve()` (`src/particle-tower-scene.js`) se eliminaron los tweens de `controls.target` (y el vector `towerCenterWorld` que ya no se usa) — `controls.target` vuelve a quedarse fijo siempre en `IDLE_TARGET`. Se mantuvo todo lo demás intacto: la detección de zona real de partículas por `pointermove` (ronda 9, no relacionada con este bug), el reseteo de `camera.position` al desarmar, el glow +15% y el resto de ajustes de rondas anteriores.
+
+**Por qué:** el usuario reportó, tras una recarga forzada confirmando que el problema seguía activo, que la torre se corría hacia la izquierda y quedaba inclinada al formarse, pidiendo explícitamente ajustarlo "sin quemar tanto crédito" — se priorizó el revertido mínimo y dirigido a la causa exacta (el tween de `controls.target`) en vez de reconstruir la solución de rotación desde cero.
+
+**Trade-off aceptado:** al arrastrar con el mouse para rotar, la cámara vuelve a orbitar alrededor del centro original de la escena (no del centro real de la torre) — la torre puede salirse algo del encuadre al rotar mucho, tal como pasaba antes de la ronda 9. Se documenta como pendiente si el usuario quiere retomarlo más adelante con una solución que no comprometa la geometría fija de la torre (p. ej. recalculando la geometría de la torre dinámicamente contra la orientación real de la cámara en cada frame, en vez de una sola vez).
+
+**Afecta:** `src/particle-tower-scene.js` (`startConverge()`, `startDissolve()`, `dispose()`, eliminación de `towerCenterWorld`).
+
+**Verificado en local:** mismo dev server Vite del worktree, viewport 2000×1050. Se expuso un hook de depuración temporal para disparar el flujo real (`onPointerMove` → `startConverge()` → tween de `state` saltado a `progress(1)` → render forzado) y confirmar por un lado que `camera.position` y `controls.target` permanecen exactamente en `DEFAULT_CAMERA_POS`/`IDLE_TARGET` (sin cambio alguno) durante todo el proceso, y por otro, con una captura de píxeles del canvas, que la torre resultante es una columna perfectamente vertical sin inclinación ni desplazamiento — esta vez probando el camino de código real que causaba el bug, no solo el atajo de depuración usado en la ronda anterior (que no ejercitaba el tween de `controls.target` y por eso no detectó la regresión a tiempo). Hook de depuración temporal retirado antes de cerrar el cambio. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Undécima ronda: el arrastre rota el objeto, no la cámara (elimina `OrbitControls` de raíz)
+
+**Qué:** el usuario aclaró el modelo correcto: no debía haber cámara orbitando en absoluto — el objeto (torre + campo) debe girar sobre sí mismo con el arrastre, como un visor 360 de producto. Se eliminó `OrbitControls` por completo de `src/particle-tower-scene.js` y se sustituyó por un arrastre manual que rota un `THREE.Group` (`dragGroup`) que ahora contiene ambos `Points` (normal y glow):
+
+- La cámara ya **no se mueve ni se reorienta nunca** — queda fija de por vida en su posición y ángulo originales. Esto elimina de raíz la clase entera de bugs de las rondas 9 y 10 (cualquier reorientación de cámara desincronizaba sus ejes reales de los usados para construir la geometría de la torre).
+- `dragGroup` se posiciona en cada `generateField()` exactamente en el X/Z del centro real de la torre (no en el origen del mundo), y las posiciones de partícula (`homeX/Y/Z`, `towerX/Y/Z`) se guardan como offsets relativos a ese punto en vez de coordenadas absolutas — así, al rotar el grupo, gira sobre su propio eje vertical en su propia ubicación, no en un punto lejano.
+- El arrastre es manual y directo (`pointerdown` en el contenedor, `pointermove`/`pointerup` en `window` para no perder el arrastre si el cursor sale del elemento): `dragGroup.rotation.y += deltaX_en_px * 0.008`, sin inercia ni suavizado — el giro sigue exactamente al mouse, 1:1.
+- Al eliminar el movimiento de cámara, también desaparece toda la lógica de "resetear la cámara al desarmar" (ya no hace falta: nunca se movió).
+
+**Por qué:** el usuario pidió explícitamente reemplazar el modelo de cámara-orbitando por rotación-del-objeto ("es un objeto en 360, no tiene por qué haber cámara"), señalando además que el giro debía seguir el punto del mouse de forma directa, no sentirse aleatorio.
+
+**Afecta:** `src/particle-tower-scene.js` (elimina el import y todo uso de `OrbitControls`; nuevo `dragGroup` con posiciones relativas a su pivote; nuevos handlers de arrastre manual; `startConverge()`/`startDissolve()` simplificados a solo el tween de `state`, sin nada de cámara).
+
+**Verificado en local:** mismo dev server Vite del worktree, viewport 2000×1050 (una sola pasada de verificación, sin repetir rondas). Hook de depuración temporal confirmando que un arrastre simulado de 150px produce exactamente `0.15 * 0.008 * 1000 = 1.2` radianes de rotación en `dragGroup.rotation.y` (coincide exactamente con lo esperado). Captura de píxeles con la torre formada y `dragGroup.rotation.y` forzado a 0.6 rad confirmando que sigue leyéndose como una columna 3D coherente (el cambio de perfil al girar es la perspectiva normal de un cilindro real visto desde una cámara fija en alto, no el bug de inclinación de antes). Hook de depuración retirado antes de cerrar el cambio. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-06 — Duodécima ronda: el desarme siempre devuelve la rotación a la posición inicial
+
+**Qué:** ajuste puntual en `src/particle-tower-scene.js` — al llamar a `startDissolve()`, además del tween ya existente de `state.progress`, se añadió `gsap.to(dragGroup.rotation, { y: 0, duration: 3.3, ease: 'sine.inOut' })` para que, sin importar cuánto se haya girado la torre con el arrastre, las partículas siempre se disuelvan de vuelta a la posición inicial sin rotación. Se añadió también el `killTweensOf` correspondiente en `startConverge()` (por si se reinicia el hover a mitad del reseteo de rotación) y en `dispose()`.
+
+**Por qué:** petición explícita del usuario: al desarmarse, las partículas debían quedar siempre en la posición inicial, no girada.
+
+**Afecta:** `src/particle-tower-scene.js` (`startConverge()`, `startDissolve()`, `dispose()`).
+
+**Verificado en local:** una sola comprobación mínima (sin repetir rondas de verificación): hook de depuración temporal confirmando que, tras fijar `dragGroup.rotation.y = 1.3` (simulando un giro previo) y llamar a `startDissolve()`, al completar el tween `dragGroup.rotation.y` vuelve exactamente a `0`. Hook retirado antes de cerrar el cambio. Sin errores de consola.
+
+---
+
+## 2026-08-07 — Resuelto conflicto de merge en el PR #40 (rediseño de partículas de Publicidad en medios): `src/hex-cubes-scene.js` restaurado
+
+**Qué:** al fusionar `origin/main` en la rama de este PR para resolver el conflicto de `.claude/TASK-LOG.md`, el merge automático de git eliminaba `src/hex-cubes-scene.js` sin avisar (conflicto silencioso, sin marcadores) — el PR lo borra porque en el momento en que se creó era su único usuario, pero mientras tanto se mergeó a `main` la entrada anterior ("El grid de cubos... sustituye al anillo shader de Diseño de Marca"), que hizo que `src/diseno-marca-hero.js` empezara a importar `createHexCubesScene` de ese mismo fichero. Si se hubiera dejado el merge tal cual, `diseno-de-marca.html` se habría roto (import a un fichero inexistente) sin que git lo señalara como conflicto, por tratarse de una incompatibilidad semántica entre dos PRs, no textual dentro del mismo fichero. Se restauró `src/hex-cubes-scene.js` desde `origin/main` en el commit de merge; `publicidad-en-medios.html` sigue usando `particle-tower-scene.js` con normalidad (no vuelve a referenciar el fichero restaurado), y `diseno-de-marca.html` conserva su grid de cubos funcionando.
+
+**Por qué:** evitar que la resolución de un conflicto de merge introdujera una regresión real en una página no relacionada con el PR que se estaba arreglando.
+
+**Afecta:** `src/hex-cubes-scene.js` (restaurado, sin cambios de contenido respecto a `main`).
