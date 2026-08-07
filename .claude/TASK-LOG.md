@@ -1199,6 +1199,18 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 
 ---
 
+## 2026-08-06 — El grid de cubos de "Publicidad en medios" sustituye al anillo shader de "Diseño de Marca"
+
+**Qué:** en `diseno-de-marca.html`, el fondo interactivo del hero (antes un shader WebGL2 raymarcheado en forma de anillo/escultura segmentada, paleta negro→azul→cian→blanco) se sustituyó por el mismo grid de cubos wireframe con nube de puntos brillantes que ya usa el hero de `publicidad-en-medios.html` (misma escena `three.js`, mismos colores blanco/negro, mismo comportamiento de auto-rotación y drag). `publicidad-en-medios.html` no se tocó. Se renombró el contenedor de `#diseno-marca-shader` a `#diseno-marca-cubes` y se reescribió `src/diseno-marca-hero.js` para montar `createHexCubesScene` (de `src/hex-cubes-scene.js`) en vez de `createDesignShaderScene`, replicando el wrapper de `src/publicidad-medios-cubes.js` (creación de `<canvas>`, espera de dimensiones del contenedor, `dispose()` en cleanup). El nombre de función exportado (`initDisenoMarcaHero`) y su import en `src/main.js` no cambiaron.
+
+**Por qué:** petición explícita del usuario de llevar el elemento interactivo de "Publicidad en medios" tal cual a la sección "Diseño de Marca y Contenidos", quitando el anillo de colores. Confirmado con el usuario: duplicar el mismo grid en ambas páginas (no mover), y eliminar el shader del anillo por quedar sin uso en ninguna otra página.
+
+**Afecta:** `diseno-de-marca.html` (id del contenedor del hero), `src/diseno-marca-hero.js` (reescrito). `src/design-shader-scene.js` eliminado (sin más referencias activas — solo quedaba mencionado en comentarios de `src/automation-shader-scene.js`, actualizados para no apuntar a un fichero inexistente).
+
+**Verificado en local:** `npm install` (node_modules no estaba instalado en este worktree) + servidor Vite en `localhost:5174` con un `.env` local de placeholders (gitignored) para evitar el crash preexistente de `supabaseClient.js` sin credenciales reales. Confirmado vía `getElementById`/`querySelector` que ambas páginas (`diseno-de-marca.html` y `publicidad-en-medios.html`) montan un `<canvas>` con contexto `WebGL2RenderingContext` activo dentro de sus contenedores respectivos, y que la consola no registra errores nuevos tras el cambio.
+
+---
+
 ## 2026-08-06 — Rediseño completo del elemento interactivo 3D de "Publicidad en medios"
 
 **Qué:** sustitución completa de la escena Three.js de la sección hero de `publicidad-en-medios.html`. Se elimina la rejilla isométrica de cubos wireframe con hover-por-cubo (`src/hex-cubes-scene.js`) y se sustituye por un único campo de ~4500 partículas circulares sueltas (sin wireframe ni estructura de cubos), un 25% más grandes que las specks anteriores, que flotan libremente con un bobeo sinusoidal individual por partícula. Al pasar el mouse sobre toda el área (ya no por-cubo, sino hover del contenedor completo), todas las partículas convergen — con un ligero efecto de cascada, no en bloque — hacia un eje vertical fijo en el centro de la escena, apilándose en una columna/torre; al salir el mouse, la torre se mantiene formada ~0.45s y luego se disuelve de vuelta al campo flotante. Se retiró también el drag-to-rotate manual (ya no aplica al no haber cubos que "agarrar") dejando solo una rotación ambiental automática de cámara. Nuevo fichero `src/particle-tower-scene.js` (export `createParticleTowerScene`), que sustituye a `src/hex-cubes-scene.js` (eliminado).
@@ -1399,3 +1411,13 @@ Se revirtió específicamente la parte que causaba el problema: en `startConverg
 **Afecta:** `src/particle-tower-scene.js` (`startConverge()`, `startDissolve()`, `dispose()`).
 
 **Verificado en local:** una sola comprobación mínima (sin repetir rondas de verificación): hook de depuración temporal confirmando que, tras fijar `dragGroup.rotation.y = 1.3` (simulando un giro previo) y llamar a `startDissolve()`, al completar el tween `dragGroup.rotation.y` vuelve exactamente a `0`. Hook retirado antes de cerrar el cambio. Sin errores de consola.
+
+---
+
+## 2026-08-07 — Resuelto conflicto de merge en el PR #40 (rediseño de partículas de Publicidad en medios): `src/hex-cubes-scene.js` restaurado
+
+**Qué:** al fusionar `origin/main` en la rama de este PR para resolver el conflicto de `.claude/TASK-LOG.md`, el merge automático de git eliminaba `src/hex-cubes-scene.js` sin avisar (conflicto silencioso, sin marcadores) — el PR lo borra porque en el momento en que se creó era su único usuario, pero mientras tanto se mergeó a `main` la entrada anterior ("El grid de cubos... sustituye al anillo shader de Diseño de Marca"), que hizo que `src/diseno-marca-hero.js` empezara a importar `createHexCubesScene` de ese mismo fichero. Si se hubiera dejado el merge tal cual, `diseno-de-marca.html` se habría roto (import a un fichero inexistente) sin que git lo señalara como conflicto, por tratarse de una incompatibilidad semántica entre dos PRs, no textual dentro del mismo fichero. Se restauró `src/hex-cubes-scene.js` desde `origin/main` en el commit de merge; `publicidad-en-medios.html` sigue usando `particle-tower-scene.js` con normalidad (no vuelve a referenciar el fichero restaurado), y `diseno-de-marca.html` conserva su grid de cubos funcionando.
+
+**Por qué:** evitar que la resolución de un conflicto de merge introdujera una regresión real en una página no relacionada con el PR que se estaba arreglando.
+
+**Afecta:** `src/hex-cubes-scene.js` (restaurado, sin cambios de contenido respecto a `main`).
