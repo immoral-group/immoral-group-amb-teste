@@ -1199,6 +1199,18 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 
 ---
 
+## 2026-08-06 — El grid de cubos de "Publicidad en medios" sustituye al anillo shader de "Diseño de Marca"
+
+**Qué:** en `diseno-de-marca.html`, el fondo interactivo del hero (antes un shader WebGL2 raymarcheado en forma de anillo/escultura segmentada, paleta negro→azul→cian→blanco) se sustituyó por el mismo grid de cubos wireframe con nube de puntos brillantes que ya usa el hero de `publicidad-en-medios.html` (misma escena `three.js`, mismos colores blanco/negro, mismo comportamiento de auto-rotación y drag). `publicidad-en-medios.html` no se tocó. Se renombró el contenedor de `#diseno-marca-shader` a `#diseno-marca-cubes` y se reescribió `src/diseno-marca-hero.js` para montar `createHexCubesScene` (de `src/hex-cubes-scene.js`) en vez de `createDesignShaderScene`, replicando el wrapper de `src/publicidad-medios-cubes.js` (creación de `<canvas>`, espera de dimensiones del contenedor, `dispose()` en cleanup). El nombre de función exportado (`initDisenoMarcaHero`) y su import en `src/main.js` no cambiaron.
+
+**Por qué:** petición explícita del usuario de llevar el elemento interactivo de "Publicidad en medios" tal cual a la sección "Diseño de Marca y Contenidos", quitando el anillo de colores. Confirmado con el usuario: duplicar el mismo grid en ambas páginas (no mover), y eliminar el shader del anillo por quedar sin uso en ninguna otra página.
+
+**Afecta:** `diseno-de-marca.html` (id del contenedor del hero), `src/diseno-marca-hero.js` (reescrito). `src/design-shader-scene.js` eliminado (sin más referencias activas — solo quedaba mencionado en comentarios de `src/automation-shader-scene.js`, actualizados para no apuntar a un fichero inexistente).
+
+**Verificado en local:** `npm install` (node_modules no estaba instalado en este worktree) + servidor Vite en `localhost:5174` con un `.env` local de placeholders (gitignored) para evitar el crash preexistente de `supabaseClient.js` sin credenciales reales. Confirmado vía `getElementById`/`querySelector` que ambas páginas (`diseno-de-marca.html` y `publicidad-en-medios.html`) montan un `<canvas>` con contexto `WebGL2RenderingContext` activo dentro de sus contenedores respectivos, y que la consola no registra errores nuevos tras el cambio.
+
+---
+
 ## 2026-08-07 — Nuevo fondo del hero de Nuestra Historia: hilos interactivos con GSAP
 
 **Qué:** el hero de `nuestra-historia.html` (el `<main>` con "De hacer marketing... a repensarlo por completo") no tenía ningún fondo propio — heredaba solo los 4 orbes CSS difuminados fijos de toda la página. Se le añadió un fondo dedicado (`src/historia-hero-scene.js`, inicializado desde `src/nuestra-historia-hero.js`, montado en `<div id="historia-hero-bg">` dentro del propio `<main>`): 6 "hilos" de luz en canvas 2D que ondulan horizontalmente (suma de senoidales con distinta amplitud/longitud de onda/fase por hilo) y se apartan del cursor cuando pasa cerca (empuje con caída cuadrática dentro de un radio de 220px). Se usó canvas 2D en vez de WebGL a propósito, para que este hero tenga una identidad técnica y visual distinta a los de Diseño de Marca (raymarching 3D) y Automatización de Procesos (plasma+dither) — ningún fondo de hero del sitio se repite.
@@ -1212,3 +1224,13 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `src/historia-hero-scene.js` (nuevo), `src/nuestra-historia-hero.js` (nuevo), `nuestra-historia.html` (contenedor del canvas + overlay de degradado dentro del `<main>` del hero, sin tocar el resto de la página), `src/main.js` (import + llamada en `initAll()`).
 
 **Verificado en local:** `npm run build` sin errores en las 3 iteraciones. Confirmado en navegador real que el canvas se crea dentro de `#historia-hero-bg` y toma el tamaño del `<main>`; leyendo píxeles del canvas (`getImageData`) se confirmó fondo negro puro en las esquinas (`[0,0,0,255]`) y el píxel más brillante del frame en tono acromático `[225,225,225]` (blanco/gris, no azul/cian). Capturas de pantalla en viewport mobile y desktop (1920×1000) confirmaron visualmente: título legible sobre el degradado izquierdo, hilos sutiles visibles a la derecha, sin solaparse con el resto del contenido de la página. Sin errores de consola nuevos.
+
+---
+
+## 2026-08-07 — Ajuste de posición: hilos del hero de Nuestra Historia más arriba
+
+**Qué:** en `src/historia-hero-scene.js`, se bajó el `baseY` de los 6 hilos (0.12 menos cada uno, ej. `0.26`→`0.14`) para que la banda de ondulación quede concentrada en la mitad superior del hero en vez de repartida por toda su altura.
+
+**Por qué:** petición explícita del usuario tras ver el resultado en pantalla.
+
+**Afecta:** `src/historia-hero-scene.js` (constantes `baseY` de `THREADS`).
