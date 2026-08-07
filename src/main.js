@@ -527,6 +527,30 @@ function initCasosFilter() {
     applyFilters();
 }
 
+// --- 8b. VIDEO AL HACER HOVER EN CADA CASO DE ÉXITO ---
+// Cada tarjeta de la rejilla trae su propio <video> (silencioso, en loop, sin
+// autoplay) superpuesto a la portada. Solo se reproduce mientras el cursor
+// está encima; al salir se pausa y vuelve a mostrarse la portada estática.
+function initCaseCardVideos() {
+    document.querySelectorAll('.case-card').forEach((card) => {
+        const video = card.querySelector('.case-card-video');
+        if (!video) return;
+
+        card.addEventListener('mouseenter', () => {
+            video.currentTime = 0;
+            video.classList.remove('opacity-0');
+            // El vídeo puede no existir para algún caso futuro sin fichero asociado;
+            // play() devuelve una promesa que rechaza en ese caso, así que se ignora.
+            video.play().catch(() => {});
+        });
+
+        card.addEventListener('mouseleave', () => {
+            video.classList.add('opacity-0');
+            video.pause();
+        });
+    });
+}
+
 // --- 9. TESTIMONIALS CAROUSEL ---
 function initTestimonialsCarousel() {
     const container = document.getElementById('testimonials-carousel');
@@ -1058,95 +1082,73 @@ function initHeroPhysics() {
 
     const DOT_COLORS = ['#3B82F6', '#67E8F9'];
 
-    // Lee los nombres directamente de la rejilla de casos de éxito más abajo
-    // en la página (#casos-grid, generada en build desde Supabase). Al añadir
-    // o quitar un caso desde /casos-admin, esa rejilla se regenera y estas
-    // burbujas quedan sincronizadas automáticamente, sin cableado adicional.
-    function getCaseStudyNames() {
-        return Array.from(document.querySelectorAll('#casos-grid .case-card h3'))
-            .map((h3) => h3.textContent.trim())
+    // Lee la URL del logo de cada caso directamente desde la rejilla de casos
+    // de éxito más abajo en la página (#casos-grid, generada en build desde
+    // Supabase — el mismo logo_url que ya se usa en la sección de testimonios
+    // de cada página de detalle). Al añadir o quitar un caso desde
+    // /casos-admin, esa rejilla se regenera y estas burbujas quedan
+    // sincronizadas automáticamente, sin cableado adicional.
+    function getCaseStudyLogos() {
+        return Array.from(document.querySelectorAll('#casos-grid .case-card'))
+            .map((card) => card.dataset.logo)
             .filter(Boolean);
     }
 
-    // Reparte `text` en líneas que quepan dentro de maxWidth con la fuente actual del ctx.
-    function wrapText(ctx, text, maxWidth) {
-        const words = text.split(/\s+/);
-        const lines = [];
-        let line = '';
-
-        words.forEach((word) => {
-            const candidate = line ? `${line} ${word}` : word;
-            if (ctx.measureText(candidate).width <= maxWidth || !line) {
-                line = candidate;
-            } else {
-                lines.push(line);
-                line = word;
-            }
+    function loadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = src;
         });
-        if (line) lines.push(line);
-
-        return lines;
     }
 
-    // Busca el tamaño de fuente más grande (dentro de un rango razonable) cuyas líneas
-    // repartidas quepan dentro del círculo de radio útil `effectiveRadius` (el radio real
-    // de la burbuja ya con el padding interior descontado), con un máximo de 3 líneas.
-    // El ancho disponible se calcula por línea según la cuerda del círculo a esa altura
-    // (más estrecho cerca de arriba/abajo), no con un ancho fijo, para que ninguna línea
-    // — ni la primera ni la última de un nombre en 2-3 líneas — llegue a tocar el borde.
-    function fitTextToCircle(ctx, text, effectiveRadius) {
-        const MAX_FONT = 92;
-        const MIN_FONT = 14;
-        const MAX_LINES = 3;
+    // La mayoría de los logos son recortes con fondo transparente, pero alguno
+    // viene como imagen totalmente opaca (sin canal alfa real). En ese caso no
+    // se puede recortar por transparencia, así que primero se comprueba si las
+    // esquinas de la imagen son transparentes.
+    function hasTransparentCorners(img) {
+        const c = document.createElement('canvas');
+        c.width = img.width;
+        c.height = img.height;
+        const cx = c.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(img, 0, 0);
+        const corners = [
+            [0, 0],
+            [img.width - 1, 0],
+            [0, img.height - 1],
+            [img.width - 1, img.height - 1]
+        ];
+        return corners.some(([x, y]) => cx.getImageData(x, y, 1, 1).data[3] < 200);
+    }
 
-        const chordWidthAt = (yOffset) => 2 * Math.sqrt(Math.max(0, effectiveRadius * effectiveRadius - yOffset * yOffset));
+    // Para un logo opaco (fondo claro sólido + trazo oscuro, sin canal alfa):
+    // recorta el fondo por luminancia y devuelve un canvas con el trazo en
+    // blanco sobre transparente, igual que el resto de logos.
+    function toWhiteSilhouette(img) {
+        const c = document.createElement('canvas');
+        c.width = img.width;
+        c.height = img.height;
+        const cx = c.getContext('2d', { willReadFrequently: true });
+        cx.drawImage(img, 0, 0);
 
-        for (let fontSize = MAX_FONT; fontSize >= MIN_FONT; fontSize -= 2) {
-            ctx.font = `800 ${fontSize}px Lexend, sans-serif`;
-            const lineHeight = fontSize * 1.15;
-
-            // Primera pasada: usar el ancho más generoso (a la altura del centro) solo para estimar cuántas líneas hacen falta.
-            let lines = wrapText(ctx, text, chordWidthAt(0));
-
-            // Repartir de nuevo usando el ancho disponible en la línea más exterior (la más
-            // estrecha), así todas las líneas quedan dentro del área real del círculo.
-            for (let pass = 0; pass < 3; pass++) {
-                const blockHeight = lines.length * lineHeight;
-                const outerY = Math.max(0, blockHeight / 2 - lineHeight / 2);
-                const safeWidth = chordWidthAt(outerY);
-                const rewrapped = wrapText(ctx, text, safeWidth);
-                if (rewrapped.length === lines.length) { lines = rewrapped; break; }
-                lines = rewrapped;
-            }
-
-            const blockHeight = lines.length * lineHeight;
-            if (lines.length > MAX_LINES || blockHeight > effectiveRadius * 2) continue;
-
-            // Verificación real, línea por línea: `wrapText` no puede partir una palabra
-            // suelta (p. ej. "TRAVELPERK"), así que sin esto una palabra más ancha que su
-            // hueco se aceptaba igual "de un tirón" y acababa sobresaliendo del círculo,
-            // tapada por las burbujas vecinas. Aquí se descarta ese tamaño de fuente si
-            // cualquier línea, a su propia altura, no entra en el ancho real disponible.
-            const fits = lines.every((line, i) => {
-                const lineCenterY = -blockHeight / 2 + lineHeight / 2 + i * lineHeight;
-                const availableWidth = chordWidthAt(Math.abs(lineCenterY));
-                return ctx.measureText(line).width <= availableWidth;
-            });
-
-            if (fits) {
-                return { lines, lineHeight };
-            }
+        const imageData = cx.getImageData(0, 0, c.width, c.height);
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            const luminance = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+            data[i] = 255;
+            data[i + 1] = 255;
+            data[i + 2] = 255;
+            data[i + 3] = data[i + 3] * (1 - luminance / 255);
         }
+        cx.putImageData(imageData, 0, 0);
 
-        // Último recurso (no debería alcanzarse con nombres reales): tamaño mínimo tal cual.
-        ctx.font = `800 ${MIN_FONT}px Lexend, sans-serif`;
-        const lines = wrapText(ctx, text, chordWidthAt(0)).slice(0, MAX_LINES);
-        return { lines, lineHeight: MIN_FONT * 1.15 };
+        return c;
     }
 
-    // Dibuja una pequeña burbuja azul plana con el nombre del caso de éxito dentro,
+    // Dibuja una pequeña burbuja azul plana con el logo de la marca dentro,
     // y la devuelve como data URL usable como textura de sprite en Matter.js.
-    function createGlassBubbleTexture(name) {
+    async function createGlassBubbleTexture(logoUrl) {
         const size = TEXTURE_SIZE;
         const canvas = document.createElement('canvas');
         canvas.width = size;
@@ -1161,22 +1163,40 @@ function initHeroPhysics() {
         ctx.fillStyle = '#3980E4';
         ctx.fill();
 
-        // Padding interior: el texto nunca puede acercarse al borde a menos de esto.
-        const innerPadding = size * 0.16;
-        const effectiveRadius = radius - innerPadding;
-        const { lines, lineHeight } = fitTextToCircle(ctx, name.toUpperCase(), effectiveRadius);
+        try {
+            const img = await loadImage(logoUrl);
 
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.25)';
-        ctx.shadowBlur = size * 0.01;
+            // El logo nunca puede tocar el borde: se ajusta dentro del cuadrado
+            // inscrito en el círculo útil (radio con el padding ya descontado),
+            // así ni siquiera la diagonal de un logo cuadrado se sale del círculo.
+            const innerPadding = size * 0.16;
+            const effectiveRadius = radius - innerPadding;
+            const boxSide = effectiveRadius * Math.SQRT2;
+            const scale = Math.min(boxSide / img.width, boxSide / img.height);
+            const w = img.width * scale;
+            const h = img.height * scale;
 
-        const blockHeight = lines.length * lineHeight;
-        const startY = center - blockHeight / 2 + lineHeight / 2;
-        lines.forEach((line, i) => {
-            ctx.fillText(line, center, startY + i * lineHeight);
-        });
+            const x = center - w / 2;
+            const y = center - h / 2;
+
+            if (hasTransparentCorners(img)) {
+                // Los logos vienen en colores/variantes distintas (algunos oscuros,
+                // otros blancos); se fuerzan todos a blanco sólido para que se lean
+                // igual de bien sobre el azul de la burbuja.
+                ctx.save();
+                ctx.filter = 'brightness(0) invert(1)';
+                ctx.drawImage(img, x, y, w, h);
+                ctx.restore();
+            } else {
+                // Sin transparencia real no se puede usar el filtro (pintaría un
+                // rectángulo blanco sólido): se recorta el fondo por luminancia
+                // para quedarse solo con el trazo, en blanco, igual que el resto.
+                const silhouette = toWhiteSilhouette(img);
+                ctx.drawImage(silhouette, x, y, w, h);
+            }
+        } catch (e) {
+            // Si el logo no carga (caso futuro sin logo_url, por ejemplo), se deja solo el círculo azul.
+        }
 
         return canvas.toDataURL();
     }
@@ -1185,17 +1205,9 @@ function initHeroPhysics() {
         // Verificar de nuevo si el contenedor existe (por si cambió la página durante el await)
         if (!document.getElementById('hero-physics')) return;
 
-        // Esperar a que Lexend esté realmente cargada: el canvas dibuja el texto una sola
-        // vez y de forma síncrona, así que si la fuente aún no está lista en este punto,
-        // usaría la fuente de reserva para siempre (a diferencia del texto normal del DOM,
-        // que sí se redibuja solo cuando la fuente termina de cargar).
-        if (document.fonts && document.fonts.ready) {
-            await document.fonts.ready;
-        }
-
         // Una burbuja de cristal por cada caso de éxito que exista ahora mismo en la rejilla.
-        const caseNames = getCaseStudyNames();
-        const bubbleTextures = caseNames.map(createGlassBubbleTexture);
+        const logoUrls = getCaseStudyLogos();
+        const bubbleTextures = await Promise.all(logoUrls.map(createGlassBubbleTexture));
 
         const currentContainer = document.getElementById('hero-physics');
         if (!currentContainer) return;
@@ -1924,6 +1936,7 @@ function initAll() {
     initJobOpenings();
     initPartnerLogos();
     initCasosFilter();
+    initCaseCardVideos();
     initTestimonialsCarousel();
     initStackingCards();
     setupServiceEvents();

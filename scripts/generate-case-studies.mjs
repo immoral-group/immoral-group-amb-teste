@@ -614,12 +614,14 @@ function caseCardHtml(cs) {
   const sectorSlug = slugifyValue(cs.sector);
   const resultadoSlug = slugifyValue(cs.resultado);
   return `                <a href="caso-${cs.slug}.html" class="case-card group cursor-pointer" data-sector="${sectorSlug}"
-                    data-resultado="${resultadoSlug}">
+                    data-resultado="${resultadoSlug}" data-logo="${escapeHtml(cs.logo_url)}">
                     <article class="relative overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 h-80 xl:h-96 bg-black">
                         <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             src="${escapeHtml(cs.cover_image_url)}"
                             alt="${escapeHtml(cs.cover_image_alt)}"
                             loading="lazy" />
+                        <video class="case-card-video absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300"
+                            src="/videos/casos/${cs.slug}.mp4" muted loop playsinline preload="none"></video>
                         <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent">
                             <div class="absolute top-4 left-4 right-4 flex items-start justify-between gap-2">
                                 <span class="case-tag">${escapeHtml(cs.sector)}</span>
