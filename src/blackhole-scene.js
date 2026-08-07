@@ -68,7 +68,7 @@ export function createBlackholeScene(container) {
     container.appendChild(wrapper);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 1000);
+    const camera = new THREE.PerspectiveCamera(14, 1, 0.1, 1000);
     camera.position.set(18, 82, 18); // vista casi cenital
 
     const renderer = new THREE.WebGLRenderer({
@@ -97,8 +97,8 @@ export function createBlackholeScene(container) {
     const bhGeo = new THREE.SphereGeometry(4, 64, 64);
     coreGroup.add(new THREE.Mesh(bhGeo, bhMat));
 
-    const instanceCount = 1800;
-    const streakGeo = new THREE.CylinderGeometry(0.01, 0.12, 2.2, 3);
+    const instanceCount = 4200;
+    const streakGeo = new THREE.CylinderGeometry(0.004, 0.045, 0.8, 3);
     streakGeo.rotateX(Math.PI / 2);
 
     const diskMaterial = new THREE.ShaderMaterial({
@@ -137,7 +137,7 @@ export function createBlackholeScene(container) {
                 vec3 color = mix(cool, warm, smoothstep(45.0, 12.0, r));
                 color = mix(color, hot, smoothstep(10.0, 4.0, r));
                 vColor = color * (1.3 + doppler * 0.7) * uIntensity;
-                vOpacity = (smoothstep(3.8, 5.5, r) * (1.0 - smoothstep(38.0, 48.0, r))) * 0.8;
+                vOpacity = (smoothstep(3.8, 5.5, r) * (1.0 - smoothstep(38.0, 48.0, r))) * 0.96;
                 float deltaAngle = currentAngle - initialAngle;
                 float c = cos(deltaAngle);
                 float s = sin(deltaAngle);
@@ -182,7 +182,7 @@ export function createBlackholeScene(container) {
     const maskCtx = maskCanvas.getContext('2d');
     const GLOW_RADIUS = 110;
     const GLOW_RADIUS_HOVER = GLOW_RADIUS * 1.4;
-    const BASE_DIM = 0.75;
+    const BASE_DIM = 0.64;
     const FOLLOW_EASE = 0.08;
 
     const liveMouse = { x: 0, y: 0 };
