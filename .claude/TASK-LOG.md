@@ -1196,3 +1196,57 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `index.html` (sección CTA Home), `src/blackhole-scene.js` (constante `BASE_DIM`).
 
 **Verificado en local:** servidor Vite en `localhost:5191` (puerto alterno porque el 5174 estaba en uso por otra sesión sobre el mismo worktree). Confirmado por `getComputedStyle` que la sección tiene `border-image-source: linear-gradient(135deg, rgba(72,137,235,0.5), rgba(255,255,255,0.5), rgba(72,137,235,0.5))` y `border-style: solid`; confirmado por fetch del módulo servido que `BASE_DIM = 0.8`. Sin errores de consola nuevos (los únicos errores presentes son de Supabase por falta de variables de entorno en local, preexistentes y no relacionados).
+
+---
+
+## 2026-08-07 — Rediseño de las "pelotitas" del header de Casos de Éxito: burbujas de cristal con el nombre de cada caso
+
+**Qué:** en la interacción física (Matter.js) del header de `casos-de-exito.html`, las 4 pelotas grandes que mostraban fotos de equipo (`/imgs/port1-4.png`) se sustituyeron por una pelota pequeña de "cristal" (glassmorphism azul, con degradado, brillo superior y borde translúcido) por cada caso de éxito, con el nombre del caso escrito dentro (auto-ajustado en tamaño de fuente y con salto de línea para que siempre quepa). Los nombres se leen en tiempo real de `#casos-grid .case-card h3` (la rejilla que ya genera `scripts/generate-case-studies.mjs` desde Supabase), así que al añadir o quitar un caso desde `/casos-admin` las burbujas se sincronizan automáticamente en el siguiente build, sin tocar código. Las burbujas se redujeron de 90-130px a 55-72px (42-58px en mobile). La interacción (arrastre con el ratón, repulsión al pasar por encima, animación de caída de entrada, paredes invisibles) no se tocó.
+
+**Bug encontrado y corregido de paso:** al implementar esto se descubrió que la página tenía DOS implementaciones de esta física corriendo a la vez — el fichero standalone `src/hero-physics.js` (cargado vía `<script type="module">`, solo se ejecuta en una carga completa/dura de la página) y una copia más reciente y más completa dentro de `initHeroPhysics()` en `src/main.js` (con soporte de mobile, limpieza robusta y espera de dimensiones del contenedor, necesaria porque el sitio navega con la View Transitions API sin recargar la página). La de `main.js` es la única que corre en la navegación real del sitio (SPA); la de `hero-physics.js` había quedado huérfana desde el commit `e96e6e8` que trasladó la lógica a `main.js` sin borrar el fichero ni su `<script>`, y solo se notaba en una carga dura porque pisaba el contenido del contenedor después. Se implementó el rediseño en `main.js` (la implementación real) y se eliminó el fichero y el `<script>` huérfanos.
+
+**Por qué:** petición del usuario de que las pelotitas dejen de mostrar fotos de equipo y en su lugar representen visualmente los casos de éxito reales de la página (nombre + estilo "cristal" azul, más pequeñas), manteniéndose sincronizadas automáticamente con los casos que existan en cada momento.
+
+**Afecta:** `src/main.js` (función `initHeroPhysics`/`startPhysics`: nuevas funciones `getCaseStudyNames`, `wrapText`, `fitTextToCircle`, `createGlassBubbleTexture`, sustituyen a `TEAM_IMAGES`/`processImage`; nuevas constantes `CASE_CIRCLE_SIZE_MIN/MAX`, `TEXTURE_SIZE`). `casos-de-exito.html` (se quita el `<script type="module" src="/src/hero-physics.js">` huérfano). `src/hero-physics.js` eliminado.
+
+**Verificado en local:** servidor Vite en `localhost:5174`. Con carga dura de `casos-de-exito.html` se confirmó por consola/DOM que ya no hay doble inicialización ni el error `TEAM_IMAGES is not defined` de una ejecución residual. Verificado visualmente (escritorio 1265×576 y viewport mobile 375×812) que aparecen 19 burbujas azules translúcidas, una por caso, con su nombre en mayúsculas legible dentro (p. ej. "TEAMDER", "OXPERTA CAPITAL", "MUN KOMBUCHA"), del tamaño reducido esperado. Verificado con `hover` real sobre el clúster que la repulsión al acercar el cursor sigue desplazando las burbujas igual que antes.
+
+---
+
+## 2026-08-07 — Ajuste de estilo de las burbujas de Casos de Éxito: azul plano sin glass
+
+**Qué:** en `createGlassBubbleTexture` (`src/main.js`), se quitó el degradado, el brillo superior (sheen) y el borde translúcido de las burbujas de caso de éxito del header — ahora son un círculo de color azul plano y sólido `#3980E4`, sin efecto "cristal". Se redujo también el área máxima de texto (`maxTextWidth`/`maxTextHeight` de `size*0.68`/`size*0.62` a `size*0.56`/`size*0.5`) para que el nombre del caso, en Lexend, quede con más aire respecto al borde del círculo y nunca lo toque.
+
+**Por qué:** feedback directo del usuario tras ver el primer resultado: quería el azul de marca `#3980E4` en vez del degradado azul genérico, la tipografía en Lexend (ya lo estaba, se confirmó que el `@font-face` de Lexend en `src/style.css` cubre el peso 800 usado), más espacio entre el texto y el borde, y sin el borde gris ni el efecto glassmorphism.
+
+**Afecta:** `src/main.js` (función `createGlassBubbleTexture`).
+
+**Verificado en local:** servidor Vite en `localhost:5173`. Confirmado visualmente que las 19 burbujas se ven como círculos azules planos `#3980E4`, sin borde ni brillo, con el nombre de cada caso centrado y con margen respecto al borde. Sin errores nuevos en consola.
+
+---
+
+## 2026-08-07 — Corrige padding real y fuente de las burbujas de Casos de Éxito
+
+**Qué:** dos correcciones sobre el ajuste anterior de las burbujas del header de Casos de Éxito, en `src/main.js`:
+1. **Padding real:** `fitTextToCircle` repartía las líneas usando un ancho fijo (el más ancho, a la altura del centro del círculo), así que en nombres de 2-3 líneas la primera y la última línea podían acercarse mucho al borde curvo — el "padding" solo era visualmente correcto para la línea central. Se reescribió para calcular, línea por línea, el ancho realmente disponible según la cuerda del círculo a esa altura (`2·√(r²-y²)` sobre un radio efectivo con el padding ya descontado), así ninguna línea —ni siquiera la más exterior— llega a tocar el borde.
+2. **Tipografía:** el texto de cada burbuja no salía en Lexend a pesar de pedirlo en `ctx.font`, porque el canvas dibuja el texto una sola vez y de forma síncrona — si en el momento exacto de `startPhysics()` la fuente Lexend (cargada por `@font-face` con `font-display: swap`) todavía no había terminado de descargarse, el canvas se quedaba para siempre con la fuente de reserva (`sans-serif`), a diferencia del texto normal del DOM que sí se redibuja solo cuando la fuente llega. Se añadió `await document.fonts.ready;` justo antes de generar las texturas, para garantizar que Lexend ya esté activa en ese momento.
+
+**Por qué:** feedback del usuario: el padding interior no era suficiente (el texto seguía pegado al borde en varias burbujas) y la tipografía no coincidía con la usada en el resto de la web.
+
+**Afecta:** `src/main.js` (`fitTextToCircle` reescrita con cálculo geométrico por línea; `createGlassBubbleTexture` usa ahora un `effectiveRadius` con padding interior del 11% del tamaño de referencia; `startPhysics` espera a `document.fonts.ready` antes de generar las burbujas).
+
+**Verificado en local:** servidor Vite en `localhost:5173`, carga dura de `casos-de-exito.html`. Confirmado visualmente que nombres de 2 líneas (p. ej. "OXPERTA EXPRESS", "COOL BOTTLES", "GRUPO MIMARA", "MUN KOMBUCHA") quedan con margen consistente en todos los lados, sin tocar el borde curvo en ninguna línea; y que el trazo de las letras coincide con el resto de la tipografía Lexend del sitio (mismas formas redondeadas que en el menú superior). Sin errores nuevos en consola.
+
+---
+
+## 2026-08-07 — Corrige texto realmente cortado en las burbujas (palabras sueltas largas + amontonamiento) y más padding
+
+**Qué:** el usuario reportó que, a pesar del ajuste anterior, varias burbujas seguían viéndose "cortadas". Se encontraron y corrigieron dos causas distintas en `src/main.js`:
+1. **Palabras sueltas que no se pueden partir** (p. ej. "TRAVELPERK", "VASQUIAT", "IVENTIONS"): `fitTextToCircle` solo comprobaba el número de líneas y la altura total antes de aceptar un tamaño de fuente, nunca el ancho real de cada línea — como `wrapText` no puede partir una palabra sin espacios, una palabra más ancha que su hueco se aceptaba igual "de un tirón" en el tamaño más grande (92px) sin encogerse nunca, y acababa sobresaliendo bien fuera del círculo. Se añadió una verificación explícita, línea por línea, del ancho disponible según la cuerda del círculo a esa altura antes de aceptar cualquier tamaño de fuente, bajando el mínimo de 26px a 14px para que hasta la palabra más larga siempre encuentre un tamaño que quepa.
+2. **Amontonamiento físico entre burbujas vecinas**: con 19 casos de éxito (antes eran 4 fotos de equipo) comprimidos en la franja de caída original (30% del ancho, mitad de la altura), no había espacio matemático suficiente para que los 19 círculos se asentaran sin solaparse — así que aunque el texto de una burbuja cupiera perfectamente dentro de su propio círculo, una vecina se le montaba encima y tapaba las letras. Se amplió la zona de caída/asentamiento de las burbujas de casos de éxito (no la de los 2 puntos decorativos, que sigue igual) del 30% al 65% del ancho del contenedor y de la mitad a un 85% de la altura, dejando aún margen holgado antes del bloque de texto "Cada marca...". También se subió el padding interior del texto de cada burbuja del 11% al 16% del tamaño de referencia, tal como pidió el usuario.
+
+**Por qué:** el usuario insistió en que ninguna burbuja puede quedar cortada — se revisaron una por una en escritorio (1265×576) y mobile (375×812) tras el fix.
+
+**Afecta:** `src/main.js` (`fitTextToCircle`: verificación de ancho por línea y `MIN_FONT` más bajo; `createGlassBubbleTexture`: `innerPadding` subido a 0.16; `startPhysics`: zona de x/y de las burbujas de casos de éxito ampliada).
+
+**Verificado en local:** servidor Vite en `localhost:5173`. Revisadas una por una las 19 burbujas en escritorio y mobile tras varios segundos de asentamiento: ninguna muestra texto cortado ni por desbordar su propio círculo ni por quedar tapada por una vecina (incluyendo los casos previamente rotos "TRAVELPERK", "VASQUIAT", "LA MANSO", "BOBO CHOSES", "OXPERTA EXPRESS", "GABRIEL FOR SACH"). Sin errores nuevos en consola.
