@@ -6,12 +6,12 @@
 import gsap from 'gsap';
 
 const THREADS = [
-    { baseY: 0.26, amplitude: 26, wavelength: 340, speed: 0.35, phase: 0.4, width: 1.4, color: '255,255,255' },
-    { baseY: 0.38, amplitude: 34, wavelength: 260, speed: 0.50, phase: 1.8, width: 1.8, color: '156,163,175' },
-    { baseY: 0.50, amplitude: 22, wavelength: 400, speed: 0.28, phase: 3.1, width: 1.2, color: '255,255,255' },
-    { baseY: 0.62, amplitude: 40, wavelength: 300, speed: 0.42, phase: 0.9, width: 2.2, color: '156,163,175' },
-    { baseY: 0.74, amplitude: 24, wavelength: 360, speed: 0.33, phase: 2.4, width: 1.4, color: '255,255,255' },
-    { baseY: 0.86, amplitude: 30, wavelength: 280, speed: 0.46, phase: 4.2, width: 1.8, color: '156,163,175' },
+    { baseY: 0.14, amplitude: 26, wavelength: 340, speed: 0.35, phase: 0.4, width: 1.4, color: '255,255,255' },
+    { baseY: 0.26, amplitude: 34, wavelength: 260, speed: 0.50, phase: 1.8, width: 1.8, color: '156,163,175' },
+    { baseY: 0.38, amplitude: 22, wavelength: 400, speed: 0.28, phase: 3.1, width: 1.2, color: '255,255,255' },
+    { baseY: 0.50, amplitude: 40, wavelength: 300, speed: 0.42, phase: 0.9, width: 2.2, color: '156,163,175' },
+    { baseY: 0.62, amplitude: 24, wavelength: 360, speed: 0.33, phase: 2.4, width: 1.4, color: '255,255,255' },
+    { baseY: 0.74, amplitude: 30, wavelength: 280, speed: 0.46, phase: 4.2, width: 1.8, color: '156,163,175' },
 ];
 
 const PUSH_RADIUS = 220; // px de radio de influencia del cursor
