@@ -1199,6 +1199,18 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 
 ---
 
+## 2026-08-06 — El grid de cubos de "Publicidad en medios" sustituye al anillo shader de "Diseño de Marca"
+
+**Qué:** en `diseno-de-marca.html`, el fondo interactivo del hero (antes un shader WebGL2 raymarcheado en forma de anillo/escultura segmentada, paleta negro→azul→cian→blanco) se sustituyó por el mismo grid de cubos wireframe con nube de puntos brillantes que ya usa el hero de `publicidad-en-medios.html` (misma escena `three.js`, mismos colores blanco/negro, mismo comportamiento de auto-rotación y drag). `publicidad-en-medios.html` no se tocó. Se renombró el contenedor de `#diseno-marca-shader` a `#diseno-marca-cubes` y se reescribió `src/diseno-marca-hero.js` para montar `createHexCubesScene` (de `src/hex-cubes-scene.js`) en vez de `createDesignShaderScene`, replicando el wrapper de `src/publicidad-medios-cubes.js` (creación de `<canvas>`, espera de dimensiones del contenedor, `dispose()` en cleanup). El nombre de función exportado (`initDisenoMarcaHero`) y su import en `src/main.js` no cambiaron.
+
+**Por qué:** petición explícita del usuario de llevar el elemento interactivo de "Publicidad en medios" tal cual a la sección "Diseño de Marca y Contenidos", quitando el anillo de colores. Confirmado con el usuario: duplicar el mismo grid en ambas páginas (no mover), y eliminar el shader del anillo por quedar sin uso en ninguna otra página.
+
+**Afecta:** `diseno-de-marca.html` (id del contenedor del hero), `src/diseno-marca-hero.js` (reescrito). `src/design-shader-scene.js` eliminado (sin más referencias activas — solo quedaba mencionado en comentarios de `src/automation-shader-scene.js`, actualizados para no apuntar a un fichero inexistente).
+
+**Verificado en local:** `npm install` (node_modules no estaba instalado en este worktree) + servidor Vite en `localhost:5174` con un `.env` local de placeholders (gitignored) para evitar el crash preexistente de `supabaseClient.js` sin credenciales reales. Confirmado vía `getElementById`/`querySelector` que ambas páginas (`diseno-de-marca.html` y `publicidad-en-medios.html`) montan un `<canvas>` con contexto `WebGL2RenderingContext` activo dentro de sus contenedores respectivos, y que la consola no registra errores nuevos tras el cambio.
+
+---
+
 ## 2026-08-06 — Botón "SOLICITA UNA AUDITORÍA" en el CTA de la home, con el diseño del botón de Publicidad en Medios
 
 **Qué:** en `index.html`, el botón del CTA final del hero (`<section>` con `#home-blackhole`, "El crecimiento real empieza con una buena conversación.") se reemplazó. Antes era un botón tipo "pill" (`rounded-lg`, fondo blanco, texto azul, hover invertido). Ahora usa el mismo diseño que el botón "SOLICITA UNA AUDITORÍA GRATUITA" de `publicidad-en-medios.html` (línea 788): cuadrado azul (`#2f80ed`) con icono de flecha (`/imgs/btn-ico.svg`) a la izquierda, caja de texto con borde azul y fondo blanco que se expande en azul al hover (`group-hover`), con el texto en negro pasando a blanco. El texto se dejó como **"SOLICITA UNA AUDITORÍA"**, sin la palabra "GRATUITA", a petición explícita del usuario. Se añadió `bg-white` explícito en el span del texto (el original de `publicidad-en-medios.html` lo heredaba de la sección blanca contenedora; aquí la sección del hero es negra, así que había que fijarlo para que el texto negro siguiera siendo legible).
