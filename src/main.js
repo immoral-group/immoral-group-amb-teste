@@ -11,6 +11,7 @@ import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initAutomatizacionHero } from './automatizacion-hero.js';
+import { initNuestraHistoriaHero } from './nuestra-historia-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
@@ -1819,6 +1820,7 @@ function initAll() {
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
     try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
+    try { initNuestraHistoriaHero(); } catch (e) { console.error("Error in initNuestraHistoriaHero:", e); }
     initImmoralEcosystem();
     initCounters();
     initScrollAnimations();
