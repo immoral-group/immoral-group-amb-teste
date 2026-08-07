@@ -1196,3 +1196,15 @@ Como `.brand-glass-hover` se queda sin ningún uso en el repo tras este revert, 
 **Afecta:** `index.html` (sección CTA Home), `src/blackhole-scene.js` (constante `BASE_DIM`).
 
 **Verificado en local:** servidor Vite en `localhost:5191` (puerto alterno porque el 5174 estaba en uso por otra sesión sobre el mismo worktree). Confirmado por `getComputedStyle` que la sección tiene `border-image-source: linear-gradient(135deg, rgba(72,137,235,0.5), rgba(255,255,255,0.5), rgba(72,137,235,0.5))` y `border-style: solid`; confirmado por fetch del módulo servido que `BASE_DIM = 0.8`. Sin errores de consola nuevos (los únicos errores presentes son de Supabase por falta de variables de entorno en local, preexistentes y no relacionados).
+
+---
+
+## 2026-08-06 — Adelgaza los puntos del anillo "Cómo lo hacemos" y fondo negro sólido en el hero de Automatización
+
+**Qué:** en las 6 páginas de servicio con sección "Cómo lo hacemos" (`publicidad-en-medios.html`, `influencer-marketing.html`, `gestion-de-redes.html`, `email-marketing.html`, `diseno-de-marca.html`, `automatizacion-de-procesos.html`), el `stroke-width` del anillo de puntos azules (`chlh-style-1`, el estilo activo en el paso "Planificación Estratégica Automatizada") bajó de `13` a `3.553875` (-73% acumulado, en 4 iteraciones sucesivas de ajuste visual pedidas por el usuario). Además, en `src/automation-shader-scene.js` el fondo animado del hero de Automatización de Procesos (shader WebGL2 "plasma" con paleta de color en movimiento) pasó a negro sólido (`vec3(0.0)`) eliminando el cálculo de `plasma`/`palette`/`orderedDither` para el color de fondo, pero conservando intacta la distorsión del texto por el cursor (`warp()` sigue aplicándose a `sampleText`), que es la interacción real de esa sección.
+
+**Por qué:** ajuste visual pedido por el usuario sobre el grosor de los puntos del anillo y sobre el fondo del hero de Automatización (percibido como "un vídeo" pero es en realidad el shader), pidiendo explícitamente no tocar la interacción del cursor con el texto.
+
+**Afecta:** `publicidad-en-medios.html`, `influencer-marketing.html`, `gestion-de-redes.html`, `email-marketing.html`, `diseno-de-marca.html`, `automatizacion-de-procesos.html`, `src/automation-shader-scene.js`.
+
+**Pendiente:** verificación visual en navegador no realizada — el panel de vista previa de esta sesión no llegó a renderizar frames (error "Browser pane is not displayed"). Cambios verificados solo por inspección de atributos/código, no visualmente.

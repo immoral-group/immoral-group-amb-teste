@@ -130,11 +130,7 @@ void main() {
     vec2 uv = (warped / uResolution) * 2.0 - 1.0;
     uv.x *= uResolution.x / uResolution.y;
 
-    float n = plasma(uv * 1.6 * uContrast, uTime) * uContrast;
-    float lum = n * 0.5 + 0.5;
-    vec3 col = palette(lum);
-    col = orderedDither(col, ivec2(gl_FragCoord.xy));
-    col *= 0.5; // fondo al 50% de opacidad (mezclado hacia negro); el texto se compone encima a fuerza plena
+    vec3 col = vec3(0.0); // fondo negro sólido; se conserva warp() para que el cursor siga distorsionando el texto
 
     if (uHasText > 0.5) {
         vec4 text = sampleText(warped);
