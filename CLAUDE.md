@@ -2,7 +2,14 @@
 
 Instrucciones de proyecto para cualquier agente de Claude Code que trabaje en este repositorio (`immoral-group-amb-teste`).
 
+<!--
 ## Regla obligatoria: documentar todo el trabajo
+
+DESACTIVADA (2026-08-07): esta regla generaba conflicto de merge en .claude/TASK-LOG.md
+en prácticamente todos los PRs abiertos en simultáneo (todos apendean al mismo punto del
+mismo fichero), bloqueando el flujo de mergeo. Queda comentada hasta que se defina un
+mecanismo que no choque en cada merge (ej. un fichero de log por tarea/PR, consolidado
+después). No reactivar sin resolver ese problema de fondo primero.
 
 **Toda tarea completada en este repositorio — sin excepción — debe registrarse en [`.claude/TASK-LOG.md`](.claude/TASK-LOG.md) antes de darse por terminada.** Esto aplica igual si el trabajo se hace en una rama nueva, directamente sobre `main`, o vía PR: el registro debe existir antes de mergear, no después.
 
@@ -19,6 +26,7 @@ Esta regla existe para que cualquier persona o agente que retome el proyecto —
 ### El changelog es visible en `/logs`
 
 `.claude/TASK-LOG.md` se renderiza en vivo en la página `/logs` del panel interno (`src/logs.js`, vía `src/changelog.js`) — cualquier persona autenticada en el panel puede leer el historial de cambios del sitio sin salir de él. Para que el renderizado no se rompa, cada entrada nueva debe seguir el mismo formato markdown simple que ya usa el archivo: encabezado `## fecha — título`, párrafos en negrita con `**Qué:**`/`**Por qué:**`/`**Afecta:**`, y separador `---` entre entradas. No uses tablas ni markdown anidado — el renderizador de `/logs` es deliberadamente simple (sin librería de markdown) y solo soporta encabezados, negrita, código inline con backticks, enlaces, listas y párrafos.
+-->
 
 ## Otros contextos de este repo
 
