@@ -12,12 +12,21 @@ import { LineSegmentsGeometry } from 'three/addons/lines/LineSegmentsGeometry.js
 // each holding a dense volumetric point cloud, with hover-to-rotate + hover-to-flicker.
 // Used both by the isolated prototype page and by the production section — sized to
 // whatever `container` element is passed in, not the window, so it works embedded.
-export function createHexCubesScene(canvas, container) {
+export function createHexCubesScene(canvas, container, options = {}) {
+    // interactive=false: cámara fija en su posición inicial (sin auto-rotación
+    // ni arrastre), para usos decorativos donde se pide una composición exacta
+    // en vez del comportamiento completo del hero. Los cubos siguen animando
+    // su elevación igual en ambos modos.
+    // Posición de cámara por defecto (la del hero de Diseño de Marca /
+    // Publicidad en Medios). Usos decorativos pueden pedir otro ángulo — ej.
+    // una vista más cenital para el manifiesto — pasando `cameraPosition`,
+    // manteniendo la misma distancia si así se pide.
+    const { interactive = true, cameraPosition = [9.5, 7, 11.5] } = options;
     const scene = new THREE.Scene();
     scene.background = null; // transparent — let the page's own background show through
 
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(9.5, 7, 11.5);
+    camera.position.set(...cameraPosition);
     camera.lookAt(0, 0.5, 0);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
@@ -37,60 +46,67 @@ export function createHexCubesScene(canvas, container) {
     controls.dampingFactor = 0.06;
     controls.enableZoom = false;
     controls.enablePan = false;
-    controls.enableRotate = true; // click-drag rotates, like before
-    controls.autoRotate = true;
+    controls.enableRotate = interactive; // click-drag rotates, like before
+    controls.autoRotate = interactive;
     controls.autoRotateSpeed = 1.1;
 
     // Custom cursor: a circular ring (with a small glowing center dot) that follows
     // the pointer while it's over the piece, replacing the default arrow — a visual
     // hint that it's draggable, shaped like an actual cursor ring rather than a blob.
-    if (getComputedStyle(container).position === 'static') {
-        container.style.position = 'relative';
-    }
-    renderer.domElement.style.cursor = 'none';
-    const CURSOR_SIZE = 32;
-    const cursorDot = document.createElement('div');
-    cursorDot.style.cssText = `
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: ${CURSOR_SIZE}px;
-        height: ${CURSOR_SIZE}px;
-        border-radius: 50%;
-        border: 1.5px solid rgba(255,255,255,0.9);
-        box-shadow: 0 0 10px 2px rgba(255,255,255,0.5), inset 0 0 6px 1px rgba(255,255,255,0.3);
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-        transform: translate(-9999px, -9999px);
-        z-index: 5;
-    `;
-    const cursorCenterDot = document.createElement('div');
-    cursorCenterDot.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.95);
-        box-shadow: 0 0 6px 2px rgba(255,255,255,0.8);
-        transform: translate(-50%, -50%);
-    `;
-    cursorDot.appendChild(cursorCenterDot);
-    container.appendChild(cursorDot);
+    // Solo tiene sentido si de verdad se puede arrastrar (interactive=true).
+    let cursorDot = null;
+    let onPointerMoveCursor = null;
+    let onPointerEnterCursor = null;
+    let onPointerLeaveCursor = null;
+    if (interactive) {
+        if (getComputedStyle(container).position === 'static') {
+            container.style.position = 'relative';
+        }
+        renderer.domElement.style.cursor = 'none';
+        const CURSOR_SIZE = 32;
+        cursorDot = document.createElement('div');
+        cursorDot.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: ${CURSOR_SIZE}px;
+            height: ${CURSOR_SIZE}px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.9);
+            box-shadow: 0 0 10px 2px rgba(255,255,255,0.5), inset 0 0 6px 1px rgba(255,255,255,0.3);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            transform: translate(-9999px, -9999px);
+            z-index: 5;
+        `;
+        const cursorCenterDot = document.createElement('div');
+        cursorCenterDot.style.cssText = `
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.95);
+            box-shadow: 0 0 6px 2px rgba(255,255,255,0.8);
+            transform: translate(-50%, -50%);
+        `;
+        cursorDot.appendChild(cursorCenterDot);
+        container.appendChild(cursorDot);
 
-    const onPointerMoveCursor = (e) => {
-        const rect = container.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        cursorDot.style.transform = `translate(${x - CURSOR_SIZE / 2}px, ${y - CURSOR_SIZE / 2}px)`;
-    };
-    const onPointerEnterCursor = () => { cursorDot.style.opacity = '1'; };
-    const onPointerLeaveCursor = () => { cursorDot.style.opacity = '0'; };
-    renderer.domElement.addEventListener('pointermove', onPointerMoveCursor);
-    renderer.domElement.addEventListener('pointerenter', onPointerEnterCursor);
-    renderer.domElement.addEventListener('pointerleave', onPointerLeaveCursor);
+        onPointerMoveCursor = (e) => {
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            cursorDot.style.transform = `translate(${x - CURSOR_SIZE / 2}px, ${y - CURSOR_SIZE / 2}px)`;
+        };
+        onPointerEnterCursor = () => { cursorDot.style.opacity = '1'; };
+        onPointerLeaveCursor = () => { cursorDot.style.opacity = '0'; };
+        renderer.domElement.addEventListener('pointermove', onPointerMoveCursor);
+        renderer.domElement.addEventListener('pointerenter', onPointerEnterCursor);
+        renderer.domElement.addEventListener('pointerleave', onPointerLeaveCursor);
+    }
 
     // ---------- Simple value-noise (fbm) for cube elevation, no deps ----------
     function hash(x, y) {
@@ -403,12 +419,14 @@ export function createHexCubesScene(canvas, container) {
         if (rafId !== null) cancelAnimationFrame(rafId);
         resizeObserver.disconnect();
         window.removeEventListener('scroll', onScroll);
-        renderer.domElement.removeEventListener('pointermove', onPointerMoveCursor);
-        renderer.domElement.removeEventListener('pointerenter', onPointerEnterCursor);
-        renderer.domElement.removeEventListener('pointerleave', onPointerLeaveCursor);
+        if (interactive) {
+            renderer.domElement.removeEventListener('pointermove', onPointerMoveCursor);
+            renderer.domElement.removeEventListener('pointerenter', onPointerEnterCursor);
+            renderer.domElement.removeEventListener('pointerleave', onPointerLeaveCursor);
+            cursorDot.remove();
+        }
         renderer.domElement.removeEventListener('pointermove', onPointerMoveHover);
         renderer.domElement.removeEventListener('pointerleave', onPointerLeaveHover);
-        cursorDot.remove();
         controls.dispose();
         disposableGeometries.forEach((g) => g.dispose());
         disposableMaterials.forEach((m) => m.dispose());
