@@ -1551,15 +1551,3 @@ Se revirtió específicamente la parte que causaba el problema: en `startConverg
 **Por qué:** evitar que la resolución de un conflicto de merge introdujera una regresión real en una página no relacionada con el PR que se estaba arreglando.
 
 **Afecta:** `src/hex-cubes-scene.js` (restaurado, sin cambios de contenido respecto a `main`).
-
----
-
-## 2026-08-06 — Adelgaza los puntos del anillo "Cómo lo hacemos" y fondo negro sólido en el hero de Automatización
-
-**Qué:** en las 6 páginas de servicio con sección "Cómo lo hacemos" (`publicidad-en-medios.html`, `influencer-marketing.html`, `gestion-de-redes.html`, `email-marketing.html`, `diseno-de-marca.html`, `automatizacion-de-procesos.html`), el `stroke-width` del anillo de puntos azules (`chlh-style-1`, el estilo activo en el paso "Planificación Estratégica Automatizada") bajó de `13` a `3.553875` (-73% acumulado, en 4 iteraciones sucesivas de ajuste visual pedidas por el usuario). Además, en `src/automation-shader-scene.js` el fondo animado del hero de Automatización de Procesos (shader WebGL2 "plasma" con paleta de color en movimiento) pasó a negro sólido (`vec3(0.0)`) eliminando el cálculo de `plasma`/`palette`/`orderedDither` para el color de fondo, pero conservando intacta la distorsión del texto por el cursor (`warp()` sigue aplicándose a `sampleText`), que es la interacción real de esa sección.
-
-**Por qué:** ajuste visual pedido por el usuario sobre el grosor de los puntos del anillo y sobre el fondo del hero de Automatización (percibido como "un vídeo" pero es en realidad el shader), pidiendo explícitamente no tocar la interacción del cursor con el texto.
-
-**Afecta:** `publicidad-en-medios.html`, `influencer-marketing.html`, `gestion-de-redes.html`, `email-marketing.html`, `diseno-de-marca.html`, `automatizacion-de-procesos.html`, `src/automation-shader-scene.js`.
-
-**Pendiente:** verificación visual en navegador no realizada — el panel de vista previa de esta sesión no llegó a renderizar frames (error "Browser pane is not displayed"). Cambios verificados solo por inspección de atributos/código, no visualmente.
