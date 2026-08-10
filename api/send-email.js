@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   try {
     const data = await resend.emails.send({
       from: 'immoral.es <noreply@group.immoral.es>',
-      to: ['team@immoral.marketing'],
+      to: ['gregory@immoral.es'], // TEMP: destinatario de prueba, volver a team@immoral.marketing luego
       subject: `Nuevo mensaje de contacto: ${nombre}`,
       html: `
         <!DOCTYPE html>
