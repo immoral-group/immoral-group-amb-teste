@@ -1,5 +1,37 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Endpoint de ingesta ÚNICO y centralizado para el grupo (decisión del
+// techlead, 10/08): vive solo aquí — ninguna otra web del grupo (immoralia,
+// imcontent, imfilms, el sitio de producción immoral-group-cliente...) tiene
+// su propia copia de este endpoint ni de la service_role key. Cada web
+// simplemente le hace un fetch cross-origin a esta URL con su propio token;
+// por eso hace falta CORS.
+const ALLOWED_ORIGINS = [
+  'https://immoral.es',
+  'https://www.immoral.es',
+  'https://immoral-group-sigma.vercel.app',
+  'https://immoralia.es',
+  'https://www.immoralia.es',
+  'https://immoralia.vercel.app',
+  'https://imcontent.es',
+  'https://www.imcontent.es',
+  'https://imcontent-landing.vercel.app',
+  'https://immoral-group-amb-teste.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+];
+
+function applyCors(req, res) {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  }
+}
+
 // Usa la service_role key (nunca expuesta al cliente) para poder insertar en
 // contact_messages sin política de RLS pública: la única puerta de entrada es
 // este endpoint, que exige un token válido de tokens_validos antes de escribir.
@@ -10,6 +42,12 @@ import { createClient } from '@supabase/supabase-js';
 // responder nada) en vez de devolver un JSON de error controlado.
 
 export default async function handler(req, res) {
+  applyCors(req, res);
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
   }

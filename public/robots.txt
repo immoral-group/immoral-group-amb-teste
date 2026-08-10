@@ -8,6 +8,7 @@ Disallow: /logos
 Disallow: /logs
 Disallow: /casos-admin
 Disallow: /mensajes
+Disallow: /tokens
 
 User-agent: ClaudeBot
 Allow: /
@@ -19,6 +20,7 @@ Disallow: /logos
 Disallow: /logs
 Disallow: /casos-admin
 Disallow: /mensajes
+Disallow: /tokens
 
 User-agent: PerplexityBot
 Allow: /
@@ -30,6 +32,7 @@ Disallow: /logos
 Disallow: /logs
 Disallow: /casos-admin
 Disallow: /mensajes
+Disallow: /tokens
 
 User-agent: *
 Allow: /
@@ -51,5 +54,7 @@ Disallow: /casos-admin
 Disallow: /casos-admin.html
 Disallow: /mensajes
 Disallow: /mensajes.html
+Disallow: /tokens
+Disallow: /tokens.html
 
 Sitemap: https://immoral.es/sitemap.xml
