@@ -16,6 +16,7 @@ export default defineConfig({
                 logos: resolve(__dirname, 'logos.html'),
                 logs: resolve(__dirname, 'logs.html'),
                 'casos-admin': resolve(__dirname, 'casos-admin.html'),
+                mensajes: resolve(__dirname, 'mensajes.html'),
                 manifesto: resolve(__dirname, 'manifesto.html'),
                 contacto: resolve(__dirname, 'contacto.html'),
                 'casos-de-exito': resolve(__dirname, 'casos-de-exito.html'),

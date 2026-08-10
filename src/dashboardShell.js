@@ -28,6 +28,7 @@ const ICONS = {
   briefcase: '<rect x="2.5" y="7" width="15" height="10" rx="1.5"/><path d="M7 7V5.5A1.5 1.5 0 0 1 8.5 4h3A1.5 1.5 0 0 1 13 5.5V7"/><path d="M2.5 11.5h15"/>',
   usercog: '<path d="M8 10.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M2 18c0-2.8 2.7-5 6-5s6 2.2 6 5"/><circle cx="16" cy="15.5" r="2.3"/><path d="M16 12.3v.7M16 17.9v.7M18.6 15.5h-.7M14.1 15.5h-.7M17.9 13.6l-.5.5M14.6 17.4l-.5.5M17.9 17.4l-.5-.5M14.6 13.6l-.5-.5"/>',
   logs: '<path d="M4.5 2.5h8l4 4v10.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-14a.5.5 0 0 1 .5-.5Z"/><path d="M12.5 2.5V6a.5.5 0 0 0 .5.5h3.5"/><path d="M6.5 10.5h6M6.5 13.5h6M6.5 7.5h3"/>',
+  mail: '<rect x="2.5" y="4.5" width="15" height="11" rx="1.5"/><path d="M3.5 5.5l6.5 5.5 6.5-5.5"/>',
   logos: '<rect x="2.5" y="2.5" width="8" height="8" rx="1.5"/><rect x="12.5" y="2.5" width="5" height="5" rx="1.5"/><rect x="12.5" y="10" width="5" height="7.5" rx="1.5"/><rect x="2.5" y="13" width="8" height="4.5" rx="1.5"/>',
   trophy: '<path d="M6 3.5h8v4a4 4 0 0 1-8 0v-4Z"/><path d="M6 4.5H3.5a1 1 0 0 0-1 1v1a3 3 0 0 0 3 3"/><path d="M14 4.5h2.5a1 1 0 0 1 1 1v1a3 3 0 0 1-3 3"/><path d="M10 11.5v3"/><path d="M7 17.5h6"/><path d="M8.3 14.5h3.4l.6 3h-4.6l.6-3Z"/>',
 };
@@ -49,6 +50,7 @@ export function renderShell(root, { activeHref, email, role, isAdmin }) {
     { href: '/ofertas', label: 'Ofertas activas', icon: 'briefcase' },
     { href: '/logos', label: 'Barra de logos', icon: 'logos' },
     { href: '/casos-admin', label: 'Casos de éxito', icon: 'trophy' },
+    { href: '/mensajes', label: 'Mensajes', icon: 'mail' },
     { href: '/logs', label: 'Logs', icon: 'logs' },
   ];
   if (isAdmin) {

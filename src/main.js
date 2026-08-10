@@ -40,6 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // veces por cada envío real.
 });
 
+// Identifica ante /api/contact.js de qué formulario viene el mensaje (tabla
+// tokens_validos, etiqueta "contacto-web-immoral" en Supabase). No es un
+// secreto profundo — viaja en el bundle público, igual que la clave anon de
+// Supabase; la validación real la hace el servidor con la service_role key.
+const CONTACT_FORM_TOKEN = '723d7c6ffc60a2e785227136401be8a46a6c89bf637e3f4e';
+
 function initContactForm() {
     const existingForm = document.getElementById('contactForm');
     if (!existingForm) return;
@@ -70,12 +76,12 @@ function initContactForm() {
         const jsonData = Object.fromEntries(formData.entries());
 
         try {
-            const response = await fetch('/api/send-email', {
+            const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(jsonData),
+                body: JSON.stringify({ ...jsonData, token: CONTACT_FORM_TOKEN }),
             });
 
             const result = await response.json();
