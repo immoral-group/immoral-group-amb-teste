@@ -35,3 +35,4 @@ Esta regla existe para que cualquier persona o agente que retome el proyecto —
 - [`specs/`](specs/) — specs individuales aprobadas (ver `specs/08-panel-admin-equipo.md` para el panel interno de administración).
 - [`supabase/README.md`](supabase/README.md) — pasos de configuración manual del proyecto Supabase (Auth Hook, Google OAuth, primer admin).
 - [`PROJECT-CONSTITUTION.md`](PROJECT-CONSTITUTION.md) — stack, convenciones y restricciones específicas de este proyecto.
+- [`docs/ARQUITECTURA-CONTACTO-CENTRALIZADO.md`](docs/ARQUITECTURA-CONTACTO-CENTRALIZADO.md) — endpoint de ingesta de contacto centralizado (este repo es la "web madre"), tokens por web, reCAPTCHA v3. Leer antes de tocar `api/contact.js`, `/mensajes` o `/tokens`, o el formulario de contacto de cualquier web del grupo (immoral.es, immoralia.es, imcontent.es).
