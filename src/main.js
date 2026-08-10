@@ -32,21 +32,29 @@ document.addEventListener("DOMContentLoaded", () => {
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
     try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
-
-    try {
-        console.log("Attaching contact form listener...");
-        initContactForm();
-    } catch (e) {
-        console.error("Error in initContactForm:", e);
-    }
+    // initContactForm() ya no se llama aquí directamente: ahora vive dentro de
+    // initAll() (ver más abajo), que es lo que realmente se re-ejecuta en cada
+    // navegación SPA. Llamarla también aquí duplicaría el listener de submit
+    // en cada carga dura de página (initAll() también corre en el segundo
+    // DOMContentLoaded, más abajo en este fichero), enviando el email dos
+    // veces por cada envío real.
 });
 
 function initContactForm() {
-    const form = document.getElementById('contactForm');
-    const statusDiv = document.getElementById('formStatus');
-    const submitBtn = document.getElementById('submitBtn');
+    const existingForm = document.getElementById('contactForm');
+    if (!existingForm) return;
 
-    if (!form) return;
+    // Clona el <form> y lo reemplaza: initAll() (y por tanto esta función) se
+    // vuelve a ejecutar en cada navegación SPA sobre la MISMA página (ej. si
+    // el usuario vuelve a /contacto), y sin esto se apilaría un listener de
+    // submit nuevo encima del anterior en el mismo nodo, enviando el email
+    // una vez por cada visita acumulada a la página. Mismo patrón ya usado en
+    // este fichero para botones reinicializados por initAll().
+    const form = existingForm.cloneNode(true);
+    existingForm.replaceWith(form);
+
+    const statusDiv = form.querySelector('#formStatus');
+    const submitBtn = form.querySelector('#submitBtn');
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -1975,6 +1983,17 @@ function initAll() {
         .catch((e) => console.error("Error in initBottomPanel:", e));
     try { initFooter(); } catch (e) { console.error("Error in initFooter:", e); }
     try { initHablemosHover('#hablemos-cta-btn', '#hablemos-video'); } catch (e) { console.error("Error in initHablemosHover:", e); }
+    // Bug real: initContactForm() solo se llamaba dentro del DOMContentLoaded
+    // de arriba, que únicamente dispara en una carga dura de página. La
+    // navegación SPA de este sitio (ver updateDOM()/startViewTransition más
+    // abajo) reemplaza document.body.innerHTML y solo vuelve a llamar
+    // initAll() — nunca DOMContentLoaded — así que cualquier visitante que
+    // llegara a /contacto haciendo clic en un link interno (el caso normal)
+    // se encontraba con un <form> sin ningún listener de submit: el botón
+    // "Enviar" hacía un submit nativo del navegador (GET con los datos en la
+    // URL, nunca llegaba a /api/send-email). Solo funcionaba si /contacto era
+    // la primera página cargada (URL directa o recarga manual).
+    try { initContactForm(); } catch (e) { console.error("Error in initContactForm:", e); }
 }
 
 // --- 16. GSAP ANIMATIONS ---
