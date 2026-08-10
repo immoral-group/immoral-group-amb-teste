@@ -46,6 +46,34 @@ document.addEventListener("DOMContentLoaded", () => {
 // Supabase; la validación real la hace el servidor con la service_role key.
 const CONTACT_FORM_TOKEN = '723d7c6ffc60a2e785227136401be8a46a6c89bf637e3f4e';
 
+// reCAPTCHA v3 (invisible, sin challenge): mismo site key en las 4 webs del
+// grupo, la secret key vive solo en el servidor del endpoint centralizado.
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
+let recaptchaScriptPromise = null;
+
+function loadRecaptchaScript() {
+    if (recaptchaScriptPromise) return recaptchaScriptPromise;
+    recaptchaScriptPromise = new Promise((resolve, reject) => {
+        if (window.grecaptcha) return resolve();
+        const script = document.createElement('script');
+        script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('No se pudo cargar reCAPTCHA'));
+        document.head.appendChild(script);
+    });
+    return recaptchaScriptPromise;
+}
+
+async function getRecaptchaToken() {
+    if (!RECAPTCHA_SITE_KEY) return null;
+    await loadRecaptchaScript();
+    return new Promise((resolve) => {
+        window.grecaptcha.ready(() => {
+            window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'contact_form' }).then(resolve);
+        });
+    });
+}
+
 function initContactForm() {
     const existingForm = document.getElementById('contactForm');
     if (!existingForm) return;
@@ -76,12 +104,13 @@ function initContactForm() {
         const jsonData = Object.fromEntries(formData.entries());
 
         try {
+            const recaptchaToken = await getRecaptchaToken();
             const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...jsonData, token: CONTACT_FORM_TOKEN }),
+                body: JSON.stringify({ ...jsonData, token: CONTACT_FORM_TOKEN, recaptchaToken }),
             });
 
             const result = await response.json();

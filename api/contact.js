@@ -41,6 +41,26 @@ function applyCors(req, res) {
 // módulo eso tira abajo toda la función (crash de Node antes de poder
 // responder nada) en vez de devolver un JSON de error controlado.
 
+// reCAPTCHA v3 (score-based, sin challenge visual): cada una de las 4 webs
+// del grupo obtiene un token en el cliente y lo manda aquí junto al resto del
+// formulario; la verificación real (secret key) vive solo en este endpoint
+// centralizado, nunca en el cliente. Umbral estándar recomendado por Google.
+const RECAPTCHA_SCORE_THRESHOLD = 0.5;
+const RECAPTCHA_ACTION = 'contact_form';
+
+async function verifyRecaptcha(token) {
+  const secret = process.env.RECAPTCHA_SECRET_KEY;
+  const params = new URLSearchParams({ secret, response: token });
+  const response = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params,
+  });
+  const data = await response.json();
+  const ok = Boolean(data.success) && data.action === RECAPTCHA_ACTION && (data.score ?? 0) >= RECAPTCHA_SCORE_THRESHOLD;
+  return { ok, data };
+}
+
 export default async function handler(req, res) {
   applyCors(req, res);
 
@@ -52,17 +72,27 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    console.error('VITE_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY no están configuradas en las variables de entorno');
+  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.RECAPTCHA_SECRET_KEY) {
+    console.error('VITE_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / RECAPTCHA_SECRET_KEY no están configuradas en las variables de entorno');
     return res.status(500).json({ success: false, message: 'Servicio de ingesta no configurado' });
   }
 
   const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-  const { token, nombre, email, mensaje } = req.body;
+  const { token, nombre, email, mensaje, recaptchaToken } = req.body;
 
   if (!token || !nombre || !email || !mensaje) {
     return res.status(400).json({ message: 'Faltan campos obligatorios' });
+  }
+
+  if (!recaptchaToken) {
+    return res.status(400).json({ success: false, message: 'Falta la verificación anti-spam' });
+  }
+
+  const { ok: captchaOk, data: captchaData } = await verifyRecaptcha(recaptchaToken);
+  if (!captchaOk) {
+    console.warn('reCAPTCHA rechazado:', captchaData);
+    return res.status(403).json({ success: false, message: 'No se pudo verificar que sos humano. Intenta de nuevo.' });
   }
 
   const { data: tokenRow, error: tokenError } = await supabase
