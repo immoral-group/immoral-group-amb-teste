@@ -991,6 +991,49 @@ html {
         animation: blob-intense 10s infinite;
     }
 
+    /* Iconos de correo flotando sutilmente (hero de email-marketing.html). Duración y
+       delay se fijan por icono vía inline style para que no se muevan todos al unísono.
+       Estructura en dos capas porque una sola animación no puede controlar dos
+       transforms independientes en el mismo elemento: .envelope-wrap hace la entrada
+       (uno a uno, ver delay por icono) y el hover; .envelope-icon (el <svg> de dentro)
+       hace el flotado infinito. Así el hover no compite con el flotado ni con la entrada. */
+    @keyframes envelope-float {
+        0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+        50% { transform: translate(6px, -16px) rotate(4deg); }
+    }
+
+    .envelope-icon {
+        animation-name: envelope-float;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: infinite;
+    }
+
+    @keyframes envelope-enter {
+        0% { opacity: 0; transform: scale(0.4); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+
+    .envelope-wrap {
+        position: absolute;
+        pointer-events: auto;
+        opacity: 0;
+        transition: transform 0.25s ease;
+    }
+
+    /* Se añade por JS (IntersectionObserver, ver initEmailEnvelopeIcons en
+       main.js) solo cuando la sección entra en el viewport al hacer scroll —
+       así los sobres no aparecen ya "gastados" si el usuario llega scrolleando. */
+    .envelope-wrap.envelope-visible {
+        animation-name: envelope-enter;
+        animation-timing-function: ease-out;
+        animation-fill-mode: both;
+    }
+
+    .envelope-wrap:hover {
+        transform: scale(1.55);
+        z-index: 5;
+    }
+
     /* Equipo Conectado - Fallback móvil (sin física). El glow (box-shadow) se define inline por nodo. */
     .node-dot {
         position: absolute;

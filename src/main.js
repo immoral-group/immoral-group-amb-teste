@@ -8,7 +8,8 @@ import { renderPartnerLogos } from './partnerLogos.js';
 import { initHablemosHover } from './hablemos-hover.js';
 import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
-import { initMarbleReveal } from './marble-reveal.js';
+import { initEmailHeroRibbon } from './email-hero-ribbon.js';
+import { initEmailEnvelopeIcons } from './email-envelope-icons.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initManifestoMisionCubes } from './manifesto-mision-cubes.js';
 import { initAutomatizacionHero } from './automatizacion-hero.js';
@@ -30,8 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("DOM Content Loaded - Initializing scripts");
 
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
+    try { initEmailHeroRibbon(); } catch (e) { console.error("Error in initEmailHeroRibbon:", e); }
+    try { initEmailEnvelopeIcons(); } catch (e) { console.error("Error in initEmailEnvelopeIcons:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
-    try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
     // initContactForm() ya no se llama aquí directamente: ahora vive dentro de
     // initAll() (ver más abajo), que es lo que realmente se re-ejecuta en cada
     // navegación SPA. Llamarla también aquí duplicaría el listener de submit
@@ -2003,8 +2005,9 @@ function initAll() {
     initFAQAccordion();
     initGestionHero();
     initEmailHero();
+    try { initEmailHeroRibbon(); } catch (e) { console.error("Error in initEmailHeroRibbon:", e); }
+    try { initEmailEnvelopeIcons(); } catch (e) { console.error("Error in initEmailEnvelopeIcons:", e); }
     initServicesCarousel();
-    try { initMarbleReveal(); } catch (e) { console.error("Error in initMarbleReveal:", e); }
     // Orden importante: en diseno-de-marca.html ambas secciones están pineadas
     // y la galería de vídeos va antes en el DOM — inicializarla primero hace
     // que su pin spacer exista antes de que "Cómo lo hacemos" calcule su rango.
