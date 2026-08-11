@@ -103,7 +103,14 @@ export default async function handler(req, res) {
     return res.status(404).json({ success: false, message: 'Esta oferta ya no está activa' });
   }
 
-  const cvPath = `${offer.id}/${randomUUID()}-${cvFilename}`;
+  // La ruta del objeto usa solo el UUID + extensión, nunca el nombre real del
+  // archivo: un CV real trae espacios, tildes y paréntesis ("Guía de
+  // creativos (1).pdf"), y esos caracteres rompen la key en Supabase
+  // Storage. El nombre original se conserva igual en cv_filename (columna de
+  // job_applications) para mostrarlo en /postulaciones.
+  const extMatch = cvFilename.match(/\.[a-zA-Z0-9]+$/);
+  const cvExt = extMatch ? extMatch[0] : '';
+  const cvPath = `${offer.id}/${randomUUID()}${cvExt}`;
   const { error: uploadError } = await supabase.storage.from('job-applications').upload(cvPath, cvBuffer, {
     contentType: cvMimeType,
   });
