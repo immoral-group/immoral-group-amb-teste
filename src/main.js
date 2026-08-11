@@ -1735,9 +1735,7 @@ function initImmoralEcosystem() {
         const bg = section.querySelector(`[data-bg="${target}"]`);
         const body = item.querySelector('.brand-body');
         const header = item.querySelector('.brand-header');
-        const logo = item.querySelector('img:not(.brand-cartoon)'); // New: Target logic on image
-        const cartoon = item.querySelector('.brand-cartoon');
-
+        const logo = item.querySelector('img');
         const light = item.querySelector('.brand-light');
 
         // --- HOVER EFFECT: OPEN & SHOW ---
@@ -1762,11 +1760,6 @@ function initImmoralEcosystem() {
                 // Ensure pure opacity 1 and glow
                 light.classList.add('opacity-100', 'shadow-[0_0_10px_rgba(255,255,255,0.8)]', 'scale-125');
             }
-            // 5. Desplegar Cartoon (a la izquierda del logo, en simultáneo con el acordeón)
-            if (cartoon) {
-                cartoon.classList.remove('opacity-0', 'translate-x-6', 'scale-90');
-                cartoon.classList.add('opacity-100', 'translate-x-0', 'scale-100');
-            }
         });
 
         // --- MOUSE LEAVE: CLOSE & RESET ---
@@ -1790,11 +1783,6 @@ function initImmoralEcosystem() {
                 light.classList.add('animate-pulse');
                 // Remove glow and fixed opacity, let pulse handle it (pulse oscillates opacity)
                 light.classList.remove('opacity-100', 'shadow-[0_0_10px_rgba(255,255,255,0.8)]', 'scale-125');
-            }
-            // 5. Ocultar Cartoon
-            if (cartoon) {
-                cartoon.classList.add('opacity-0', 'translate-x-6', 'scale-90');
-                cartoon.classList.remove('opacity-100', 'translate-x-0', 'scale-100');
             }
         });
     });
