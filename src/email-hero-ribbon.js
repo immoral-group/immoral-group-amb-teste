@@ -35,15 +35,28 @@ const HOVER_SCALE = 1.45;
 const HOVER_LIFT = 70; // px que se acerca al visitante la tarjeta bajo el cursor
 const HOVER_EASE = 0.18; // suavizado del crecimiento/reducción al entrar/salir el mouse
 
-// Paleta de marca (blanco / gris / azul), del claro al oscuro.
-const PALETTE = ['#f8fafc', '#e2e8f0', '#cbd5e1', '#93c5fd', '#60a5fa', '#3b82f6', '#2563eb', '#1d4ed8', '#1e3a8a'];
-const GLOW_COLORS = ['rgba(248,250,252,0.75)', 'rgba(147,197,253,0.8)', 'rgba(59,130,246,0.85)', 'rgba(29,78,216,0.7)'];
+// Paleta neutra (blanco / gris / negro puros, sin tinte de color), del claro al oscuro.
+const PALETTE = ['#ffffff', '#f1f1f1', '#e0e0e0', '#c4c4c4', '#9e9e9e', '#757575', '#525252', '#2e2e2e', '#0a0a0a'];
+const GLOW_COLORS = ['rgba(255,255,255,0.75)', 'rgba(210,210,210,0.8)', 'rgba(150,150,150,0.85)', 'rgba(80,80,80,0.7)'];
 const GLOW_COUNT = 9;
+
+// Velocidad del desplazamiento horizontal continuo (px/s) — negativo = hacia la
+// izquierda, como una cinta transportadora. Las tarjetas hacen wraparound (ver
+// wrapX): al salir por un borde reaparecen por el otro, sin salto visible
+// porque el rango de wrap es un múltiplo exacto del paso entre tarjetas.
+const SCROLL_SPEED = -45;
 
 const MOBILE_BREAKPOINT = 640;
 
 function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
+}
+
+// Envuelve x dentro de [-range/2, range/2) — el módulo de JS puede devolver
+// negativos con operandos negativos, por eso el doble % en vez de uno solo.
+function wrapX(x, range) {
+    const half = range / 2;
+    return ((((x + half) % range) + range) % range) - half;
 }
 
 function layoutFor(width, height, isMobile) {
@@ -108,6 +121,13 @@ export function initEmailHeroRibbon() {
     scene.style.position = 'absolute';
     scene.style.inset = '0';
     scene.style.perspective = `${PERSPECTIVE}px`;
+    // CSS no permite "recortar solo el eje horizontal": si overflow-x es hidden
+    // y overflow-y es visible, la spec fuerza el valor computado de overflow-y a
+    // auto, que sigue recortando igual (solo agrega scrollbar). Por eso el fix
+    // real no es tocar overflow — es que buildGlow() nunca dimensione el
+    // resplandor más alto que esta caja (ver ahí), así su propio degradado
+    // termina de desvanecerse a transparente ANTES de llegar al borde, en vez
+    // de quedar cortado a mitad de camino todavía opaco.
     scene.style.overflow = 'hidden';
 
     const glowLayer = document.createElement('div');
@@ -138,6 +158,7 @@ export function initEmailHeroRibbon() {
     let coreGlow = null;
     let layout = null;
     let globalPhase = 0;
+    let scrollOffset = 0;
     let lastTime = 0;
     let resizeTimeout = null;
 
@@ -149,22 +170,30 @@ export function initEmailHeroRibbon() {
         // Halo ambiental grande y muy difuminado, centrado en la cinta: da el
         // "resplandor" de fondo que baña toda la sección, no solo los bordes
         // de cada tarjeta.
+        //
+        // maxGlowHeight: nunca más alto que la caja visible (con margen). El
+        // propio radial-gradient ya se desvanece a transparente antes de su
+        // borde (0% opaco -> 75% transparente) — si el elemento es más alto
+        // que el contenedor, ese fundido nunca llega a completarse: el
+        // overflow:hidden de arriba corta el círculo a mitad de camino,
+        // todavía opaco, y se ve como un corte duro en vez de un desvanecido.
+        const maxGlowHeight = container.clientHeight * 0.92;
         coreGlow = document.createElement('div');
         const coreW = layout.totalWidth * 0.55;
-        const coreH = layout.cardHeight * 2.4;
+        const coreH = Math.min(layout.cardHeight * 2.4, maxGlowHeight);
         coreGlow.style.position = 'absolute';
         coreGlow.style.width = `${coreW}px`;
         coreGlow.style.height = `${coreH}px`;
         coreGlow.style.marginLeft = `${-coreW / 2}px`;
         coreGlow.style.marginTop = `${-coreH / 2}px`;
         coreGlow.style.borderRadius = '50%';
-        coreGlow.style.background = 'radial-gradient(circle, rgba(96,165,250,0.5) 0%, rgba(37,99,235,0.22) 45%, rgba(0,0,0,0) 75%)';
+        coreGlow.style.background = 'radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(160,160,160,0.18) 45%, rgba(0,0,0,0) 75%)';
         coreGlow.style.filter = 'blur(60px)';
         coreGlow.style.mixBlendMode = 'screen';
         glowLayer.appendChild(coreGlow);
 
         const w = layout.cardWidth * 3.2;
-        const h = layout.cardHeight * 1.9;
+        const h = Math.min(layout.cardHeight * 1.9, maxGlowHeight);
 
         for (let i = 0; i < GLOW_COUNT; i++) {
             const blob = document.createElement('div');
@@ -286,14 +315,24 @@ export function initEmailHeroRibbon() {
         const dt = Math.min(0.05, (now - lastTime) / 1000);
         lastTime = now;
         globalPhase += ANIMATION_SPEED * dt;
+        scrollOffset += SCROLL_SPEED * dt;
 
         const n = cards.length;
+        // Múltiplo exacto del paso entre tarjetas: así el wraparound de wrapX()
+        // nunca produce un hueco ni un solape visible en la costura.
+        const totalRange = layout.step * n;
         const dPhase = WAVE_FREQUENCY / n;
+        const dxNormalized = dPhase / WAVE_FREQUENCY;
 
         for (let i = 0; i < n; i++) {
-            const normalizedX = i / (n - 1);
+            // Posición real en pantalla (con el desplazamiento continuo ya envuelto),
+            // no el índice fijo de la tarjeta — así la onda queda anclada al espacio
+            // visual (un "carril" fijo) y cada tarjeta la atraviesa al desplazarse,
+            // en vez de ondular sin moverse de su sitio.
+            const x = wrapX(baseX[i] + scrollOffset, totalRange);
+            const normalizedX = x / totalRange + 0.5;
             const wave = waveAt(normalizedX, globalPhase);
-            const waveNext = waveAt(normalizedX + dPhase / WAVE_FREQUENCY, globalPhase);
+            const waveNext = waveAt(normalizedX + dxNormalized, globalPhase);
             const slope = waveNext.y - wave.y;
 
             const rotateZ = clamp(slope * ROTATE_Z_FROM_SLOPE, -MAX_ROTATE_Z, MAX_ROTATE_Z);
@@ -308,7 +347,7 @@ export function initEmailHeroRibbon() {
 
             const el = cards[i];
             el.style.transform =
-                `translate3d(${baseX[i] + xOffset}px, ${wave.y}px, ${wave.z + hoverLift}px) ` +
+                `translate3d(${x + xOffset}px, ${wave.y}px, ${wave.z + hoverLift}px) ` +
                 `rotateX(${rotateX}deg) rotateY(${wave.rotateY}deg) rotateZ(${rotateZ}deg) scale(${scale})`;
             if (scale > 1.001) {
                 el.style.filter = `brightness(${1 + (scale - 1) * 0.35})`;
