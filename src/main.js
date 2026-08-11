@@ -17,6 +17,7 @@ import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
+import { initInfluencerCardConveyor } from './influencer-card-conveyor.js';
 import { initOfertaDetail } from './ofertaDetail.js';
 import { getRecaptchaToken } from './recaptcha.js';
 import gsap from 'gsap';
@@ -1991,6 +1992,7 @@ function initAll() {
     // que su pin spacer exista antes de que "Cómo lo hacemos" calcule su rango.
     try { initDisenoScrollVideos(); } catch (e) { console.error("Error in initDisenoScrollVideos:", e); }
     try { initComoLoHacemosScroll(); } catch (e) { console.error("Error in initComoLoHacemosScroll:", e); }
+    try { initInfluencerCardConveyor(); } catch (e) { console.error("Error in initInfluencerCardConveyor:", e); }
 
     // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,
     // solo falla esta promesa — no tumba el resto de main.js como pasaba antes.
