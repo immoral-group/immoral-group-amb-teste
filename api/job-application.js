@@ -12,7 +12,12 @@ import { randomUUID } from 'node:crypto';
 // cross-origin: el fetch siempre viene del mismo dominio que sirve esta
 // función serverless.
 
-const RECAPTCHA_SCORE_THRESHOLD = 0.5;
+// Umbral más permisivo que el de contact_form (0.5): postular exige rellenar
+// nombre/email/teléfono y adjuntar un CV real, mucho más fricción que un
+// mensaje de una línea, así que el riesgo de spam es menor. Además
+// 'job_application' es una action nueva — reCAPTCHA v3 tiende a puntuar más
+// bajo al principio, con poco historial de comportamiento todavía.
+const RECAPTCHA_SCORE_THRESHOLD = 0.3;
 const RECAPTCHA_ACTION = 'job_application';
 
 // El body JSON lleva el CV en base64 (~33% más pesado que el binario) más el
