@@ -8,12 +8,12 @@ function escapeHtml(str) {
 
 function offerCardHTML(offer) {
     return `
-        <div class="liquid-glass p-8 rounded-3xl flex flex-col min-h-[180px] hover:rotate-2 hover:scale-105 cursor-pointer">
+        <a href="/oferta.html?slug=${encodeURIComponent(offer.slug)}" class="liquid-glass p-8 rounded-3xl flex flex-col min-h-[180px] hover:rotate-2 hover:scale-105 cursor-pointer">
             <img src="${escapeHtml(offer.icon_url)}" alt="icon" class="w-12 h-12 mb-6 brightness-0 invert">
             <h4 class="font-light text-3xl mb-3 text-[#4889eb] transition-all duration-300">
                 ${escapeHtml(offer.title)}
             </h4>
-        </div>
+        </a>
     `;
 }
 
@@ -27,7 +27,7 @@ export async function renderJobOpenings(grid) {
 
     const { data, error } = await supabase
         .from('job_openings')
-        .select('title, icon_url')
+        .select('title, icon_url, slug')
         .eq('is_active', true)
         .order('position', { ascending: true });
 
