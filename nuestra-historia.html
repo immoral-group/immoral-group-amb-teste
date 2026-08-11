@@ -629,10 +629,10 @@
         <section class="relative w-full py-24 overflow-hidden">
 
         <div class="max-w-full mx-auto px-6 xl:px-16 w-full relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-12 items-center">
 
                 <!-- Columna 1: Texto (Izquierda) -->
-                <div class="reveal-group text-white xl:w-[700px]">
+                <div class="reveal-group text-white">
                     <h2 class="text-3xl md:text-4xl font-black leading-tight tracking-tight">
                         Immoral: un nombre que incomoda.
                     </h2>
@@ -659,9 +659,10 @@
                 <!-- Columna 3: Video (Derecha) -->
                 <div class="flex justify-center lg:justify-end">
                     <!-- Ajusta el max-w según el tamaño real que quieras para el video -->
-                    <div class="w-full max-w-lg">
+                    <div class="w-full max-w-none">
                         <video autoplay loop muted playsinline class="w-full h-auto object-contain">
-                            <source src="imgs/logo-loader.mp4" type="video/mp4">
+                            <source src="/imgs/home-video2.webm" type="video/webm">
+                            <source src="/imgs/home-video2.mp4" type="video/mp4">
                             Tu navegador no soporta videos.
                         </video>
                     </div>
