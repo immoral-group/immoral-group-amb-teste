@@ -30,6 +30,7 @@ const ICONS = {
   logs: '<path d="M4.5 2.5h8l4 4v10.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-14a.5.5 0 0 1 .5-.5Z"/><path d="M12.5 2.5V6a.5.5 0 0 0 .5.5h3.5"/><path d="M6.5 10.5h6M6.5 13.5h6M6.5 7.5h3"/>',
   mail: '<rect x="2.5" y="4.5" width="15" height="11" rx="1.5"/><path d="M3.5 5.5l6.5 5.5 6.5-5.5"/>',
   logos: '<rect x="2.5" y="2.5" width="8" height="8" rx="1.5"/><rect x="12.5" y="2.5" width="5" height="5" rx="1.5"/><rect x="12.5" y="10" width="5" height="7.5" rx="1.5"/><rect x="2.5" y="13" width="8" height="4.5" rx="1.5"/>',
+  inbox: '<path d="M2.5 11.5h4l1.5 3h4l1.5-3h4"/><path d="M4.2 4.5h11.6a1 1 0 0 1 .97.76l1.63 6.5a1 1 0 0 1-.97 1.24H3.17a1 1 0 0 1-.97-1.24l1.63-6.5a1 1 0 0 1 .97-.76Z"/>',
   trophy: '<path d="M6 3.5h8v4a4 4 0 0 1-8 0v-4Z"/><path d="M6 4.5H3.5a1 1 0 0 0-1 1v1a3 3 0 0 0 3 3"/><path d="M14 4.5h2.5a1 1 0 0 1 1 1v1a3 3 0 0 1-3 3"/><path d="M10 11.5v3"/><path d="M7 17.5h6"/><path d="M8.3 14.5h3.4l.6 3h-4.6l.6-3Z"/>',
   key: '<circle cx="6.5" cy="13.5" r="3.5"/><path d="M9 11l7-7"/><path d="M13 7l2 2"/><path d="M16 4l2 2"/>',
 };
@@ -55,6 +56,7 @@ export function renderShell(root, { activeHref, email, role, isAdmin }) {
     { href: '/logs', label: 'Logs', icon: 'logs' },
   ];
   if (isAdmin) {
+    navItems.push({ href: '/postulaciones', label: 'Postulaciones', icon: 'inbox' });
     navItems.push({ href: '/tokens', label: 'Tokens', icon: 'key' });
     navItems.push({ href: '/roles', label: 'Roles', icon: 'usercog' });
   }
