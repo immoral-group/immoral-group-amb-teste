@@ -21,6 +21,8 @@ export function initHablemosScroll(sectionSelector, videoSelector) {
         }
     });
 
+    // threshold: 0 -> se activa en cuanto un solo píxel del footer entra en el
+    // viewport (no hace falta scrollear hasta ver un 30% de un footer largo).
     const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
@@ -29,7 +31,7 @@ export function initHablemosScroll(sectionSelector, videoSelector) {
                 hideVideo();
             }
         });
-    }, { threshold: 0.3 });
+    }, { threshold: 0 });
 
     observer.observe(section);
 }
