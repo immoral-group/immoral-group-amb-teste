@@ -860,6 +860,7 @@ function initGestionHero() {
             if (heroBg) {
                 tl.to(heroBg, {
                     xPercent: -50, // Move background with content
+                    opacity: 0.4, // Empieza en 0 (oculto en la Slide 1) y se revela junto con la Slide 2
                     ease: "none",
                 }, 0); // Sync with content
             }
