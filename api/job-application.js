@@ -12,6 +12,12 @@ import { randomUUID } from 'node:crypto';
 // cross-origin: el fetch siempre viene del mismo dominio que sirve esta
 // función serverless.
 
+// TEMPORAL (decisión 11/08): desactivado mientras se prueba en amb-teste —
+// el site key de reCAPTCHA todavía no tiene añadido el dominio de este
+// entorno en la consola de Google. Volver a poner RECAPTCHA_ENABLED en true
+// antes de desplegar al dominio final.
+const RECAPTCHA_ENABLED = false;
+
 // Umbral más permisivo que el de contact_form (0.5): postular exige rellenar
 // nombre/email/teléfono y adjuntar un CV real, mucho más fricción que un
 // mensaje de una línea, así que el riesgo de spam es menor. Además
@@ -48,7 +54,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.RECAPTCHA_SECRET_KEY) {
+  if (!process.env.VITE_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY || (RECAPTCHA_ENABLED && !process.env.RECAPTCHA_SECRET_KEY)) {
     console.error('VITE_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / RECAPTCHA_SECRET_KEY no están configuradas en las variables de entorno');
     return res.status(500).json({ success: false, message: 'Servicio de postulación no configurado' });
   }
@@ -61,14 +67,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ success: false, message: 'Faltan campos obligatorios' });
   }
 
-  if (!recaptchaToken) {
-    return res.status(400).json({ success: false, message: 'Falta la verificación anti-spam' });
-  }
+  if (RECAPTCHA_ENABLED) {
+    if (!recaptchaToken) {
+      return res.status(400).json({ success: false, message: 'Falta la verificación anti-spam' });
+    }
 
-  const { ok: captchaOk, data: captchaData } = await verifyRecaptcha(recaptchaToken);
-  if (!captchaOk) {
-    console.warn('reCAPTCHA rechazado:', captchaData);
-    return res.status(403).json({ success: false, message: 'No se pudo verificar que sos humano. Intenta de nuevo.' });
+    const { ok: captchaOk, data: captchaData } = await verifyRecaptcha(recaptchaToken);
+    if (!captchaOk) {
+      console.warn('reCAPTCHA rechazado:', captchaData);
+      return res.status(403).json({ success: false, message: 'No se pudo verificar que sos humano. Intenta de nuevo.' });
+    }
   }
 
   if (!ALLOWED_CV_MIME_TYPES.includes(cvMimeType)) {

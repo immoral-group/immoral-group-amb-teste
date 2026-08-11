@@ -1,5 +1,7 @@
 import { supabase } from './supabaseClient.js';
-import { getRecaptchaToken } from './recaptcha.js';
+// TEMPORAL (decisión 11/08): sin reCAPTCHA mientras se prueba en amb-teste —
+// ver la misma nota en api/job-application.js. Volver a importar
+// getRecaptchaToken de './recaptcha.js' y mandar el token al reactivarlo.
 
 const MAX_CV_BYTES = 3 * 1024 * 1024;
 const ALLOWED_CV_TYPES = [
@@ -127,7 +129,6 @@ function renderOffer(root, offer) {
 
         try {
             const cvBase64 = await fileToBase64(file);
-            const recaptchaToken = await getRecaptchaToken('job_application');
 
             const response = await fetch('/api/job-application', {
                 method: 'POST',
@@ -137,7 +138,6 @@ function renderOffer(root, offer) {
                     fullName: document.getElementById('app-name').value.trim(),
                     email: document.getElementById('app-email').value.trim(),
                     phone: document.getElementById('app-phone').value.trim(),
-                    recaptchaToken,
                     cvBase64,
                     cvFilename: file.name,
                     cvMimeType: file.type,
