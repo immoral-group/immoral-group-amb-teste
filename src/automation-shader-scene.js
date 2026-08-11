@@ -1,15 +1,18 @@
-// Fondo shader (WebGL2 puro) que reemplaza el iframe de Spline del hero de
-// Automatización de Procesos: un "plasma" de color en movimiento, cuantizado
-// con dithering ordenado (matriz de Bayer 8x8, la matriz estándar de
-// referencia en cualquier implementación de ordered dithering), donde el
-// cursor empuja una rejilla de desplazamiento pequeña (no un framebuffer)
-// que decae con el tiempo — el mismo desplazamiento se usa para curvar tanto
-// el ruido de fondo como una textura con el texto del hero, así el pixelado
-// afecta a los dos por igual. Inspirado en el hero de https://codapress.co.uk/
-// (inspeccionado su bundle JS para entender la técnica: rejilla JS + textura
-// RG8 + snap del offset al tamaño de celda del dither — no es una copia
-// literal de su shader, es una reimplementación propia con la paleta de
-// marca negro/azul/cian/blanco usada en otros shaders del sitio).
+// Fondo shader (WebGL2 puro) del hero de Automatización de Procesos: un
+// campo de filamentos de luz en blanco y gris (sin color), que se abren en
+// abanico desde un foco fuera de cuadro a la derecha — evocando el hero de
+// referencia que aportó el usuario (aaask.com), pero acromático y con una
+// reimplementación propia (funciones analíticas por filamento vía hash, no
+// partículas ni texturas de ruido). El fondo en sí NO reacciona al cursor
+// (decisión explícita: el pixelado en bloques que usa warp() se ve bien en
+// texto pero rompería filamentos suaves en escalones) — el cursor sigue
+// pixelando solo el texto del hero, vía la rejilla de desplazamiento de más
+// abajo (no un framebuffer), que decae con el tiempo.
+//
+// Nota histórica: antes de este cambio el fondo era un "plasma" de color con
+// dithering ordenado (inspirado en https://codapress.co.uk/, cuyo bundle JS
+// se inspeccionó para entender esa técnica), sustituido primero por negro
+// sólido (ver TASK-LOG) y ahora por estos filamentos.
 
 import gsap from 'gsap';
 
@@ -60,56 +63,139 @@ vec2 warp(vec2 screenPx) {
     return screenPx + blocky;
 }
 
-// Plasma propio: varias ondas senoidales a distinta frecuencia/fase +
-// distancia a un par de focos que orbitan con el tiempo. No es la fórmula
-// del sitio de referencia, es una composición sencilla propia.
-float plasma(vec2 p, float t) {
-    float v = 0.0;
-    v += sin(p.x * 1.3 + t * 0.6);
-    v += sin(p.y * 1.7 - t * 0.4);
-    v += sin((p.x + p.y) * 0.85 + t * 0.35);
-    vec2 focusA = vec2(sin(t * 0.31), cos(t * 0.27)) * 1.4;
-    vec2 focusB = vec2(cos(t * 0.19), sin(t * 0.23)) * 1.1;
-    v += sin(length(p - focusA) * 2.4 - t * 0.9);
-    v += sin(length(p - focusB) * 2.0 + t * 0.7);
-    return v / 5.0;
+// Hash sin trigonometría (variante del clásico de Dave Hoskins): devuelve 4
+// valores pseudoaleatorios por índice de cinta. Se evita a propósito el
+// hash basado en sin() porque aquí se llama varias veces por cinta y por
+// fragmento — con ~18 cintas serían cientos de sin() por píxel.
+vec4 hash41(float x) {
+    vec4 p = fract(vec4(x) * vec4(0.1031, 0.1030, 0.0973, 0.1099));
+    p += dot(p, p.wzxy + 33.33);
+    return fract((p.xxyz + p.yzzw) * p.zywx);
 }
 
-// Negro -> azul de marca -> cian de la web -> blanco (misma paleta que otros
-// heroes shader del sitio, para que compartan identidad de color).
-vec3 palette(float a) {
-    vec3 black = vec3(0.0);
-    vec3 blue = vec3(0.231, 0.510, 0.965);
-    vec3 cyan = vec3(0.396, 0.996, 0.980);
-    vec3 white = vec3(1.0);
-    float t = clamp(a, 0.0, 1.0);
-    vec3 c = mix(black, blue, smoothstep(0.0, 0.45, t));
-    c = mix(c, cyan, smoothstep(0.35, 0.75, t));
-    c = mix(c, white, smoothstep(0.75, 1.0, t));
-    return c;
-}
+const int NUM_STRANDS = 22;
+// Foco fuera de cuadro a la derecha, en unidades de altura de pantalla.
+// Todas las cintas se aprietan ahí y se abren en abanico hacia la izquierda.
+// Se mantiene BIEN lejos del borde derecho a propósito: con el foco cerca, en
+// esa esquina se solapaban las 22 cintas a la vez y la suma se quemaba en un
+// blanco plano; alejándolo, el borde visible cae en la parte ya abierta del
+// abanico y las cintas quedan además más paralelas, como en la referencia.
+const float FOCAL_X = 1.95;
+const float FOCAL_Y = 0.16;
 
-// Matriz de Bayer 8x8 estándar (valores 0-63) — la referencia habitual de
-// cualquier ordered dithering, no específica de ningún sitio.
-const int BAYER[64] = int[64](
-    0, 32, 8, 40, 2, 34, 10, 42,
-    48, 16, 56, 24, 50, 18, 58, 26,
-    12, 44, 4, 36, 14, 46, 6, 38,
-    60, 28, 52, 20, 62, 30, 54, 22,
-    3, 35, 11, 43, 1, 33, 9, 41,
-    51, 19, 59, 27, 49, 17, 57, 25,
-    15, 47, 7, 39, 13, 45, 5, 37,
-    63, 31, 55, 23, 61, 29, 53, 21
-);
+// Campo de cintas de luz, acumulado como luminancia (blanco/gris, sin la
+// aberración cromática de la referencia). Cada cinta es una curva analítica
+// —sin texturas ni buffers— compuesta de DOS capas superpuestas, que es lo
+// que da el aspecto de la referencia: una banda ancha y suave (el "volumen"
+// de la cinta) con un núcleo fino y brillante corriendo por dentro.
+//
+// Las cintas se parametrizan por su altura en el BORDE IZQUIERDO, no por una
+// pendiente: así se garantiza que queden repartidas por toda la pantalla.
+// (Parametrizar por pendiente mandaba la mayoría fuera de cuadro y dejaba
+// solo unos pocos hilos sueltos visibles.)
+float filaments(vec2 p, float aspect, float t) {
+    float focalX = FOCAL_X * aspect;
 
-vec3 orderedDither(vec3 color, ivec2 pixelCoord) {
-    int x = pixelCoord.x % 8;
-    int y = pixelCoord.y % 8;
-    float threshold = (float(BAYER[y * 8 + x]) + 0.5) / 64.0;
-    const float levels = 5.0;
-    vec3 scaled = color * levels;
-    vec3 quantized = floor(scaled + threshold) / levels;
-    return clamp(quantized, 0.0, 1.0);
+    // tX: 0 en el foco (derecha, fuera de cuadro), 1 en el borde izquierdo.
+    // (Nota: se probó deformar aquí p con una distorsión de barril completa
+    // antes de calcular tX, pero eso cambia el jacobiano espacio-a-espacio de
+    // forma no constante, y el resto del código asume uno constante para
+    // corregir el grosor del núcleo fino — el resultado eran núcleos
+    // aliasing/granulados en vez de curvas limpias. La curvatura "ojo de pez"
+    // se hace en su lugar más abajo, como desplazamiento por cinta.)
+    float tX = max((focalX - p.x) / focalX, 0.0);
+
+    float lum = 0.0;
+    float bundle = 0.0; // suma de bandas anchas, para la neblina ambiental
+
+    for (int i = 0; i < NUM_STRANDS; i++) {
+        vec4 a = hash41(float(i) * 1.37 + 2.11);
+        vec4 b = hash41(float(i) * 2.71 + 5.43);
+
+        // Convergencia PARCIAL: si en el foco todas cayeran en el mismo punto
+        // el resultado son rayos rectos tipo estrella; dándoles ahí también un
+        // reparto propio (menor que el del borde izquierdo) quedan como cintas
+        // que fluyen casi en paralelo y solo se juntan hacia la derecha, que es
+        // lo que hace la referencia.
+        float yFocal = FOCAL_Y + (a.x - 0.5) * 0.16;
+        // Reparto en el borde izquierdo. Banda MUY estrecha (antes 0.02..1.00,
+        // casi toda la pantalla) para que las cintas viajen apretadas, como un
+        // único haz coherente, en vez de esparcidas de arriba a abajo. El
+        // pow() agrupa además en sub-racimos en vez de dejarlas equiespaciadas.
+        float spread = pow(a.y, 1.35);
+        float yLeft = mix(0.10, 0.62, spread);
+        float yBase = mix(yFocal, yLeft, tX);
+
+        // Ondulación en dos armónicos (curva en S, no un arco simple) que crece
+        // hacia la izquierda: salen limpias del bundle y se curvan al abrirse.
+        // Amplitud MUY contenida para que no se separen entre sí (el haz debe
+        // leerse como un bloque que ondula junto, no como cintas divergiendo).
+        float sweep = tX * mix(1.1, 2.4, a.z) + b.x * 6.2831853;
+        float drift = t * mix(0.05, 0.17, b.y);
+        float wob = (sin(sweep + drift) + sin(sweep * 0.53 - drift * 0.7) * 0.55)
+                    * mix(0.018, 0.05, b.z) * tX;
+
+        // Curvatura GLOBAL tipo "ojo de pez": una única forma de arco,
+        // compartida por todas las cintas (con jitter propio pequeño en fase y
+        // amplitud para que no queden como rieles de tren perfectos), que
+        // arquea el haz entero como si pasara por delante de una lente.
+        float bendPhase = a.z * 6.2831853 * 0.3;
+        float bendAmp = mix(0.30, 0.55, b.z); // más amplitud: curva más marcada, tipo lente
+        float bendGrow = 0.4 + 0.6 * tX; // crece hacia el borde, poco en el centro — como una lente real
+        float bend = sin(tX * 3.14159265 * 1.05 + bendPhase) * bendAmp
+                     * smoothstep(0.0, 0.3, tX) * bendGrow;
+
+        float yi = yBase + wob + bend;
+
+        // Corrección por pendiente para que el grosor aparente no engorde en
+        // los tramos más inclinados — incluye la derivada de bend().
+        float dBendDtX = cos(tX * 3.14159265 * 1.05 + bendPhase) * bendAmp
+                          * (3.14159265 * 1.05) * smoothstep(0.0, 0.3, tX) * bendGrow;
+        float slope = ((yLeft - yFocal) + dBendDtX) / focalX;
+        float d = abs(p.y - yi) * inversesqrt(1.0 + slope * slope);
+
+        float bandW = mix(0.028, 0.095, a.w); // volumen de la cinta
+        float coreW = mix(0.0016, 0.0042, b.w); // filamento brillante interior
+
+        float band = exp(-(d * d) / (bandW * bandW));
+        float core = exp(-(d * d) / (coreW * coreW));
+
+        // Las cintas se desvanecen hacia la izquierda (profundidad).
+        float fade = mix(1.0, 0.35, smoothstep(0.35, 1.15, tX));
+
+        // FLUJO: el brillo no es uniforme a lo largo de la cinta, sino un tren
+        // de pulsos que VIAJA por ella (el término -t hace que se desplacen
+        // hacia fuera del foco). Es lo que da la sensación de luz corriendo por
+        // dentro, como fibra óptica, en vez de cintas fijas que solo ondulan.
+        // La frecuencia espacial tiene que ser alta: tX solo recorre ~0.5 en el
+        // ancho visible, así que con valores bajos cabía menos de un pulso en
+        // pantalla y el efecto se leía como un brillo global, no como algo que
+        // viaja. Con estos valores entran ~3-4 pulsos a lo largo del haz.
+        float flowArg = tX * mix(5.5, 12.0, b.w) - t * mix(0.40, 0.85, a.w) + b.x * 6.2831853;
+        // Pulsos reales, no una onda de brillo continua: se recorta la mitad
+        // negativa de sin() a 0 (mitad del periodo queda a oscuras de verdad)
+        // y se eleva a una potencia alta para que el paquete de luz sea
+        // estrecho — así se leen como manchas de luz viajando con huecos
+        // oscuros entre medio, que es justo lo que se ve en la referencia, en
+        // vez de una cinta siempre encendida con brillo variable.
+        float pulse = pow(max(sin(flowArg * 3.14159265), 0.0), 3.0);
+        float flow = 0.14 + 0.86 * pulse;
+
+        // El flujo afecta a toda la cinta (núcleo y volumen) y también a lo que
+        // alimenta la neblina, para que no quede un colchón fijo que disimule
+        // el movimiento. Las ganancias suben para compensar que el flujo medio
+        // ronda 0.45.
+        lum += (core * 1.5 + band * mix(0.22, 0.52, a.z)) * flow * fade;
+        bundle += band * flow * fade;
+    }
+
+    // Neblina ambiental: rellena el espacio entre cintas en vez de dejar
+    // negro puro, como el resplandor volumétrico de la referencia. Es lo que
+    // más aporta a la sensación de "haz denso" sin sumar más cintas (y por
+    // tanto sin coste extra por fragmento).
+    lum += smoothstep(0.08, 2.2, bundle) * 0.34;
+
+    return lum;
 }
 
 vec4 sampleText(vec2 screenPx) {
@@ -124,12 +210,52 @@ vec4 sampleText(vec2 screenPx) {
 
 void main() {
     vec2 screenPx = screenCoord(gl_FragCoord.xy);
+    // warp() solo se usa para pixelar el TEXTO (sampleText más abajo) — el
+    // fondo se calcula con screenPx sin deformar a propósito: el pixelado en
+    // bloques de warp() se ve bien en texto, pero rompería los filamentos
+    // suaves en escalones/glitch visibles.
     vec2 warped = warp(screenPx);
 
-    vec2 uv = (warped / uResolution) * 2.0 - 1.0;
-    uv.x *= uResolution.x / uResolution.y;
+    // Espacio normalizado por la ALTURA de pantalla (no por resolución
+    // completa): mantiene la proporción real de los filamentos al cambiar
+    // el ancho de la ventana, en vez de deformarlos.
+    float aspect = uResolution.x / uResolution.y;
+    vec2 p = screenPx / uResolution.y;
 
-    vec3 col = vec3(0.0); // fondo negro sólido; se conserva warp() para que el cursor siga distorsionando el texto
+    float lum = filaments(p, aspect, uTime);
+
+    // La luz pesa más del lado derecho (como en la referencia), pero las
+    // cintas siguen llegando al borde izquierdo, solo que atenuadas — cortar
+    // ahí a oscuras dejaba la mitad del cuadro vacía.
+    float sideBias = smoothstep(-0.15, 0.95, p.x / aspect);
+    lum *= mix(0.38, 1.15, sideBias);
+
+    // Caída suave hacia el borde superior: en la referencia la esquina de
+    // arriba a la izquierda queda en negro y el haz entra por el centro-derecha.
+    lum *= mix(0.35, 1.0, smoothstep(0.0, 0.45, p.y));
+
+    // Escudo bajo el bloque de texto del hero: uTextOrigin/uTextSize se
+    // recalculan cada frame en JS (updateTextOrigin(), vía
+    // getBoundingClientRect()) con la posición real del texto en pantalla,
+    // así que este escudo sigue al hero al hacer scroll y desaparece
+    // con él sin coordinación adicional aquí.
+    vec2 halfSize = uTextSize * 0.5;
+    vec2 boxCenter = uTextOrigin + halfSize;
+    vec2 outsideBox = max(abs(screenPx - boxCenter) - halfSize, vec2(0.0));
+    float distOutsideBox = length(outsideBox);
+    float feather = 0.16 * uResolution.y;
+    float shield = 1.0 - smoothstep(0.0, feather, distOutsideBox);
+    lum *= mix(1.0, 0.15, shield * uHasText);
+
+    // Respiración lenta (mismo tween GSAP que antes animaba el contraste del
+    // plasma, reaprovechado aquí sin cambios en el JS).
+    lum *= uContrast;
+
+    // Compresión suave de altas luces en vez de recorte duro: deja subir los
+    // núcleos de las cintas sin clipear en un plano sólido.
+    lum = lum / (1.0 + lum * 0.42);
+
+    vec3 col = vec3(clamp(lum, 0.0, 1.0));
 
     if (uHasText > 0.5) {
         vec4 text = sampleText(warped);
@@ -366,8 +492,8 @@ export function createAutomationShaderScene(container, textBlockEl) {
         gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, FIELD_COLS, FIELD_ROWS, gl.RG, gl.UNSIGNED_BYTE, dispBuf);
     }
 
-    // Respiración lenta y constante del plasma (contraste), independiente del
-    // mouse, para que el fondo nunca esté del todo estático.
+    // Respiración lenta y constante del brillo de los filamentos (contraste),
+    // independiente del mouse, para que el fondo nunca esté del todo estático.
     const breathing = { contrast: 1 };
     const breathingTween = gsap.to(breathing, {
         contrast: 1.22,
@@ -440,14 +566,29 @@ export function createAutomationShaderScene(container, textBlockEl) {
     // gsap.ticker() da segundos desde que arrancó el ticker global de GSAP —
     // en una pestaña abierta muchas horas ese número crece sin límite, y
     // sin()/cos() con argumentos muy grandes pierden precisión en float32 en
-    // la GPU (el plasma degenera a negro). Se acumula tiempo propio a partir
+    // la GPU (los filamentos pierden su forma). Se acumula tiempo propio a partir
     // del delta de cada frame y se envuelve periódicamente para que nunca
     // crezca sin límite, sin que se note el salto (el envolvido cae siempre
     // en un múltiplo exacto del periodo de las funciones periódicas).
     const TIME_WRAP = 1000;
     let elapsed = 0;
+
+    // Al hacer scroll, el movimiento (ondulación + pulsos de flujo) se acelera
+    // — un impulso que crece con la velocidad del scroll y decae solo cuando
+    // se deja de scrollear, en vez de saltar a una velocidad fija.
+    let scrollBoost = 0;
+    let lastScrollY = window.scrollY;
+    function onScroll() {
+        const currentY = window.scrollY;
+        scrollBoost = Math.min(scrollBoost + Math.abs(currentY - lastScrollY) * 0.03, 9);
+        lastScrollY = currentY;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+
     function tick(_absoluteTime, deltaMs) {
-        elapsed = (elapsed + deltaMs / 1000) % TIME_WRAP;
+        scrollBoost *= 0.93; // decae solo hacia 1x en reposo
+        const timeScale = 1.0 + scrollBoost;
+        elapsed = (elapsed + (deltaMs / 1000) * timeScale) % TIME_WRAP;
         render(elapsed);
     }
     gsap.ticker.add(tick);
@@ -455,6 +596,7 @@ export function createAutomationShaderScene(container, textBlockEl) {
     function dispose() {
         gsap.ticker.remove(tick);
         breathingTween.kill();
+        window.removeEventListener('scroll', onScroll);
         window.removeEventListener('pointermove', onPointerMove);
         resizeObserver.disconnect();
         gl.deleteBuffer(buffer);
