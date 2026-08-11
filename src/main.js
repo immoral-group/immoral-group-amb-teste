@@ -1120,24 +1120,36 @@ function initHeroPhysics() {
     const isMobile = window.innerWidth < 768;
 
     // Burbujas de cristal (glassmorphism) con el nombre de cada caso de éxito.
-    // Más pequeñas en mobile.
-    const CASE_CIRCLE_SIZE_MIN = isMobile ? 42 : 55;
-    const CASE_CIRCLE_SIZE_MAX = isMobile ? 58 : 72;
+    // Más pequeñas en mobile. Rango amplio a propósito (pedido explícito del
+    // usuario: "más variación de tamaños") en vez del rango estrecho anterior.
+    const CASE_CIRCLE_SIZE_MIN = isMobile ? 28 : 38;
+    const CASE_CIRCLE_SIZE_MAX = isMobile ? 72 : 96;
     const DOT_SIZE = isMobile ? 15 : 25;
     const TEXTURE_SIZE = 500; // Tamaño de referencia del canvas, escalado luego al radio real.
 
     const DOT_COLORS = ['#3B82F6', '#67E8F9'];
 
-    // Lee la URL del logo de cada caso directamente desde la rejilla de casos
-    // de éxito más abajo en la página (#casos-grid, generada en build desde
-    // Supabase — el mismo logo_url que ya se usa en la sección de testimonios
-    // de cada página de detalle). Al añadir o quitar un caso desde
-    // /casos-admin, esa rejilla se regenera y estas burbujas quedan
-    // sincronizadas automáticamente, sin cableado adicional.
+    // Casos cuyo logo se queda con el tamaño reducido original (a propósito,
+    // pedido explícito del usuario) — el resto pasa al ~90% de la burbuja.
+    const SMALL_LOGO_SLUGS = new Set(['munkombucha', 'amlul', 'marcawell']);
+    // Ratio de relleno original: inscribía el logo en un cuadrado dentro de un
+    // círculo con 16% de margen interior — se mantiene igual para esos 3 casos.
+    const LEGACY_LOGO_FILL_RATIO = (0.5 - 0.16) * Math.SQRT2;
+
+    // Lee la URL del logo (y el slug del caso, desde el href de la card) de
+    // cada caso directamente desde la rejilla de casos de éxito más abajo en
+    // la página (#casos-grid, generada en build desde Supabase — el mismo
+    // logo_url que ya se usa en la sección de testimonios de cada página de
+    // detalle). Al añadir o quitar un caso desde /casos-admin, esa rejilla se
+    // regenera y estas burbujas quedan sincronizadas automáticamente, sin
+    // cableado adicional.
     function getCaseStudyLogos() {
         return Array.from(document.querySelectorAll('#casos-grid .case-card'))
-            .map((card) => card.dataset.logo)
-            .filter(Boolean);
+            .map((card) => ({
+                logoUrl: card.dataset.logo,
+                slug: (card.getAttribute('href') || '').replace(/^caso-/, '').replace(/\.html$/, ''),
+            }))
+            .filter((c) => c.logoUrl);
     }
 
     function loadImage(src) {
@@ -1194,7 +1206,12 @@ function initHeroPhysics() {
 
     // Dibuja una pequeña burbuja azul plana con el logo de la marca dentro,
     // y la devuelve como data URL usable como textura de sprite en Matter.js.
-    async function createGlassBubbleTexture(logoUrl) {
+    // fillRatio: fracción del diámetro de la burbuja que ocupa la dimensión
+    // más larga del logo (0.9 = ~90%, pedido explícito del usuario para la
+    // mayoría de los casos; los 3 exceptuados siguen usando el ratio legacy,
+    // más conservador, para no arriesgar que un logo casi cuadrado se salga
+    // del círculo).
+    async function createGlassBubbleTexture(logoUrl, fillRatio = LEGACY_LOGO_FILL_RATIO) {
         const size = TEXTURE_SIZE;
         const canvas = document.createElement('canvas');
         canvas.width = size;
@@ -1212,13 +1229,8 @@ function initHeroPhysics() {
         try {
             const img = await loadImage(logoUrl);
 
-            // El logo nunca puede tocar el borde: se ajusta dentro del cuadrado
-            // inscrito en el círculo útil (radio con el padding ya descontado),
-            // así ni siquiera la diagonal de un logo cuadrado se sale del círculo.
-            const innerPadding = size * 0.16;
-            const effectiveRadius = radius - innerPadding;
-            const boxSide = effectiveRadius * Math.SQRT2;
-            const scale = Math.min(boxSide / img.width, boxSide / img.height);
+            const targetSpan = size * fillRatio;
+            const scale = Math.min(targetSpan / img.width, targetSpan / img.height);
             const w = img.width * scale;
             const h = img.height * scale;
 
@@ -1252,8 +1264,12 @@ function initHeroPhysics() {
         if (!document.getElementById('hero-physics')) return;
 
         // Una burbuja de cristal por cada caso de éxito que exista ahora mismo en la rejilla.
-        const logoUrls = getCaseStudyLogos();
-        const bubbleTextures = await Promise.all(logoUrls.map(createGlassBubbleTexture));
+        const cases = getCaseStudyLogos();
+        const bubbleTextures = await Promise.all(
+            cases.map(({ logoUrl, slug }) =>
+                createGlassBubbleTexture(logoUrl, SMALL_LOGO_SLUGS.has(slug) ? LEGACY_LOGO_FILL_RATIO : 0.9)
+            )
+        );
 
         const currentContainer = document.getElementById('hero-physics');
         if (!currentContainer) return;
