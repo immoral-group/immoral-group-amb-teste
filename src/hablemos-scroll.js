@@ -1,7 +1,7 @@
-export function initHablemosHover(buttonSelector, videoSelector) {
-    const button = document.querySelector(buttonSelector);
+export function initHablemosScroll(sectionSelector, videoSelector) {
+    const section = document.querySelector(sectionSelector);
     const video = document.querySelector(videoSelector);
-    if (!button || !video) return;
+    if (!section || !video) return;
 
     function showVideo() {
         video.currentTime = 0;
@@ -21,6 +21,15 @@ export function initHablemosHover(buttonSelector, videoSelector) {
         }
     });
 
-    button.addEventListener('mouseenter', showVideo);
-    button.addEventListener('mouseleave', hideVideo);
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                showVideo();
+            } else {
+                hideVideo();
+            }
+        });
+    }, { threshold: 0.3 });
+
+    observer.observe(section);
 }
