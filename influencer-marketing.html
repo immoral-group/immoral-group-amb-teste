@@ -521,7 +521,11 @@
         }
         /* Tarjeta en foco: sale del escenario 3D (position: fixed) y se agranda,
            centrada en el viewport, a opacidad completa de inmediato (sin transición
-           de por medio — así no depende de que ningún timer/reflow llegue a tiempo). */
+           de por medio — así no depende de que ningún timer/reflow llegue a tiempo).
+           z-index también con !important: el conveyor deja en la tarjeta un z-index
+           inline (ligado a su profundidad, ~580-1120) que sin !important ganaba sobre
+           esta regla y quedaba por debajo del backdrop (9998) — la tarjeta enfocada se
+           veía "oscurecida" porque el fondo negro se pintaba encima suyo. */
         .hero-cc-card.is-focused-card {
             position: fixed !important;
             top: 50% !important;
@@ -531,7 +535,7 @@
             height: min(82vh, 640px) !important;
             aspect-ratio: 4 / 5;
             max-width: 92vw !important;
-            z-index: 10001;
+            z-index: 10001 !important;
             cursor: default;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
             opacity: 1 !important;
@@ -612,7 +616,92 @@
     </section>
 
     <!-- Section: UGC con IA -->
-    <section class="min-h-screen flex items-center bg-black px-6 lg:px-24 py-20 lg:py-0 overflow-hidden">
+    <style>
+        .ugc-flow-row {
+            grid-column: 1 / -1;
+            margin-top: 8.05rem;
+        }
+        .ugc-flow-stage {
+            position: relative;
+            width: 100%;
+            height: 620px;
+            perspective: 1100px;
+        }
+        .ugc-flow-scene {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+        }
+        .ugc-flow-card {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 224px;
+            aspect-ratio: 9 / 16;
+            margin-left: -112px;
+            margin-top: -199px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #111;
+            transform-style: preserve-3d;
+            will-change: transform, opacity;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+        .ugc-flow-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        @media (max-width: 1024px) {
+            .ugc-flow-stage { height: 440px; }
+            .ugc-flow-card { width: 160px; margin-left: -80px; margin-top: -142px; border-radius: 20px; }
+        }
+        @media (max-width: 480px) {
+            .ugc-flow-stage { height: 300px; }
+            .ugc-flow-card { width: 112px; margin-left: -56px; margin-top: -100px; border-radius: 16px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ugc-flow-card { transition: none; }
+        }
+        /* Tarjetas "liquid glass": mismo vidrio esmerilado translúcido que el botón
+           HABLEMOS del hero (.hero-liquid-btn), adaptado a un contenedor de contenido
+           en vez de a un botón — highlight de luz arriba, sin el hover de elevación. */
+        .liquid-glass-card {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+            backdrop-filter: blur(14px) saturate(160%);
+            -webkit-backdrop-filter: blur(14px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.25),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.25),
+                0 8px 24px rgba(0, 0, 0, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        }
+        .liquid-glass-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 55%);
+            pointer-events: none;
+        }
+        .liquid-glass-card > * {
+            position: relative;
+            z-index: 1;
+        }
+        .liquid-glass-card:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.04));
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.3),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.25),
+                0 12px 32px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+    <section class="min-h-screen flex items-center lg:items-start bg-black px-6 lg:px-24 py-20 lg:pt-16 lg:pb-48 overflow-hidden">
         <div class="max-w-[1400px] mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
             <!-- Left Column: Text Content -->
@@ -631,28 +720,41 @@
 
                 <div class="pt-4">
                     <a href="contacto.html"
-                        class="inline-block bg-[#2F80ED] text-white px-8 py-4 rounded-lg text-sm md:text-base font-medium uppercase tracking-widest hover:bg-[#1a6dd8] transition-all duration-300">
-                        HABLEMOS
+                        class="hero-liquid-btn inline-block text-white px-8 py-4 rounded-lg text-sm md:text-base font-medium uppercase tracking-widest">
+                        <span>HABLEMOS</span>
                     </a>
                 </div>
             </div>
 
             <!-- Right Column: Benefit cards -->
             <div class="flex flex-col gap-4 w-full max-w-[480px] lg:ml-auto">
-                <div class="border border-white/10 bg-white/5 rounded-xl p-6">
+                <div class="liquid-glass-card rounded-xl p-6">
                     <h3 class="text-white font-black text-xl mb-2">Velocidad de producción</h3>
                     <p class="text-gray-400 font-light">Generamos piezas en días, no en semanas, sin esperar agenda
                         de creadores.</p>
                 </div>
-                <div class="border border-white/10 bg-white/5 rounded-xl p-6">
+                <div class="liquid-glass-card rounded-xl p-6">
                     <h3 class="text-white font-black text-xl mb-2">Escalabilidad real</h3>
                     <p class="text-gray-400 font-light">Multiplicamos variantes de un mismo mensaje para testear qué
                         creativo convierte mejor.</p>
                 </div>
-                <div class="border border-white/10 bg-white/5 rounded-xl p-6">
+                <div class="liquid-glass-card rounded-xl p-6">
                     <h3 class="text-white font-black text-xl mb-2">Contenido diseñado para vender</h3>
                     <p class="text-gray-400 font-light">Misma lógica que nuestro UGC con propósito: estética nativa,
                         mensaje pensado para convertir.</p>
+                </div>
+            </div>
+
+            <!-- Full-width row: flujo ondulante de tarjetas UGC con IA. -->
+            <div class="ugc-flow-row">
+                <div id="ugc-flow-stage" class="ugc-flow-stage">
+                    <div id="ugc-flow-scene" class="ugc-flow-scene">
+                        <div class="ugc-flow-card"><video src="/videos/ugc-ia/ugc-ia-1.webm" autoplay muted loop playsinline></video></div>
+                        <div class="ugc-flow-card"><video src="/videos/ugc-ia/ugc-ia-2.webm" autoplay muted loop playsinline></video></div>
+                        <div class="ugc-flow-card"><video src="/videos/ugc-ia/ugc-ia-3.webm" autoplay muted loop playsinline></video></div>
+                        <div class="ugc-flow-card"><video src="/videos/ugc-ia/ugc-ia-4.webm" autoplay muted loop playsinline></video></div>
+                        <div class="ugc-flow-card"><video src="/videos/ugc-ia/ugc-ia-5.webm" autoplay muted loop playsinline></video></div>
+                    </div>
                 </div>
             </div>
 
