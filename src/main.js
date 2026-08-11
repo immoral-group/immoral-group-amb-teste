@@ -11,7 +11,6 @@ import { initHomeBlackhole } from './home-blackhole.js';
 import { initEmailHeroRibbon } from './email-hero-ribbon.js';
 import { initEmailEnvelopeIcons } from './email-envelope-icons.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
-import { initManifestoMisionCubes } from './manifesto-mision-cubes.js';
 import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initNuestraHistoriaHero } from './nuestra-historia-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
@@ -1999,7 +1998,6 @@ function initAll() {
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
-    try { initManifestoMisionCubes(); } catch (e) { console.error("Error in initManifestoMisionCubes:", e); }
     try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
     try { initNuestraHistoriaHero(); } catch (e) { console.error("Error in initNuestraHistoriaHero:", e); }
     initImmoralEcosystem();
