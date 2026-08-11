@@ -5,7 +5,7 @@ import { initFooter } from './footer.js';
 import { renderTeamMembers } from './team.js';
 import { renderJobOpenings } from './jobOpenings.js';
 import { renderPartnerLogos } from './partnerLogos.js';
-import { initHablemosHover } from './hablemos-hover.js';
+import { initHablemosScroll } from './hablemos-scroll.js';
 import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initMarbleReveal } from './marble-reveal.js';
@@ -2017,7 +2017,7 @@ function initAll() {
         .then(({ initBottomPanel }) => initBottomPanel())
         .catch((e) => console.error("Error in initBottomPanel:", e));
     try { initFooter(); } catch (e) { console.error("Error in initFooter:", e); }
-    try { initHablemosHover('#hablemos-cta-btn', '#hablemos-video'); } catch (e) { console.error("Error in initHablemosHover:", e); }
+    try { initHablemosScroll('footer', '#hablemos-video'); } catch (e) { console.error("Error in initHablemosScroll:", e); }
     // Bug real: initContactForm() solo se llamaba dentro del DOMContentLoaded
     // de arriba, que únicamente dispara en una carga dura de página. La
     // navegación SPA de este sitio (ver updateDOM()/startViewTransition más
