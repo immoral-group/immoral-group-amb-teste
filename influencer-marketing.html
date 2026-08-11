@@ -30,17 +30,17 @@
 </head>
 
 <body class="bg-white overflow-visible">
-    <!-- Menú Light -->
+    <!-- Menú Dark (fondo negro en el hero de esta página) -->
     <nav class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100]">
         <a href="index.html" aria-label="Immoral — ir al inicio">
-            <div><img src="/imgs/Menues/logo-menu-oscuro.png" alt=""></div>
+            <div><img src="/imgs/Menues/logo-menu-claro.png" alt=""></div>
         </a>
         <div>
-            <div class="list-none flex flex-row items-center gap-12 text-black">
+            <div class="list-none flex flex-row items-center gap-12 text-white">
 
                 <div class="w-35 items-center flex flex-col relative" id="dropdownButton">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes Somos
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-0 top-full z-[100] w-50 hidden font-medium text-sm capitalize transition-all ease-out duration-300"
                         id="dropdown">
@@ -70,7 +70,7 @@
 
                 <div class="w-30 items-center flex flex-col relative" id="dropdownButton2">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button2">Servicios
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-1/2 -translate-x-1/2 top-full z-[100] hidden w-52 font-medium text-sm capitalize transition-all ease-out duration-300"
                         id="dropdown2">
@@ -117,7 +117,7 @@
                 </div>
                 <div class="w-30 items-center flex flex-col relative" id="dropdownButton3">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button3">Grupo
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-0 top-full z-[100] hidden w-max font-medium capitalize transition-all ease-out duration-300"
                         id="dropdown3">
@@ -368,22 +368,265 @@
     </div>
 
     <!-- Hero Section: Influencer Marketing -->
-    <section class="min-h-screen flex items-center bg-[#FDF8F3] px-6 lg:px-24 py-20 lg:py-0 overflow-hidden">
+    <style>
+        .hero-cc-stage {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            height: 480px;
+            perspective: 900px;
+        }
+        .hero-cc-scene {
+            position: absolute;
+            inset: 0;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .hero-cc-card {
+            position: absolute;
+            left: 82%;
+            top: 50%;
+            width: 336px;
+            height: 420px;
+            margin-left: -168px;
+            margin-top: -210px;
+            border-radius: 36px;
+            overflow: hidden;
+            background: #111;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .hero-cc-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .hero-cc-card {
+            cursor: pointer;
+        }
+        /* Botón "liquid glass": vidrio esmerilado translúcido con highlight de luz arriba,
+           en vez del azul plano de antes. */
+        .hero-liquid-btn {
+            position: relative;
+            isolation: isolate;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(47, 128, 237, 0.55), rgba(47, 128, 237, 0.25));
+            backdrop-filter: blur(14px) saturate(160%);
+            -webkit-backdrop-filter: blur(14px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.45),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.2),
+                0 8px 24px rgba(47, 128, 237, 0.35);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        }
+        .hero-liquid-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 55%);
+            pointer-events: none;
+        }
+        .hero-liquid-btn span {
+            position: relative;
+            z-index: 1;
+        }
+        .hero-liquid-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(47, 128, 237, 0.65), rgba(47, 128, 237, 0.32));
+            box-shadow:
+                inset 0 1px 1px rgba(255, 255, 255, 0.5),
+                inset 0 -1px 2px rgba(0, 0, 0, 0.2),
+                0 12px 32px rgba(47, 128, 237, 0.45);
+        }
+        @keyframes cc-badge-wiggle {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(4px, -5px); }
+            40% { transform: translate(-3px, -8px); }
+            60% { transform: translate(3px, -3px); }
+            80% { transform: translate(-4px, -6px); }
+        }
+        @keyframes cc-badge-appear {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .cc-badge {
+            position: absolute;
+            z-index: 40;
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+            padding: 10px 17px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(6px);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .cc-badge-number {
+            font-weight: 900;
+            color: #2F80ED;
+        }
+        /* El top/left de cada badge lo calcula JS (layoutBadges en influencer-card-conveyor.js)
+           a partir de la posición REAL del carrusel medida en pantalla — así se garantiza que
+           quedan fuera de esa caja sin importar el tamaño de viewport, en vez de porcentajes
+           adivinados. Aquí solo van la animación de aparición escalonada y el wiggle suelto. */
+        .cc-badge-1 { animation: cc-badge-appear 0.7s ease-out 0.2s forwards, cc-badge-wiggle 4.5s ease-in-out 0.9s infinite; }
+        .cc-badge-2 { animation: cc-badge-appear 0.7s ease-out 1s forwards, cc-badge-wiggle 4.5s ease-in-out 1.7s infinite; }
+        .cc-badge-3 { animation: cc-badge-appear 0.7s ease-out 1.8s forwards, cc-badge-wiggle 4.5s ease-in-out 2.5s infinite; }
+        .cc-badge-4 { animation: cc-badge-appear 0.7s ease-out 2.6s forwards, cc-badge-wiggle 4.5s ease-in-out 3.3s infinite; }
+        .cc-badge-5 { animation: cc-badge-appear 0.7s ease-out 3.4s forwards, cc-badge-wiggle 4.5s ease-in-out 4.1s infinite; }
+        @media (max-width: 640px) {
+            .cc-badge { font-size: 13px; padding: 6px 13px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .cc-badge { animation: none; opacity: 1; }
+        }
+        .hero-cc-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 9998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .hero-cc-backdrop.is-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .hero-cc-close {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10002;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Tarjeta en foco: sale del escenario 3D (position: fixed) y se agranda,
+           centrada en el viewport, a opacidad completa de inmediato (sin transición
+           de por medio — así no depende de que ningún timer/reflow llegue a tiempo). */
+        .hero-cc-card.is-focused-card {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            margin: 0 !important;
+            width: auto !important;
+            height: min(82vh, 640px) !important;
+            aspect-ratio: 4 / 5;
+            max-width: 92vw !important;
+            z-index: 10001;
+            cursor: default;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            opacity: 1 !important;
+            transform: translate(-50%, -50%) !important;
+        }
+        .hero-cc-close:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+        .hero-cc-close.is-active {
+            display: flex;
+        }
+        @media (max-width: 640px) {
+            .hero-cc-stage { height: 460px; }
+            .hero-cc-card { width: 265px; height: 330px; margin-left: -133px; margin-top: -165px; border-radius: 28px; }
+        }
+    </style>
+    <section class="relative min-h-screen flex items-center bg-black px-6 lg:px-24 py-20 lg:py-0 overflow-hidden">
         <div class="max-w-[1400px] mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
             <!-- Left Column: Text Content -->
             <div class="space-y-8">
-                <span class="block text-gray-500 text-lg tracking-wide">Influencer Marketing:</span>
+                <span class="block text-gray-400 text-lg tracking-wide">Influencer Marketing:</span>
 
-                <h1 class="text-5xl md:text-6xl font-black text-[#2F80ED] leading-[0.95] tracking-tight">
+                <h1 class="text-5xl md:text-6xl font-black text-white leading-[0.95] tracking-tight">
                     Estrategia Precisa,<br>
                     Impacto Real
                 </h1>
 
-                <p class="text-lg md:text-xl font-light text-gray-700 leading-relaxed max-w-xl">
+                <p class="text-lg md:text-xl font-light text-gray-300 leading-relaxed max-w-xl">
                     Colaborar con influencers no es solo visibilidad.<br>
                     Es conectar con la audiencia correcta a través de creadores que representan de verdad a tu marca y
                     generan impacto medible.
+                </p>
+
+                <div class="pt-4">
+                    <a href="contacto.html"
+                        class="hero-liquid-btn inline-block text-white px-8 py-4 rounded-lg text-sm md:text-base font-medium uppercase tracking-widest">
+                        <span>HABLEMOS</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Column: Card Conveyor Animation -->
+            <div class="flex justify-center lg:justify-end">
+                <div id="cc-stage" class="hero-cc-stage">
+                    <div id="cc-scene" class="hero-cc-scene">
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-1.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-2.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-3.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-4.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-5.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-6.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-7.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-8.webm" autoplay muted loop playsinline></video></div>
+                        <div class="cc-card hero-cc-card"><video src="/videos/influencers/influencer-9.webm" autoplay muted loop playsinline></video></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="cc-badge cc-badge-1" aria-hidden="true">
+            <span class="cc-badge-number">0</span> vistas
+        </div>
+        <div class="cc-badge cc-badge-2" aria-hidden="true">
+            <span class="cc-badge-number">0</span> interacciones
+        </div>
+        <div class="cc-badge cc-badge-3" aria-hidden="true">
+            <span class="cc-badge-number">0</span> me gusta
+        </div>
+        <div class="cc-badge cc-badge-4" aria-hidden="true">
+            <span class="cc-badge-number">0</span> reproducciones
+        </div>
+        <div class="cc-badge cc-badge-5" aria-hidden="true">
+            <span class="cc-badge-number">0</span> compartidos
+        </div>
+        <div id="cc-backdrop" class="hero-cc-backdrop"></div>
+        <button id="cc-close" class="hero-cc-close" type="button" aria-label="Cerrar vídeo">✕</button>
+    </section>
+
+    <!-- Section: UGC con IA -->
+    <section class="min-h-screen flex items-center bg-black px-6 lg:px-24 py-20 lg:py-0 overflow-hidden">
+        <div class="max-w-[1400px] mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+
+            <!-- Left Column: Text Content -->
+            <div class="space-y-8">
+                <span class="block text-gray-400 text-lg tracking-wide">Contenido generado con Inteligencia Artificial:</span>
+
+                <h2 class="text-5xl md:text-6xl font-black text-[#2F80ED] leading-[0.95] tracking-tight">
+                    UGC CON IA
+                </h2>
+
+                <p class="text-lg md:text-xl font-light text-gray-300 leading-relaxed max-w-xl">
+                    El UGC funciona porque parece real, no porque lo produzca una marca.<br>
+                    Con Inteligencia Artificial creamos contenido con la estética nativa de un creador, sin depender
+                    de agendas ni grabaciones, para escalar tu producción sin perder la autenticidad que convierte.
                 </p>
 
                 <div class="pt-4">
@@ -394,14 +637,28 @@
                 </div>
             </div>
 
-            <!-- Right Column: Image Element -->
-            <div class="flex justify-center lg:justify-end">
-                <img src="/imgs/element-influ.gif" alt="Influencer Marketing Visual"
-                    class="w-full max-w-[480px] h-auto object-contain">
+            <!-- Right Column: Benefit cards -->
+            <div class="flex flex-col gap-4 w-full max-w-[480px] lg:ml-auto">
+                <div class="border border-white/10 bg-white/5 rounded-xl p-6">
+                    <h3 class="text-white font-black text-xl mb-2">Velocidad de producción</h3>
+                    <p class="text-gray-400 font-light">Generamos piezas en días, no en semanas, sin esperar agenda
+                        de creadores.</p>
+                </div>
+                <div class="border border-white/10 bg-white/5 rounded-xl p-6">
+                    <h3 class="text-white font-black text-xl mb-2">Escalabilidad real</h3>
+                    <p class="text-gray-400 font-light">Multiplicamos variantes de un mismo mensaje para testear qué
+                        creativo convierte mejor.</p>
+                </div>
+                <div class="border border-white/10 bg-white/5 rounded-xl p-6">
+                    <h3 class="text-white font-black text-xl mb-2">Contenido diseñado para vender</h3>
+                    <p class="text-gray-400 font-light">Misma lógica que nuestro UGC con propósito: estética nativa,
+                        mensaje pensado para convertir.</p>
+                </div>
             </div>
 
         </div>
     </section>
+
     <!-- Section: Cómo lo hacemos - Scroll-driven capability showcase -->
     <style>
         @keyframes chlh-spin {
