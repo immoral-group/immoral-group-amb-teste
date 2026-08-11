@@ -74,8 +74,14 @@ export function createParticleTowerScene(canvas, container) {
     // middle of the right half, matching where the tower sat back when the canvas
     // itself was only the right half-width column.
     const TOWER_CENTER_U = 0.5;
-    const TOWER_COLUMN_RADIUS = 0.75;
-    const TOWER_HEIGHT_FACTOR = 1.4; // tower height as a multiple of the field's vertical radius
+    // Funnel shape (real funnel icon, not a plain cone): a straight, constant-
+    // radius "neck" for the bottom slice of the height, then a cone widening
+    // out to the mouth for the rest — instead of tapering all the way to a
+    // point at the base.
+    const TOWER_NECK_RADIUS = 0.12;
+    const TOWER_TOP_RADIUS = 1.4;
+    const TOWER_NECK_FRACTION = 0.35; // bottom 35% of the height is the straight neck
+    const TOWER_HEIGHT_FACTOR = 0.85; // tower height as a multiple of the field's vertical radius — shorter, more compact funnel
 
     // Each particle starts converging at a point along the global progress ramp that
     // matches its final height in the tower (lower slots go first). Lower than the
@@ -239,9 +245,12 @@ export function createParticleTowerScene(canvas, container) {
             homeZ[i] = scratchPos.z - dragGroup.position.z;
 
             const angle = Math.random() * Math.PI * 2;
-            const r = Math.sqrt(Math.random()) * TOWER_COLUMN_RADIUS;
             const slot = slotOrder[i];
-            const heightOffset = -towerHeight / 2 + (slot / PARTICLE_COUNT) * towerHeight;
+            const heightFrac = slot / PARTICLE_COUNT; // 0 at the base, 1 at the mouth
+            const coneFrac = Math.max(0, (heightFrac - TOWER_NECK_FRACTION) / (1 - TOWER_NECK_FRACTION));
+            const columnRadius = TOWER_NECK_RADIUS + (TOWER_TOP_RADIUS - TOWER_NECK_RADIUS) * coneFrac;
+            const r = Math.sqrt(Math.random()) * columnRadius;
+            const heightOffset = -towerHeight / 2 + heightFrac * towerHeight;
             scratchPos
                 .copy(scratchTowerCenter)
                 .addScaledVector(camUpAxis, heightOffset)

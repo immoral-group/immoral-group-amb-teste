@@ -10,7 +10,7 @@ const PLATFORMS = [
         wig: [2.5, 4.2]
     },
     {
-        icon: '/imgs/publi-ico-2.svg', alt: 'Google Ads', iconClass: 'h-8', invert: true, color: '#FFCD1F', glassDark: 0.15, glass: [80, 65, 75],
+        icon: '/imgs/publi-ico-2.svg', alt: 'Google Ads', iconClass: 'h-8', color: '#34A853',
         desc: 'Estamos presentes cuando te buscan y también cuando aún no saben que te necesitan.',
         wig: [3, 3.8]
     },
