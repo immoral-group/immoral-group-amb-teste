@@ -372,9 +372,13 @@
     <!-- Horizontal Scroll Hero Section -->
     <section id="hero-pin" class="relative w-full h-[auto] lg:h-[100vh] overflow-hidden bg-black">
 
-        <!-- Fixed Background Icon (Common to both) -->
+        <!-- Isotipo de fondo: en mobile (sin scroll horizontal pineado, ver initGestionHero en
+             src/main.js) se queda visible siempre a 0.4, como antes. En desktop (lg+) arranca en 0
+             — oculto en la Slide 1 (Intro) — y se revela con fade-in a medida que el scroll
+             horizontal avanza hacia la Slide 2 (Detalles), animado por ese mismo JS en sincronía con
+             el desplazamiento de #hero-content. -->
         <div id="hero-bg"
-            class="absolute inset-0 flex items-center justify-center opacity-40 w-[200vw] pointer-events-none z-0">
+            class="absolute inset-0 flex items-center justify-center opacity-40 lg:opacity-0 w-[200vw] pointer-events-none z-0">
             <img src="/imgs/ico-bg-gestion.svg" class="w-[150%] max-w-none lg:w-[90%] h-auto" alt="Background">
         </div>
 
@@ -440,52 +444,58 @@
 
                     <!-- Tramo 1: Facebook → Pinterest -->
                     <path class="social-connect-glow-1" d="M 15.79,18.61 L 64.81,22.51" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
                         stroke-dasharray="1 0.9" />
                     <g clip-path="url(#social-connect-clip-1)">
                         <path d="M 15.79,18.61 L 64.81,22.51" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
                     </g>
 
                     <!-- Tramo 2: Pinterest → Instagram -->
                     <path class="social-connect-glow-2" d="M 70.89,25.40 L 85.40,40.49" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
                         stroke-dasharray="1 0.9" />
                     <g clip-path="url(#social-connect-clip-2)">
                         <path d="M 70.89,25.40 L 85.40,40.49" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
                     </g>
 
                     <!-- Tramo 3: TikTok → YouTube -->
                     <path class="social-connect-glow-3" d="M 21.2,79.82 L 55.66,68.81" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
                         stroke-dasharray="1 0.9" />
                     <g clip-path="url(#social-connect-clip-3)">
                         <path d="M 21.2,79.82 L 55.66,68.81" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
                     </g>
 
                     <!-- Tramo 4: YouTube → Instagram -->
                     <path class="social-connect-glow-4" d="M 61.33,65.68 L 85.11,45.80" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.2" stroke-linecap="round"
+                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
                         stroke-dasharray="1 0.9" />
                     <g clip-path="url(#social-connect-clip-4)">
                         <path d="M 61.33,65.68 L 85.11,45.80" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.2" stroke-linecap="round" stroke-dasharray="1 0.9" />
+                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
                     </g>
                 </svg>
 
                 <!-- Floating Icons (Decorative) -->
+                <!-- brightness-0 invert: los SVG traen el trazo del círculo y el glifo pintados en
+                     #2b75db (azul) directamente en el propio archivo; como se cargan via <img>, no se
+                     puede recolorear su contenido con CSS normal — este truco de filtro (llevarlo a
+                     negro puro y después invertirlo) es la forma de forzarlos a blanco sin tocar los 5
+                     SVG. El drop-shadow azul no se ve afectado: drop-shadow() tiñe la sombra con su
+                     propio color, no con el color del contenido. -->
                 <img src="/imgs/ico-gestion-1.svg" alt=""
-                    class="absolute top-[15%] left-[10%] w-12 h-12 hidden lg:block animate-float-slow drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
+                    class="absolute top-[15%] left-[10%] w-12 h-12 hidden lg:block animate-float-slow brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-2.svg" alt=""
-                    class="absolute top-[20%] right-[30%] w-10 h-10 hidden lg:block animate-float-medium drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
+                    class="absolute top-[20%] right-[30%] w-10 h-10 hidden lg:block animate-float-medium brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-3.svg" alt=""
-                    class="absolute bottom-[15%] left-[15%] w-14 h-14 hidden lg:block animate-float-fast drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
+                    class="absolute bottom-[15%] left-[15%] w-14 h-14 hidden lg:block animate-float-fast brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-4.svg" alt=""
-                    class="absolute top-[40%] right-[10%] w-12 h-12 hidden lg:block animate-float-slow drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
+                    class="absolute top-[40%] right-[10%] w-12 h-12 hidden lg:block animate-float-slow brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
                 <img src="/imgs/ico-gestion-5.svg" alt=""
-                    class="absolute bottom-[30%] right-[40%] w-8 h-8 hidden lg:block animate-float-medium drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
+                    class="absolute bottom-[30%] right-[40%] w-8 h-8 hidden lg:block animate-float-medium brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
 
                 <div class="max-w-5xl relative z-10">
                     <span class="block text-gray-500 text-lg mb-6 tracking-wide">Gestión de Redes Sociales:</span>
@@ -766,7 +776,7 @@
         .chlh-glow-drift { animation: chlh-glow-drift 4.5s ease-in-out infinite; }
     </style>
     <section id="como-lo-hacemos" class="bg-black relative z-10 overflow-hidden">
-        <div id="chlh-pin" class="w-full min-h-screen flex flex-col justify-center px-6 md:px-10 xl:px-12 py-20 md:py-0">
+        <div id="chlh-pin" class="w-full min-h-screen flex flex-col justify-center px-6 md:px-10 xl:px-12 py-20 md:py-[clamp(1rem,5vh,4rem)]">
             <span
                 class="absolute top-8 left-6 md:top-12 md:left-10 xl:left-12 text-white/50 font-black text-xl md:text-2xl xl:text-3xl uppercase tracking-widest">Cómo
                 lo hacemos</span>
@@ -787,9 +797,9 @@
                 </div>
 
                 <!-- Right: circle + description -->
-                <div class="flex-1 w-full relative flex items-center justify-center min-h-[380px] md:min-h-[580px] xl:min-h-[700px]">
+                <div class="flex-1 w-full relative flex items-center justify-center min-h-[380px] md:min-h-[clamp(320px,58vh,700px)]">
                     <svg viewBox="0 0 400 400" overflow="visible"
-                        class="absolute w-[340px] h-[340px] md:w-[600px] md:h-[600px] xl:w-[720px] xl:h-[720px] pointer-events-none"
+                        class="absolute w-[340px] h-[340px] md:w-[clamp(300px,54vh,720px)] md:h-[clamp(300px,54vh,720px)] pointer-events-none"
                         style="left:50%; top:50%; transform:translate(-50%,-50%);">
                         <defs>
                             <filter id="chlh-blur" x="-100%" y="-100%" width="300%" height="300%">
@@ -847,14 +857,14 @@
                         </g>
                     </svg>
                     <p id="chlh-description"
-                        class="relative z-10 text-white/85 text-base leading-relaxed max-w-[220px] md:max-w-[420px] xl:max-w-[500px] text-center">
+                        class="relative z-10 text-white/85 text-base md:text-[clamp(0.72rem,1.4vh,0.92rem)] leading-relaxed max-w-[220px] md:max-w-[clamp(150px,27vh,360px)] text-center">
                         Definimos objetivos, analizamos tu audiencia y diseñamos un plan de acción.
                     </p>
                 </div>
             </div>
 
             <!-- Pills -->
-            <div class="w-full max-w-[1600px] mx-auto mt-10 md:mt-16">
+            <div class="w-full max-w-[1600px] mx-auto mt-10 md:mt-[clamp(1.5rem,4vh,4rem)]">
                 <div class="flex flex-wrap gap-3">
                     <button type="button"
                         class="chlh-pill cursor-pointer px-4 py-2 rounded-full text-sm font-medium transition-colors duration-300 bg-white text-black">Análisis

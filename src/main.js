@@ -11,7 +11,6 @@ import { initHomeBlackhole } from './home-blackhole.js';
 import { initEmailHeroRibbon } from './email-hero-ribbon.js';
 import { initEmailEnvelopeIcons } from './email-envelope-icons.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
-import { initManifestoMisionCubes } from './manifesto-mision-cubes.js';
 import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initNuestraHistoriaHero } from './nuestra-historia-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
@@ -19,6 +18,8 @@ import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import { initInfluencerCardConveyor } from './influencer-card-conveyor.js';
+import { initOfertaDetail } from './ofertaDetail.js';
+import { getRecaptchaToken } from './recaptcha.js';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -48,34 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // secreto profundo — viaja en el bundle público, igual que la clave anon de
 // Supabase; la validación real la hace el servidor con la service_role key.
 const CONTACT_FORM_TOKEN = '723d7c6ffc60a2e785227136401be8a46a6c89bf637e3f4e';
-
-// reCAPTCHA v3 (invisible, sin challenge): mismo site key en las 4 webs del
-// grupo, la secret key vive solo en el servidor del endpoint centralizado.
-const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
-let recaptchaScriptPromise = null;
-
-function loadRecaptchaScript() {
-    if (recaptchaScriptPromise) return recaptchaScriptPromise;
-    recaptchaScriptPromise = new Promise((resolve, reject) => {
-        if (window.grecaptcha) return resolve();
-        const script = document.createElement('script');
-        script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
-        script.onload = () => resolve();
-        script.onerror = () => reject(new Error('No se pudo cargar reCAPTCHA'));
-        document.head.appendChild(script);
-    });
-    return recaptchaScriptPromise;
-}
-
-async function getRecaptchaToken() {
-    if (!RECAPTCHA_SITE_KEY) return null;
-    await loadRecaptchaScript();
-    return new Promise((resolve) => {
-        window.grecaptcha.ready(() => {
-            window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'contact_form' }).then(resolve);
-        });
-    });
-}
 
 function initContactForm() {
     const existingForm = document.getElementById('contactForm');
@@ -107,7 +80,7 @@ function initContactForm() {
         const jsonData = Object.fromEntries(formData.entries());
 
         try {
-            const recaptchaToken = await getRecaptchaToken();
+            const recaptchaToken = await getRecaptchaToken('contact_form');
             const response = await fetch('/api/contact', {
                 method: 'POST',
                 headers: {
@@ -861,6 +834,7 @@ function initGestionHero() {
             if (heroBg) {
                 tl.to(heroBg, {
                     xPercent: -50, // Move background with content
+                    opacity: 0.4, // Empieza en 0 (oculto en la Slide 1) y se revela junto con la Slide 2
                     ease: "none",
                 }, 0); // Sync with content
             }
@@ -1985,6 +1959,7 @@ function initAll() {
     initCarousel();
     initTeamCarousel();
     initJobOpenings();
+    try { initOfertaDetail(); } catch (e) { console.error("Error in initOfertaDetail:", e); }
     initPartnerLogos();
     initCasosFilter();
     initCaseCardVideos();
@@ -2000,7 +1975,6 @@ function initAll() {
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
-    try { initManifestoMisionCubes(); } catch (e) { console.error("Error in initManifestoMisionCubes:", e); }
     try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
     try { initNuestraHistoriaHero(); } catch (e) { console.error("Error in initNuestraHistoriaHero:", e); }
     initImmoralEcosystem();

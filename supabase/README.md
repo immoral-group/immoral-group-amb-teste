@@ -15,6 +15,10 @@ Ejecutar en este orden, en **SQL Editor → New query**, pegando el contenido co
 7. `migrations/0007_partner_logos_seed.sql` — carga los 22 logos actuales (13 previos + 9 nuevos) desde `/imgs/barra-logos/`.
 8. `migrations/0008_case_studies.sql` — tablas (`case_studies`, `case_study_results`, `case_study_testimonials`), RLS y bucket de Storage de los casos de éxito.
 9. `migrations/0009_case_studies_seed.sql` — carga los 19 casos actuales extraídos de `casos-de-exito.html`/`caso-*.html`. Nota: el logo de Velites (`velites_logo_letras_WHITE.avif`) dependía de un filtro CSS `invert` que la plantilla generada no reproduce — quedará invisible en su hero hasta que se suba una versión oscura del logo desde `/casos-admin`.
+10. `migrations/0010_contact_messages_schema.sql` y `migrations/0011_contact_messages_seed.sql` — bandeja de mensajes de contacto (`/mensajes`).
+11. `migrations/0012_tokens_validos_rls.sql` — RLS de `tokens_validos` para gestionarlos desde `/tokens`.
+12. `migrations/0013_job_openings_details.sql` — añade `slug`/`description`/`survey_url` a `job_openings` para la página de detalle de cada oferta (`/oferta.html?slug=...`).
+13. `migrations/0014_job_applications.sql` — tabla `job_applications`, RLS (solo admin, el CV es un dato personal sensible) y bucket privado `job-applications` para las candidaturas enviadas desde `/oferta.html`.
 
 ## Pasos manuales en el Dashboard (no se pueden hacer por SQL)
 
