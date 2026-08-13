@@ -106,7 +106,6 @@ float filaments(vec2 p, float aspect, float t) {
     float tX = max((focalX - p.x) / focalX, 0.0);
 
     float lum = 0.0;
-    float bundle = 0.0; // suma de bandas anchas, para la neblina ambiental
 
     for (int i = 0; i < NUM_STRANDS; i++) {
         vec4 a = hash41(float(i) * 1.37 + 2.11);
@@ -154,46 +153,38 @@ float filaments(vec2 p, float aspect, float t) {
         float slope = ((yLeft - yFocal) + dBendDtX) / focalX;
         float d = abs(p.y - yi) * inversesqrt(1.0 + slope * slope);
 
-        float bandW = mix(0.028, 0.095, a.w); // volumen de la cinta
-        float coreW = mix(0.0016, 0.0042, b.w); // filamento brillante interior
-
-        float band = exp(-(d * d) / (bandW * bandW));
-        float core = exp(-(d * d) / (coreW * coreW));
-
         // Las cintas se desvanecen hacia la izquierda (profundidad).
         float fade = mix(1.0, 0.35, smoothstep(0.35, 1.15, tX));
 
-        // FLUJO: el brillo no es uniforme a lo largo de la cinta, sino un tren
-        // de pulsos que VIAJA por ella (el término -t hace que se desplacen
-        // hacia fuera del foco). Es lo que da la sensación de luz corriendo por
-        // dentro, como fibra óptica, en vez de cintas fijas que solo ondulan.
-        // La frecuencia espacial tiene que ser alta: tX solo recorre ~0.5 en el
-        // ancho visible, así que con valores bajos cabía menos de un pulso en
-        // pantalla y el efecto se leía como un brillo global, no como algo que
-        // viaja. Con estos valores entran ~3-4 pulsos a lo largo del haz.
-        float flowArg = tX * mix(5.5, 12.0, b.w) - t * mix(0.40, 0.85, a.w) + b.x * 6.2831853;
-        // Pulsos reales, no una onda de brillo continua: se recorta la mitad
-        // negativa de sin() a 0 (mitad del periodo queda a oscuras de verdad)
-        // y se eleva a una potencia alta para que el paquete de luz sea
-        // estrecho — así se leen como manchas de luz viajando con huecos
-        // oscuros entre medio, que es justo lo que se ve en la referencia, en
-        // vez de una cinta siempre encendida con brillo variable.
-        float pulse = pow(max(sin(flowArg * 3.14159265), 0.0), 3.0);
-        float flow = 0.14 + 0.86 * pulse;
+        // Wireframe fino y COMPLETO: sin halo ni glow — borde NÍTIDO (smoothstep)
+        // en vez de caída gaussiana, como un trazo real, no una cinta de luz.
+        float coreHalf = mix(0.0006, 0.0012, b.w); // más fino (antes 0.0014-0.003), como el wireframe de diseño
+        float core = 1.0 - smoothstep(coreHalf * 0.5, coreHalf, d);
 
-        // El flujo afecta a toda la cinta (núcleo y volumen) y también a lo que
-        // alimenta la neblina, para que no quede un colchón fijo que disimule
-        // el movimiento. Las ganancias suben para compensar que el flujo medio
-        // ronda 0.45.
-        lum += (core * 1.5 + band * mix(0.22, 0.52, a.z)) * flow * fade;
-        bundle += band * flow * fade;
+        // PUNTO DE LUZ que viaja por la cinta como un círculo nítido (a
+        // pedido: sin engrosar la línea, un punto redondo como los vértices
+        // de la referencia de wireframe, sin glow). flowArg es la fase a lo
+        // largo de la cinta; sin(flowArg*pi) vale 1 justo en el centro de
+        // cada punto, en flowArg = 0.5 + 2k. Se despeja esa distancia de fase
+        // y se convierte a una distancia aproximada "a lo largo de la cinta"
+        // (misma escala que d, la perpendicular), para combinarlas en una
+        // distancia 2D real y dibujar un círculo, no una franja.
+        float freq = mix(5.5, 12.0, b.w);
+        float speed = mix(0.40, 0.85, a.w);
+        float flowArg = tX * freq - t * speed + b.x * 6.2831853;
+        float peakK = floor((flowArg - 0.5) / 2.0 + 0.5);
+        float deltaFlowArg = flowArg - (0.5 + 2.0 * peakK);
+        float alongDist = (deltaFlowArg / freq) * focalX;
+
+        float dotR = mix(0.004, 0.008, b.w); // radio del punto de luz (más chico, a juego con la línea fina)
+        float distToDot = length(vec2(alongDist, d));
+        float dot = 1.0 - smoothstep(dotR * 0.6, dotR, distToDot);
+
+        // Línea base siempre visible (solo atenuada por profundidad) + el
+        // punto de luz redondo viajando encima. Sin niebla ni banda difusa.
+        lum += core * fade;
+        lum += dot * fade;
     }
-
-    // Neblina ambiental: rellena el espacio entre cintas en vez de dejar
-    // negro puro, como el resplandor volumétrico de la referencia. Es lo que
-    // más aporta a la sensación de "haz denso" sin sumar más cintas (y por
-    // tanto sin coste extra por fragmento).
-    lum += smoothstep(0.08, 2.2, bundle) * 0.34;
 
     return lum;
 }
@@ -244,7 +235,13 @@ void main() {
     vec2 outsideBox = max(abs(screenPx - boxCenter) - halfSize, vec2(0.0));
     float distOutsideBox = length(outsideBox);
     float feather = 0.16 * uResolution.y;
-    float shield = 1.0 - smoothstep(0.0, feather, distOutsideBox);
+    float shieldBox = 1.0 - smoothstep(0.0, feather, distOutsideBox);
+    // Gradiente horizontal en vez de un rectángulo oscuro uniforme: más
+    // protegido a la izquierda (donde arranca el texto, lo que más necesita
+    // contraste) y se aclara hacia la derecha, dejando ver el fondo.
+    float localX = clamp((screenPx.x - uTextOrigin.x) / uTextSize.x, 0.0, 1.0);
+    float shieldGradient = mix(1.0, 0.0, localX);
+    float shield = shieldBox * shieldGradient;
     lum *= mix(1.0, 0.15, shield * uHasText);
 
     // Respiración lenta (mismo tween GSAP que antes animaba el contraste del
@@ -383,7 +380,7 @@ export function createAutomationShaderScene(container, textBlockEl) {
         textCanvas.height = Math.ceil(textHeight * dpr);
         textCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
         textCtx.clearRect(0, 0, textWidth, textHeight);
-        textCtx.textAlign = 'center';
+        textCtx.textAlign = 'left';
         textCtx.textBaseline = 'alphabetic';
         textCtx.fillStyle = '#fff';
 
@@ -418,11 +415,10 @@ export function createAutomationShaderScene(container, textBlockEl) {
                 lines = wrapText(textCtx, text, elRect.width);
             }
 
-            const centerX = offsetX + elRect.width / 2;
             const totalTextHeight = lines.length * lineHeight;
             const startY = offsetY + (elRect.height - totalTextHeight) / 2 + lineHeight * 0.8;
             lines.forEach((line, i) => {
-                textCtx.fillText(line, centerX, startY + i * lineHeight);
+                textCtx.fillText(line, offsetX, startY + i * lineHeight);
             });
         });
 
