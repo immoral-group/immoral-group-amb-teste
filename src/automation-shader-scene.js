@@ -383,7 +383,7 @@ export function createAutomationShaderScene(container, textBlockEl) {
         textCanvas.height = Math.ceil(textHeight * dpr);
         textCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
         textCtx.clearRect(0, 0, textWidth, textHeight);
-        textCtx.textAlign = 'center';
+        textCtx.textAlign = 'left';
         textCtx.textBaseline = 'alphabetic';
         textCtx.fillStyle = '#fff';
 
@@ -418,11 +418,10 @@ export function createAutomationShaderScene(container, textBlockEl) {
                 lines = wrapText(textCtx, text, elRect.width);
             }
 
-            const centerX = offsetX + elRect.width / 2;
             const totalTextHeight = lines.length * lineHeight;
             const startY = offsetY + (elRect.height - totalTextHeight) / 2 + lineHeight * 0.8;
             lines.forEach((line, i) => {
-                textCtx.fillText(line, centerX, startY + i * lineHeight);
+                textCtx.fillText(line, offsetX, startY + i * lineHeight);
             });
         });
 
