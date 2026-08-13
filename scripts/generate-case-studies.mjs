@@ -195,7 +195,7 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
           </div>
         </div>
         <div class="w-30 items-center flex flex-col relative" id="dropdownButton3">
-          <div class="uppercase flex flex-row gap-3 justify-center" id="button3">Grupo
+          <div class="uppercase flex flex-row gap-3 justify-center" id="button3">Especialidades
             <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
           </div>
           <div
