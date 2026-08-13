@@ -6,7 +6,7 @@ import { renderTeamMembers } from './team.js';
 import { renderJobOpenings } from './jobOpenings.js';
 import { renderPartnerLogos } from './partnerLogos.js';
 import { initHablemosScroll } from './hablemos-scroll.js';
-import { initPublicidadMediosCubes } from './publicidad-medios-cubes.js';
+import { initPublicidadMediosFunnel } from './publicidad-medios-funnel.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initEmailHeroRibbon } from './email-hero-ribbon.js';
 import { initEmailEnvelopeIcons } from './email-envelope-icons.js';
@@ -2099,7 +2099,7 @@ function initAll() {
     initCalendly();
     initHeroPhysics();
     initEquipoNetwork();
-    try { initPublicidadMediosCubes(); } catch (e) { console.error("Error in initPublicidadMediosCubes:", e); }
+    try { initPublicidadMediosFunnel(); } catch (e) { console.error("Error in initPublicidadMediosFunnel:", e); }
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
