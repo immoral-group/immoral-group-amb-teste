@@ -154,47 +154,38 @@ float filaments(vec2 p, float aspect, float t) {
         float slope = ((yLeft - yFocal) + dBendDtX) / focalX;
         float d = abs(p.y - yi) * inversesqrt(1.0 + slope * slope);
 
-        // Estilo más fino y nítido (a pedido, para que se lea parecido a las
-        // líneas de wireframe de diseño-de-marca en vez de cintas de luz
-        // gruesas y difusas) — bandW mucho más angosto, mismo core.
+        // Las cintas se desvanecen hacia la izquierda (profundidad).
+        float fade = mix(1.0, 0.35, smoothstep(0.35, 1.15, tX));
+
+        // FLUJO: pulso que VIAJA por la cinta (el término -t lo desplaza hacia
+        // fuera del foco), calculado ANTES del grosor porque ahora el pulso
+        // engorda la línea en vez de solo variar su brillo (ver coreW abajo).
+        float flowArg = tX * mix(5.5, 12.0, b.w) - t * mix(0.40, 0.85, a.w) + b.x * 6.2831853;
+        float pulse = pow(max(sin(flowArg * 3.14159265), 0.0), 3.0);
+
+        // Wireframe fino y COMPLETO (a pedido: línea siempre presente, no una
+        // cinta de luz que se prende y apaga) — bandW angosto de por sí. El
+        // pulso de luz ya no controla si la línea se ve, sino que la engorda
+        // localmente al pasar (como una cuenta de luz recorriendo un cable),
+        // que es la alternativa a un brillo difuso que se pidió explícitamente.
         float bandW = mix(0.006, 0.018, a.w); // volumen de la cinta (fino)
-        float coreW = mix(0.0016, 0.0042, b.w); // filamento brillante interior
+        float coreW = mix(0.0014, 0.003, b.w) * (1.0 + pulse * 2.4); // grosor base + abultamiento del pulso
 
         float band = exp(-(d * d) / (bandW * bandW));
         float core = exp(-(d * d) / (coreW * coreW));
 
-        // Las cintas se desvanecen hacia la izquierda (profundidad).
-        float fade = mix(1.0, 0.35, smoothstep(0.35, 1.15, tX));
-
-        // FLUJO: el brillo no es uniforme a lo largo de la cinta, sino un tren
-        // de pulsos que VIAJA por ella (el término -t hace que se desplacen
-        // hacia fuera del foco). Es lo que da la sensación de luz corriendo por
-        // dentro, como fibra óptica, en vez de cintas fijas que solo ondulan.
-        // La frecuencia espacial tiene que ser alta: tX solo recorre ~0.5 en el
-        // ancho visible, así que con valores bajos cabía menos de un pulso en
-        // pantalla y el efecto se leía como un brillo global, no como algo que
-        // viaja. Con estos valores entran ~3-4 pulsos a lo largo del haz.
-        float flowArg = tX * mix(5.5, 12.0, b.w) - t * mix(0.40, 0.85, a.w) + b.x * 6.2831853;
-        // Pulsos reales, no una onda de brillo continua: se recorta la mitad
-        // negativa de sin() a 0 (mitad del periodo queda a oscuras de verdad)
-        // y se eleva a una potencia alta para que el paquete de luz sea
-        // estrecho — así se leen como manchas de luz viajando con huecos
-        // oscuros entre medio, que es justo lo que se ve en la referencia, en
-        // vez de una cinta siempre encendida con brillo variable.
-        float pulse = pow(max(sin(flowArg * 3.14159265), 0.0), 3.0);
-        float flow = 0.14 + 0.86 * pulse;
-
-        // El flujo afecta a toda la cinta (núcleo y volumen) y también a lo que
-        // alimenta la neblina, para que no quede un colchón fijo que disimule
-        // el movimiento. Las ganancias suben para compensar que el flujo medio
-        // ronda 0.45.
-        lum += (core * 1.8 + band * mix(0.10, 0.22, a.z)) * flow * fade;
-        bundle += band * flow * fade;
+        // Línea base siempre visible (solo atenuada por profundidad, no por el
+        // pulso) + un extra de brillo donde pasa el pulso, para que se lea
+        // como luz recorriendo un wireframe fijo en vez de cintas parpadeando.
+        lum += core * 1.6 * fade;
+        lum += core * 1.3 * pulse * fade;
+        lum += band * mix(0.04, 0.08, a.z) * fade; // halo casi nulo, ya no es una cinta difusa
+        bundle += band * 0.4 * fade;
     }
 
-    // Neblina ambiental reducida (antes 0.34): con líneas finas, demasiada
-    // niebla las volvía a leer como cintas gruesas otra vez.
-    lum += smoothstep(0.08, 2.2, bundle) * 0.12;
+    // Niebla ambiental casi apagada: el fondo entre líneas debe leerse negro
+    // puro, como en la referencia de wireframe, no como un haz de luz denso.
+    lum += smoothstep(0.08, 2.2, bundle) * 0.04;
 
     return lum;
 }
