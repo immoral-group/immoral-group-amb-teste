@@ -1098,8 +1098,8 @@ function initHeroPhysics() {
     // Burbujas de cristal (glassmorphism) con el nombre de cada caso de éxito.
     // Más pequeñas en mobile. Rango amplio a propósito (pedido explícito del
     // usuario: "más variación de tamaños") en vez del rango estrecho anterior.
-    const CASE_CIRCLE_SIZE_MIN = isMobile ? 28 : 38;
-    const CASE_CIRCLE_SIZE_MAX = isMobile ? 72 : 96;
+    const CASE_CIRCLE_SIZE_MIN = isMobile ? 25 : 34;
+    const CASE_CIRCLE_SIZE_MAX = isMobile ? 64 : 86;
     const DOT_SIZE = isMobile ? 15 : 25;
     const TEXTURE_SIZE = 500; // Tamaño de referencia del canvas, escalado luego al radio real.
 
@@ -1126,6 +1126,27 @@ function initHeroPhysics() {
                 slug: (card.getAttribute('href') || '').replace(/^caso-/, '').replace(/\.html$/, ''),
             }))
             .filter((c) => c.logoUrl);
+    }
+
+    // Rectángulo (relativo al contenedor de la física) que ocupa el bloque de
+    // texto del hero ("No lo decimos nosotros..."), con un margen extra para
+    // que las burbujas no lleguen a rozar las letras. Se usa tanto para crear
+    // el muro invisible que las repele como para no soltarlas ya superpuestas
+    // al texto. Devuelve null si el texto aún no tiene tamaño (p. ej. layout
+    // no calculado todavía).
+    function getTextZoneRect(container) {
+        const textEl = document.getElementById('hero-physics-text');
+        if (!textEl) return null;
+        const containerRect = container.getBoundingClientRect();
+        const textRect = textEl.getBoundingClientRect();
+        if (textRect.width === 0 || textRect.height === 0) return null;
+        const margin = 24;
+        return {
+            x: (textRect.left - containerRect.left) - margin,
+            y: (textRect.top - containerRect.top) - margin,
+            width: textRect.width + margin * 2,
+            height: textRect.height + margin * 2,
+        };
     }
 
     function loadImage(src) {
@@ -1180,14 +1201,33 @@ function initHeroPhysics() {
         return c;
     }
 
-    // Dibuja una pequeña burbuja azul plana con el logo de la marca dentro,
-    // y la devuelve como data URL usable como textura de sprite en Matter.js.
+    // Vértices de un triángulo equilátero apuntando hacia arriba, inscrito en
+    // un círculo de radio `r` centrado en (cx, cy). El centroide de este
+    // triángulo coincide con (cx, cy), así que sirve tanto para dibujar la
+    // textura (cx = cy = centro del canvas) como para el cuerpo físico real
+    // (cx, cy = posición del cuerpo) usando el mismo radio en ambos casos:
+    // eso es lo que mantiene la textura pintada alineada con la forma de
+    // colisión de Matter.js (ver Bodies.fromVertices más abajo).
+    function triangleVertices(cx, cy, r) {
+        return [
+            { x: cx, y: cy - r },
+            { x: cx + r * 0.8660254, y: cy + r * 0.5 },
+            { x: cx - r * 0.8660254, y: cy + r * 0.5 },
+        ];
+    }
+
+    // Dibuja una pequeña burbuja azul plana (círculo, cuadrado o triángulo)
+    // con el logo de la marca dentro, y la devuelve como data URL usable como
+    // textura de sprite en Matter.js.
     // fillRatio: fracción del diámetro de la burbuja que ocupa la dimensión
     // más larga del logo (0.9 = ~90%, pedido explícito del usuario para la
     // mayoría de los casos; los 3 exceptuados siguen usando el ratio legacy,
     // más conservador, para no arriesgar que un logo casi cuadrado se salga
     // del círculo).
-    async function createGlassBubbleTexture(logoUrl, fillRatio = LEGACY_LOGO_FILL_RATIO) {
+    // shape: 'circle' | 'square' | 'triangle'. Para triángulo se aplica un
+    // fillRatio más pequeño (el logo debe caber en el círculo inscrito, no en
+    // el circunscrito) y se sube ligeramente para respetar la punta superior.
+    async function createGlassBubbleTexture(logoUrl, fillRatio = LEGACY_LOGO_FILL_RATIO, shape = 'circle') {
         const size = TEXTURE_SIZE;
         const canvas = document.createElement('canvas');
         canvas.width = size;
@@ -1198,20 +1238,41 @@ function initHeroPhysics() {
         const radius = center;
 
         ctx.beginPath();
-        ctx.arc(center, center, radius, 0, Math.PI * 2);
+        if (shape === 'square') {
+            const cornerRadius = size * 0.18;
+            ctx.moveTo(cornerRadius, 0);
+            ctx.arcTo(size, 0, size, size, cornerRadius);
+            ctx.arcTo(size, size, 0, size, cornerRadius);
+            ctx.arcTo(0, size, 0, 0, cornerRadius);
+            ctx.arcTo(0, 0, size, 0, cornerRadius);
+        } else if (shape === 'triangle') {
+            const [a, b, c] = triangleVertices(center, center, radius);
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.lineTo(c.x, c.y);
+            ctx.closePath();
+        } else {
+            ctx.arc(center, center, radius, 0, Math.PI * 2);
+        }
         ctx.fillStyle = '#3980E4';
         ctx.fill();
+
+        // El triángulo solo puede alojar el logo dentro de su círculo inscrito
+        // (radio = mitad del circunscrito), y ese círculo queda desplazado
+        // hacia abajo respecto al centro del canvas (que es el centroide).
+        const logoFillRatio = shape === 'triangle' ? fillRatio * 0.5 : fillRatio;
+        const logoCenterY = shape === 'triangle' ? center + radius * 0.2 : center;
 
         try {
             const img = await loadImage(logoUrl);
 
-            const targetSpan = size * fillRatio;
+            const targetSpan = size * logoFillRatio;
             const scale = Math.min(targetSpan / img.width, targetSpan / img.height);
             const w = img.width * scale;
             const h = img.height * scale;
 
             const x = center - w / 2;
-            const y = center - h / 2;
+            const y = logoCenterY - h / 2;
 
             if (hasTransparentCorners(img)) {
                 // Los logos vienen en colores/variantes distintas (algunos oscuros,
@@ -1240,11 +1301,19 @@ function initHeroPhysics() {
         if (!document.getElementById('hero-physics')) return;
 
         // Una burbuja de cristal por cada caso de éxito que exista ahora mismo en la rejilla.
+        // La mayoría son círculos ("globos"), pero se mezclan cuadrados y triángulos
+        // (pedido explícito del usuario) siguiendo este patrón para asegurar variedad
+        // aunque haya pocos casos, en vez de dejarlo a un random que podría salir todo
+        // círculos.
+        const SHAPE_PATTERN = ['circle', 'circle', 'square', 'circle', 'triangle'];
         const cases = getCaseStudyLogos();
-        const bubbleTextures = await Promise.all(
-            cases.map(({ logoUrl, slug }) =>
-                createGlassBubbleTexture(logoUrl, SMALL_LOGO_SLUGS.has(slug) ? LEGACY_LOGO_FILL_RATIO : 0.9)
-            )
+        const bubbles = await Promise.all(
+            cases.map(async ({ logoUrl, slug }, i) => {
+                const shape = SHAPE_PATTERN[i % SHAPE_PATTERN.length];
+                const fillRatio = SMALL_LOGO_SLUGS.has(slug) ? LEGACY_LOGO_FILL_RATIO : 0.9;
+                const texture = await createGlassBubbleTexture(logoUrl, fillRatio, shape);
+                return { texture, shape };
+            })
         );
 
         const currentContainer = document.getElementById('hero-physics');
@@ -1291,23 +1360,65 @@ function initHeroPhysics() {
         const rightWall = Bodies.rectangle(currentContainer.clientWidth + WALL_THICKNESS / 2, currentContainer.clientHeight / 2, WALL_THICKNESS, currentContainer.clientHeight * 5, { isStatic: true, render: { visible: false } });
         const topWall = Bodies.rectangle(currentContainer.clientWidth / 2, -WALL_THICKNESS * 2, currentContainer.clientWidth, WALL_THICKNESS, { isStatic: true, render: { visible: false } });
 
-        Composite.add(world, [ground, leftWall, rightWall, topWall]);
+        // Muro invisible que cubre el bloque de texto del hero para que ninguna
+        // burbuja/figura pueda caer o ser empujada encima de las letras.
+        const textZoneRect = getTextZoneRect(currentContainer);
+        let textZoneWall = null;
+        if (textZoneRect) {
+            textZoneWall = Bodies.rectangle(
+                textZoneRect.x + textZoneRect.width / 2,
+                textZoneRect.y + textZoneRect.height / 2,
+                textZoneRect.width,
+                textZoneRect.height,
+                { isStatic: true, render: { visible: false } }
+            );
+        }
+
+        const staticWalls = [ground, leftWall, rightWall, topWall];
+        if (textZoneWall) staticWalls.push(textZoneWall);
+        Composite.add(world, staticWalls);
+
+        // El texto puede estar arriba (mobile/tablet, ancho casi completo) o a
+        // la derecha (desktop, xl+): se detecta por la forma del rectángulo
+        // medido en vez de por un breakpoint fijo, así funciona igual si cambia
+        // el diseño. Con eso se reserva, al soltar cada figura, una zona de
+        // partida que ya no se solape con el texto (además del muro físico).
+        const textOnTop = !!textZoneRect && textZoneRect.width > currentContainer.clientWidth * 0.5;
+        let spawnMinX = currentContainer.clientWidth * 0.05;
+        let spawnMaxX = currentContainer.clientWidth * 0.7;
+        let spawnMinY = 0;
+        let spawnMaxY = currentContainer.clientHeight * 0.85;
+        if (textZoneRect) {
+            if (textOnTop) {
+                spawnMinY = Math.max(spawnMinY, textZoneRect.y + textZoneRect.height + 10);
+                spawnMaxX = currentContainer.clientWidth * 0.95;
+            } else {
+                spawnMaxX = Math.min(spawnMaxX, textZoneRect.x - 10);
+            }
+        }
+        spawnMaxX = Math.max(spawnMinX + 1, spawnMaxX);
+        spawnMaxY = Math.max(spawnMinY + 1, spawnMaxY);
 
         const bodies = [];
-        bubbleTextures.forEach((texture) => {
+        bubbles.forEach(({ texture, shape }) => {
             const radius = CASE_CIRCLE_SIZE_MIN + Math.random() * (CASE_CIRCLE_SIZE_MAX - CASE_CIRCLE_SIZE_MIN);
-            // Una burbuja por caso de éxito puede ser bastante más que las 4 imágenes de equipo
-            // originales, así que se les da una zona más ancha para caer/asentarse — si no,
-            // con muchos casos se amontonan unas sobre otras y se tapan entre sí.
-            const x = Math.random() * (currentContainer.clientWidth * 0.65) + (currentContainer.clientWidth * 0.05);
-            const y = Math.random() * (currentContainer.clientHeight * 0.85);
-            const circle = Bodies.circle(x, y, radius, {
+            const x = spawnMinX + Math.random() * (spawnMaxX - spawnMinX);
+            const y = spawnMinY + Math.random() * (spawnMaxY - spawnMinY);
+            const bodyOptions = {
                 restitution: 0.5,
                 friction: 0.01,
                 frictionAir: 0.005,
                 render: { sprite: { texture: texture, xScale: (radius * 2) / TEXTURE_SIZE, yScale: (radius * 2) / TEXTURE_SIZE } }
-            });
-            bodies.push(circle);
+            };
+            let body;
+            if (shape === 'square') {
+                body = Bodies.rectangle(x, y, radius * 2, radius * 2, bodyOptions);
+            } else if (shape === 'triangle') {
+                body = Bodies.fromVertices(x, y, [triangleVertices(x, y, radius)], bodyOptions);
+            } else {
+                body = Bodies.circle(x, y, radius, bodyOptions);
+            }
+            bodies.push(body);
         });
 
         for (let i = 0; i < 2; i++) {
@@ -1376,6 +1487,24 @@ function initHeroPhysics() {
             Matter.Body.setPosition(ground, { x: currentContainer.clientWidth / 2, y: currentContainer.clientHeight + WALL_THICKNESS / 2 });
             Matter.Body.setPosition(rightWall, { x: currentContainer.clientWidth + WALL_THICKNESS / 2, y: currentContainer.clientHeight / 2 });
             Matter.Body.setPosition(topWall, { x: currentContainer.clientWidth / 2, y: -WALL_THICKNESS * 2 });
+            // Reubicar (y redimensionar, con un nuevo cuerpo) el muro del texto:
+            // Matter.js no permite cambiar width/height de un body existente,
+            // así que se sustituye por uno nuevo con el rectángulo medido de nuevo.
+            if (textZoneWall) {
+                Composite.remove(world, textZoneWall);
+                textZoneWall = null;
+            }
+            const newTextZoneRect = getTextZoneRect(currentContainer);
+            if (newTextZoneRect) {
+                textZoneWall = Bodies.rectangle(
+                    newTextZoneRect.x + newTextZoneRect.width / 2,
+                    newTextZoneRect.y + newTextZoneRect.height / 2,
+                    newTextZoneRect.width,
+                    newTextZoneRect.height,
+                    { isStatic: true, render: { visible: false } }
+                );
+                Composite.add(world, textZoneWall);
+            }
         };
 
         window.addEventListener('resize', physicsResizeHandler);
