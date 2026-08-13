@@ -42,13 +42,17 @@ function messageRow(msg, isAdmin) {
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0">
           <p class="${T.textPrimary} text-sm font-medium truncate">${escapeHtml(msg.nombre)}</p>
-          <a href="mailto:${escapeHtml(msg.email)}" class="${T.accentText} text-xs">${escapeHtml(msg.email)}</a>
+          <div class="flex items-center gap-2">
+            <a href="mailto:${escapeHtml(msg.email)}" class="${T.accentText} text-xs">${escapeHtml(msg.email)}</a>
+            ${msg.telefono ? `<a href="tel:${escapeHtml(msg.telefono)}" class="${T.accentText} text-xs">${escapeHtml(msg.telefono)}</a>` : ''}
+          </div>
         </div>
         <div class="flex items-center gap-3 flex-shrink-0">
           <span class="${T.textMuted} text-xs">${formatFecha(msg.created_at)}</span>
           ${msg.etiqueta ? `<span class="text-xs px-2 py-0.5 ${T.radiusSm} bg-white/10 ${T.textSecondary}">${escapeHtml(msg.etiqueta)}</span>` : ''}
         </div>
       </div>
+      ${msg.asunto ? `<p class="${T.textPrimary} text-sm font-medium">${escapeHtml(msg.asunto)}</p>` : ''}
       <p class="${T.textSecondary} text-sm whitespace-pre-wrap">${escapeHtml(msg.mensaje)}</p>
       <div class="flex items-center justify-between gap-2 mt-1">
         <label class="flex items-center gap-2 text-xs ${T.textSecondary} cursor-pointer">
