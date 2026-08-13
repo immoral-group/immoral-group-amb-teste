@@ -23,8 +23,28 @@ const CAMERA_FOV = 38;
 // near-frontal look, just enough elevation for the rings to read as shallow
 // ellipses instead of edge-on lines or full face-on circles.
 const CAMERA_DIR = new THREE.Vector3(0.4, 0.3, 1).normalize();
+// CAMERA_DIR flattened onto the ring's own horizontal (XZ) plane — the
+// "which way is the camera" direction used to fade the ring's glow accents to
+// only their camera-facing half (see updateFrontFacingColors in animate()).
+const CAMERA_XZ = new THREE.Vector2(CAMERA_DIR.x, CAMERA_DIR.z).normalize();
 const TARGET_HEIGHT_FRACTION = 0.76; // object should occupy ~70-80% of visible height
 const MIN_CAMERA_DISTANCE = 6;
+
+// Bloom — this scene owns its own EffectComposer, so these only affect the
+// funnel. Was (0.55, 0.4, 0.45): low threshold + wide radius meant almost
+// every white line/point on the black background crossed the bloom threshold,
+// and dense areas (many overlapping point sprites where the ring curves away
+// from camera) stacked up even brighter — the whole ring, lines included,
+// read as soft/blurred rather than crisp. Threshold is lower again here (0.62)
+// specifically to give the ring a visible glow/"resplandor" — it now reliably
+// catches the ring's own bright accents (see RING_GLOW_* below and the
+// re-enabled additive glow points) while the far more numerous, darker-shaded
+// dim points (topping out around ~0.5 luminance, see RING_GRADIENT_MIN_BRIGHTNESS)
+// stay under it and read crisp. Radius stays tight so the glow stays a
+// contained halo around those bright accents instead of spreading into a blur.
+const BLOOM_STRENGTH = 0.35; // was 0.5 — down 30% per request to tone down the glow overall
+const BLOOM_RADIUS = 0.15;
+const BLOOM_THRESHOLD = 0.62;
 
 // Fake-lighting vertex-color gradient — a volume cue for the icons' flat
 // accent outlines (circles/heart/bubble): each vertex is tinted from bright
@@ -37,6 +57,15 @@ const MIN_CAMERA_DISTANCE = 6;
 const ICON_LIGHT_DIR = new THREE.Vector2(-0.45, 0.6).normalize(); // fixed upper-left "light" for flat icon shapes (local XY-plane)
 const GRADIENT_MIN_BRIGHTNESS = 0.12;
 const GRADIENT_FALLOFF_POWER = 1;
+
+// Same fake-lighting trick, now also applied to the funnel rings themselves
+// (their rib cross-sections and point cloud, both in the tube's own local
+// radial/vertical plane): the ring previously stayed one flat, uniform
+// brightness all the way around, which is exactly why it read as a flat disc
+// instead of a round 3D tube. Lighting the top of the tube brighter than the
+// bottom gives it real shaded roundness, like the icons already have.
+const RING_LIGHT_DIR = new THREE.Vector2(-0.3, 0.85).normalize();
+const RING_GRADIENT_MIN_BRIGHTNESS = 0.35; // higher floor than the icons' — the ring should never go near-invisible, just shaded
 
 // Colors — monochrome, slightly cool white. Swap these three to retint everything.
 const COLOR_PRIMARY = 0xffffff;
@@ -54,6 +83,15 @@ const SOLID_ROUGHNESS = 0.55;
 const SOLID_METALNESS = 0.15;
 const ICON_EXTRUDE_DEPTH = 0.06; // real depth for the heart/message solids
 
+// Badge backdrop for the floating icons — a thick rounded disc/plaque (circle
+// for the "person" glyphs, rounded square for heart/message) that the actual
+// symbol sits raised on top of. Inspired by a reference the user shared (each
+// icon as a complete framed badge) instead of a bare shape floating on its
+// own, which read as an unfinished default-primitive ("figura de Blender").
+const BADGE_DEPTH = 0.055;
+const BADGE_RIM_INSET = 0.9; // was 0.82 — tighter, so the inner bevel line sits close to the outer rim (a close double-line edge, per the reference) instead of a wide gap
+const BADGE_SYMBOL_LIFT = 0.06; // how far in front of the badge's own face the inner symbol sits — clears BADGE_DEPTH/2 so it reads as raised/embossed instead of z-fighting
+
 // Opacity bands (spec: primary lines visible, secondary near-invisible, points vary)
 const OPACITY_LINE_PRIMARY = 0.65;
 const OPACITY_LINE_SECONDARY = 0.32; // was 0.16 — too faint to read as real depth/volume cues
@@ -63,6 +101,34 @@ const OPACITY_POINT_BRIGHT = 0.95;
 // Point sizes
 const POINT_SIZE_DIM = 0.034;
 const POINT_SIZE_BRIGHT = 0.065;
+
+// Funnel-ring particle size — deliberately a single, small size (no dim/bright
+// split like the icons above): the previous ~2x bright-vs-dim spread plus
+// AdditiveBlending on the bright ones read as oversized blurred glow blobs
+// scattered among the small ones once bloom picked them up. Matches the
+// uniform small-speck look of the site's other particle piece (hex-cubes-scene.js,
+// diseño de marca — SPECK_BASE_SIZE relative to its cube size lands in the same range).
+const RING_POINT_SIZE = 0.024;
+
+// Glow accent for the ring: a soft additive-blended duplicate of the outer
+// contour, layered behind the crisp primary line, plus additive blending
+// back on the "glow" points (safe now that they use the hardened
+// ringDotTexture — the earlier blur came from a soft texture at small sizes,
+// already fixed, not from additive blending itself). Bloom (lowered
+// threshold above) turns both into a visible radiance around the spiral.
+const RING_GLOW_LINE_OPACITY = 0.385; // was 0.55 — down 30% per request
+
+// Tube fill — the particle cloud used to sit exactly ON the tube's outer
+// shell (fixed distance from the ring's centerline), which reads as a flat
+// hollow ring rather than a solid 3D tube. Sampling with a gaussian falloff
+// per axis instead (same approach as hex-cubes-scene.js's scatterVolumetric,
+// diseño de marca — points cluster toward the cube's own center) fills the
+// tube's actual cross-section, concentrated toward its central axis and
+// thinning toward the edge: real volumetric depth/parallax as it rotates,
+// and the particles read as centered in the middle of each spiral instead of
+// smeared out to its rim.
+const TUBE_FILL_SIGMA = 0.32; // fraction of tube radius — std. deviation of the gaussian spread. Was 0.55 — tightened so particles bunch up around the tube's centerline much more, per the "aglomerar en el centro" ask, instead of spreading fairly evenly across it.
+const TUBE_FILL_MARGIN = 0.65; // clamp bound so points stay inside the tube, don't poke out. Was 0.9 — tightened alongside sigma so the rare far-tail sample doesn't still land near the rim.
 
 // Animation speed (radians/sec-ish, all intentionally tiny — "apenas se perciba")
 const ROTATE_SPEED = 0.028; // whole-system idle spin
@@ -95,6 +161,13 @@ function makeDotTexture(hardness = 0.35) {
 
 export function createMarketingFunnelScene(canvas, container) {
     const dotTexture = makeDotTexture();
+    // Harder-edged texture for the ring particles only: sizeAttenuation shrinks
+    // points on the far side of each ring (the side "dando la vuelta atrás"), and
+    // at a few pixels across, the soft radial gradient's opaque core all but
+    // disappears — nearly the whole sprite becomes soft falloff, which reads as
+    // pure blur instead of a small crisp dot. A much larger opaque plateau keeps
+    // it looking like a defined point at any size the far side shrinks to.
+    const ringDotTexture = makeDotTexture(0.75);
 
     const lineMatPrimary = () =>
         new THREE.LineBasicMaterial({ color: COLOR_PRIMARY, transparent: true, opacity: OPACITY_LINE_PRIMARY });
@@ -121,6 +194,51 @@ export function createMarketingFunnelScene(canvas, container) {
             sizeAttenuation: true,
             blending: THREE.AdditiveBlending,
         });
+    // Ring-only variants: same look as pointMatDim/pointMatBright (size,
+    // opacity, color) but a single small RING_POINT_SIZE for both. The bright
+    // one has AdditiveBlending back on for a visible "resplandor" sparkle —
+    // safe now with the hardened ringDotTexture (the earlier blur came from a
+    // soft texture at small sizes, not from additive blending itself). Icons
+    // keep their own dim/bright materials above unchanged.
+    // vertexColors:true here too — the per-point shading colors set by
+    // ringPointsShaded (below) multiply against this base color, giving the
+    // cloud itself real lit-top/shadowed-bottom roundness.
+    const ringPointMatDim = () =>
+        new THREE.PointsMaterial({
+            color: COLOR_SECONDARY,
+            map: ringDotTexture,
+            size: RING_POINT_SIZE,
+            transparent: true,
+            opacity: OPACITY_POINT_DIM,
+            depthWrite: false,
+            sizeAttenuation: true,
+            vertexColors: true,
+        });
+    const ringPointMatBright = () =>
+        new THREE.PointsMaterial({
+            color: COLOR_GLOW,
+            map: ringDotTexture,
+            size: RING_POINT_SIZE,
+            transparent: true,
+            opacity: OPACITY_POINT_BRIGHT,
+            depthWrite: false,
+            sizeAttenuation: true,
+            vertexColors: true,
+            blending: THREE.AdditiveBlending,
+        });
+    // Soft additive duplicate of the ring's outer contour — layered behind
+    // the crisp primary line (see ringLineA below), it's what bloom turns
+    // into the ring's own visible glow/"resplandor" instead of relying only
+    // on the sparse bright points for it. vertexColors:true so the per-frame
+    // front/back fade below (see updateFrontFacingColors) can dim it to
+    // black — effectively invisible — on the half of the ring facing away
+    // from camera, per the "solo en la parte de al frente" request.
+    const ringGlowLineMat = () =>
+        new THREE.LineBasicMaterial({ color: COLOR_GLOW, transparent: true, opacity: RING_GLOW_LINE_OPACITY, blending: THREE.AdditiveBlending, vertexColors: true });
+    // Same idea for the icon badges' rim (see buildBadge) — static, no
+    // vertexColors/per-frame fade needed since icons don't rotate.
+    const badgeGlowMat = () =>
+        new THREE.LineBasicMaterial({ color: COLOR_GLOW, transparent: true, opacity: RING_GLOW_LINE_OPACITY, blending: THREE.AdditiveBlending });
     const solidMat = () =>
         new THREE.MeshStandardMaterial({
             color: SOLID_COLOR,
@@ -141,22 +259,22 @@ export function createMarketingFunnelScene(canvas, container) {
     // "light", GRADIENT_MIN_BRIGHTNESS facing away. The power curve pushes more
     // of the falloff toward the dark end, so the bright side reads as a clear
     // highlight instead of a wide, subtle half-and-half fade.
-    function gradientBrightness(nx, ny, lightDir) {
+    function gradientBrightness(nx, ny, lightDir, minBrightness = GRADIENT_MIN_BRIGHTNESS) {
         const len = Math.hypot(nx, ny) || 1;
         const dot = (nx / len) * lightDir.x + (ny / len) * lightDir.y;
         const t = Math.pow(Math.max(0, dot * 0.5 + 0.5), GRADIENT_FALLOFF_POWER);
-        return GRADIENT_MIN_BRIGHTNESS + (1 - GRADIENT_MIN_BRIGHTNESS) * t;
+        return minBrightness + (1 - minBrightness) * t;
     }
 
     // Builds the 'color' BufferAttribute a gradient material needs. `axisFn`
     // picks which 2 coordinates of each point represent the shape's own local
     // "facing" plane (XZ for the flat-lying funnel rings, XY for the
     // flat-facing icons).
-    function setGradientColors(geometry, points, lightDir, axisFn) {
+    function setGradientColors(geometry, points, lightDir, axisFn, minBrightness = GRADIENT_MIN_BRIGHTNESS) {
         const colors = new Float32Array(points.length * 3);
         points.forEach((p, i) => {
             const [nx, ny] = axisFn(p);
-            const b = gradientBrightness(nx, ny, lightDir);
+            const b = gradientBrightness(nx, ny, lightDir, minBrightness);
             colors[i * 3] = b;
             colors[i * 3 + 1] = b;
             colors[i * 3 + 2] = b;
@@ -166,11 +284,11 @@ export function createMarketingFunnelScene(canvas, container) {
 
     const XY_AXES = (p) => [p.x, p.y];
 
-    function gradientLineLoop(points, lightDir, axisFn, closed = true) {
+    function gradientLineLoop(points, lightDir, axisFn, closed = true, material = lineMatGradient(), minBrightness = GRADIENT_MIN_BRIGHTNESS) {
         const geo = new THREE.BufferGeometry().setFromPoints(points);
-        setGradientColors(geo, points, lightDir, axisFn);
+        setGradientColors(geo, points, lightDir, axisFn, minBrightness);
         const LineType = closed ? THREE.LineLoop : THREE.Line;
-        return new LineType(geo, lineMatGradient());
+        return new LineType(geo, material);
     }
 
     function pointsFromArray(points, material) {
@@ -178,6 +296,40 @@ export function createMarketingFunnelScene(canvas, container) {
         return new THREE.Points(geo, material);
     }
 
+    // Same idea as gradientLineLoop but for a Points cloud: colors each point
+    // by how much it "faces" RING_LIGHT_DIR in the tube's own local
+    // radial/vertical plane (recovered straight from its world position —
+    // radial offset = distance from the ring's centerline minus its radius,
+    // vertical offset = its own y) — gives the point cloud itself real shaded
+    // roundness instead of one flat brightness everywhere.
+    function ringPointsShaded(points, material, radius) {
+        const geo = new THREE.BufferGeometry().setFromPoints(points);
+        const colors = new Float32Array(points.length * 3);
+        points.forEach((p, i) => {
+            const dRadial = Math.hypot(p.x, p.z) - radius;
+            const b = gradientBrightness(dRadial, p.y, RING_LIGHT_DIR, RING_GRADIENT_MIN_BRIGHTNESS);
+            colors[i * 3] = b;
+            colors[i * 3 + 1] = b;
+            colors[i * 3 + 2] = b;
+        });
+        geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        return new THREE.Points(geo, material);
+    }
+
+    // Geometry pre-wired with a 'color' attribute for the front-only glow
+    // fade (see updateFrontFacingColors in animate()) — vertexColors:true
+    // materials need this attribute present even before the first update.
+    function dynamicColorLineLoop(points, material) {
+        const geo = new THREE.BufferGeometry().setFromPoints(points);
+        geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(points.length * 3), 3));
+        return new THREE.LineLoop(geo, material);
+    }
+
+    function dynamicColorPoints(points, material) {
+        const geo = new THREE.BufferGeometry().setFromPoints(points);
+        geo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(points.length * 3), 3));
+        return new THREE.Points(geo, material);
+    }
 
     // Gives a flat outline real volume without THREE.ExtrudeGeometry: adds a
     // second copy of the same outline offset by `depthOffset`, plus a handful
@@ -249,63 +401,7 @@ export function createMarketingFunnelScene(canvas, container) {
         return pts;
     }
 
-    // A single "person": a real solid sphere for the head (not a flat circle
-    // outline) plus an arc of shoulders below it.
-    function createUserGlyph(scale) {
-        const group = new THREE.Group();
-        const headR = 0.075 * scale;
-        const headCy = headR * 1.7;
-
-        const headMesh = new THREE.Mesh(new THREE.SphereGeometry(headR, 16, 12), solidMat());
-        headMesh.position.set(0, headCy, 0);
-        group.add(headMesh);
-        // Thin equatorial accent line — the sphere itself carries the shape now.
-        const head = circlePoints(headR, 16, 0, headCy);
-        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(head), lineMatSecondary()));
-
-        const shoulderR = 0.13 * scale;
-        const shoulderCy = -headR * 0.15;
-        const shoulders = arcPoints(shoulderR, Math.PI * 0.12, Math.PI * 0.88, 14, 0, shoulderCy);
-        const shoulderLine = gradientLineLoop(shoulders, ICON_LIGHT_DIR, (p) => [p.x, p.y - shoulderCy], false);
-        group.add(shoulderLine);
-        addDepthShell(group, shoulders, 6, false);
-
-        const scatter = scatterAlongPath([...head, ...shoulders], 35);
-        group.add(pointsFromArray(scatter, pointMatDim()));
-        return group;
-    }
-
-    // Solid heart via the classic parametric heart curve, extruded into real depth.
-    function createHeartGlyph(scale) {
-        const group = new THREE.Group();
-        const s = 0.0085 * scale;
-        const pts = [];
-        const segments = 40;
-        for (let i = 0; i <= segments; i++) {
-            const t = (i / segments) * Math.PI * 2;
-            const x = 16 * Math.pow(Math.sin(t), 3);
-            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
-            pts.push(new THREE.Vector3(x * s, y * s, 0));
-        }
-
-        const heartShape = new THREE.Shape();
-        pts.forEach((p, i) => (i === 0 ? heartShape.moveTo(p.x, p.y) : heartShape.lineTo(p.x, p.y)));
-        const heartMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(heartShape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false }), solidMat());
-        heartMesh.position.z = -ICON_EXTRUDE_DEPTH / 2;
-        group.add(heartMesh);
-
-        const line = gradientLineLoop(pts, ICON_LIGHT_DIR, XY_AXES);
-        group.add(line);
-        group.add(pointsFromArray(scatterAlongPath(pts, 30), pointMatDim()));
-        return group;
-    }
-
-    // Rounded rectangular bubble with 3 interior dots ("message" icon).
-    function createMessageGlyph(scale) {
-        const group = new THREE.Group();
-        const w = 0.26 * scale;
-        const h = 0.18 * scale;
-        const r = 0.045 * scale;
+    function roundedRectShape(w, h, r) {
         const shape = new THREE.Shape();
         shape.moveTo(-w / 2 + r, -h / 2);
         shape.lineTo(w / 2 - r, -h / 2);
@@ -316,58 +412,186 @@ export function createMarketingFunnelScene(canvas, container) {
         shape.absarc(-w / 2 + r, h / 2 - r, r, Math.PI / 2, Math.PI, false);
         shape.lineTo(-w / 2, -h / 2 + r);
         shape.absarc(-w / 2 + r, -h / 2 + r, r, Math.PI, Math.PI * 1.5, false);
+        return shape;
+    }
+
+    // Builds the badge disc itself (solid extrude + lit rim outline + inner
+    // bevel contour + edge scatter) from a flat Shape — shared by the
+    // circular and rounded-square badges below. Real extruded depth already
+    // gives it volume, so unlike addDepthShell (for flat outlines with no
+    // real geometry) this doesn't need a fake back-copy — just the one lit
+    // outline plus a fainter inset line for the bevel.
+    function buildBadge(group, shape, outline, innerOutline) {
+        const mesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: BADGE_DEPTH, bevelEnabled: false, curveSegments: 24 }), solidMat());
+        mesh.position.z = -BADGE_DEPTH / 2;
+        group.add(mesh);
+
+        group.add(gradientLineLoop(outline, ICON_LIGHT_DIR, XY_AXES));
+        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(innerOutline), lineMatSecondary()));
+        // Additive glow duplicate of the rim — same technique as the ring's
+        // ringGlowLineMat, bloom turns it into the "acrylic edge" glow from
+        // the reference. No front/back fade needed here (unlike the ring):
+        // icons don't spin, so the glow can just stay on evenly all around.
+        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(outline), badgeGlowMat()));
+    }
+
+    function addCircleBadge(group, radius) {
+        const outline = circlePoints(radius, 48);
+        const innerOutline = circlePoints(radius * BADGE_RIM_INSET, 40);
+        const shape = new THREE.Shape();
+        shape.absarc(0, 0, radius, 0, Math.PI * 2, false);
+        buildBadge(group, shape, outline, innerOutline);
+    }
+
+    function addRoundedSquareBadge(group, w, h, r) {
+        const shape = roundedRectShape(w, h, r);
+        const outline = shape.getPoints(8);
+        outline.push(outline[0].clone());
+        const innerShape = roundedRectShape(w * BADGE_RIM_INSET, h * BADGE_RIM_INSET, r * BADGE_RIM_INSET);
+        const innerOutline = innerShape.getPoints(8);
+        innerOutline.push(innerOutline[0].clone());
+        buildBadge(group, shape, outline, innerOutline);
+    }
+
+    // A single "person": a real solid sphere for the head (not a flat circle
+    // outline) plus an arc of shoulders below it. Now sits raised on a
+    // circular badge (see addCircleBadge) instead of floating bare.
+    function createUserGlyph(scale) {
+        const group = new THREE.Group();
+        addCircleBadge(group, 0.24 * scale);
+
+        const symbol = new THREE.Group();
+        symbol.position.z = BADGE_SYMBOL_LIFT;
+        group.add(symbol);
+
+        // headR/shoulderR back up (was shrunk to 0.055/0.095) — the reference
+        // image shows the person figure filling most of its badge, not sitting
+        // small with a lot of empty margin.
+        const headR = 0.078 * scale;
+        const headCy = headR * 1.7;
+
+        const headMesh = new THREE.Mesh(new THREE.SphereGeometry(headR, 16, 12), solidMat());
+        headMesh.position.set(0, headCy, 0);
+        symbol.add(headMesh);
+        // Thin equatorial accent line — the sphere itself carries the shape now.
+        const head = circlePoints(headR, 16, 0, headCy);
+        symbol.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(head), lineMatSecondary()));
+
+        const shoulderR = 0.135 * scale;
+        const shoulderCy = -headR * 0.15;
+        const shoulders = arcPoints(shoulderR, Math.PI * 0.12, Math.PI * 0.88, 14, 0, shoulderCy);
+        const shoulderLine = gradientLineLoop(shoulders, ICON_LIGHT_DIR, (p) => [p.x, p.y - shoulderCy], false);
+        symbol.add(shoulderLine);
+        addDepthShell(symbol, shoulders, 6, false);
+
+        const scatter = scatterAlongPath([...head, ...shoulders], 35);
+        symbol.add(pointsFromArray(scatter, pointMatDim()));
+        return group;
+    }
+
+    // Solid heart via the classic parametric heart curve, extruded into real
+    // depth, raised on a rounded-square badge (see addRoundedSquareBadge).
+    function createHeartGlyph(scale) {
+        const group = new THREE.Group();
+        addRoundedSquareBadge(group, 0.34 * scale, 0.3 * scale, 0.08 * scale);
+
+        const symbol = new THREE.Group();
+        symbol.position.z = BADGE_SYMBOL_LIFT;
+        group.add(symbol);
+
+        const s = 0.0068 * scale; // was 0.0085 — shrunk so the heart sits inside its badge with margin instead of crowding the rim
+        const pts = [];
+        const segments = 40;
+        for (let i = 0; i <= segments; i++) {
+            const t = (i / segments) * Math.PI * 2;
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            // +6 recenters the curve vertically (its raw y range is ~[-17, 5],
+            // not symmetric around 0) so it sits centered in its badge.
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t) + 6;
+            pts.push(new THREE.Vector3(x * s, y * s, 0));
+        }
+
+        const heartShape = new THREE.Shape();
+        pts.forEach((p, i) => (i === 0 ? heartShape.moveTo(p.x, p.y) : heartShape.lineTo(p.x, p.y)));
+        const heartMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(heartShape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false }), solidMat());
+        heartMesh.position.z = -ICON_EXTRUDE_DEPTH / 2;
+        symbol.add(heartMesh);
+
+        const line = gradientLineLoop(pts, ICON_LIGHT_DIR, XY_AXES);
+        symbol.add(line);
+        symbol.add(pointsFromArray(scatterAlongPath(pts, 30), pointMatDim()));
+        return group;
+    }
+
+    // Rounded rectangular bubble with 3 interior dots ("message" icon), raised
+    // on its own rounded-square badge.
+    function createMessageGlyph(scale) {
+        const group = new THREE.Group();
+        addRoundedSquareBadge(group, 0.34 * scale, 0.26 * scale, 0.07 * scale);
+
+        const symbol = new THREE.Group();
+        symbol.position.z = BADGE_SYMBOL_LIFT;
+        group.add(symbol);
+
+        const w = 0.22 * scale; // was 0.26 — shrunk so it sits inside its badge with margin
+        const h = 0.15 * scale; // was 0.18
+        const r = 0.038 * scale; // was 0.045
+        const shape = roundedRectShape(w, h, r);
         const bubbleMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false }), solidMat());
         bubbleMesh.position.z = -ICON_EXTRUDE_DEPTH / 2;
-        group.add(bubbleMesh);
+        symbol.add(bubbleMesh);
 
         const outline = shape.getPoints(6);
         outline.push(outline[0]);
         const line = gradientLineLoop(outline, ICON_LIGHT_DIR, XY_AXES);
-        group.add(line);
+        symbol.add(line);
 
         const dots = [
             new THREE.Vector3(-w * 0.22, 0, 0),
             new THREE.Vector3(0, 0, 0),
             new THREE.Vector3(w * 0.22, 0, 0),
         ];
-        group.add(pointsFromArray(dots, pointMatBright()));
-        group.add(pointsFromArray(scatterAlongPath(outline, 25), pointMatDim()));
+        symbol.add(pointsFromArray(dots, pointMatBright()));
+        symbol.add(pointsFromArray(scatterAlongPath(outline, 25), pointMatDim()));
         return group;
     }
 
-    // "Audience" — a loose cluster of small bare circles (no shoulders), reading as
-    // a crowd rather than one individual.
+    // "Audience" — a loose cluster of small bare circles (no shoulders), reading
+    // as a crowd rather than one individual, raised on its own circular badge.
     function createAudienceGlyph(scale) {
         const group = new THREE.Group();
+        addCircleBadge(group, 0.24 * scale);
+
+        const symbol = new THREE.Group();
+        symbol.position.z = BADGE_SYMBOL_LIFT;
+        group.add(symbol);
+
         const offsets = [
             [0, 0, 0],
-            [0.11 * scale, 0.05 * scale, -0.04 * scale],
-            [-0.1 * scale, 0.03 * scale, 0.05 * scale],
+            [0.09 * scale, 0.04 * scale, -0.02 * scale], // was 0.11/0.05/-0.04 — pulled in so the cluster fits inside its badge
+            [-0.08 * scale, 0.03 * scale, 0.02 * scale], // was -0.1/0.03/0.05
         ];
         const allPts = [];
-        const sphereR = 0.06 * scale;
+        const sphereR = 0.05 * scale; // was 0.06
         offsets.forEach(([ox, oy, oz]) => {
             const sphere = new THREE.Mesh(new THREE.SphereGeometry(sphereR, 12, 10), solidMat());
             sphere.position.set(ox, oy, oz);
-            group.add(sphere);
+            symbol.add(sphere);
             const pts = circlePoints(sphereR, 14, ox, oy).map((p) => new THREE.Vector3(p.x, p.y, oz));
-            group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), lineMatSecondary()));
+            symbol.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), lineMatSecondary()));
             allPts.push(...pts);
         });
-        group.add(pointsFromArray(scatterAlongPath(allPts, 20), pointMatDim()));
+        symbol.add(pointsFromArray(scatterAlongPath(allPts, 20), pointMatDim()));
         return group;
     }
 
     // Irregular layout: different x/y/z per icon so nothing lines up on a grid —
     // edit this array to reposition or rescale any single icon.
-    const ICON_LAYOUT = [
-        { build: createUserGlyph, x: -0.68, y: 0.22, z: 0.1, scale: 1.15, phase: 0.0 },
-        { build: createUserGlyph, x: 0.1, y: 0.32, z: -0.25, scale: 0.95, phase: 1.4 },
-        { build: createUserGlyph, x: 0.62, y: 0.02, z: 0.2, scale: 1.05, phase: 2.6 },
-        { build: createHeartGlyph, x: -0.32, y: -0.12, z: 0.28, scale: 1.0, phase: 0.8 },
-        { build: createMessageGlyph, x: 0.35, y: -0.22, z: -0.15, scale: 1.0, phase: 3.6 },
-        { build: createAudienceGlyph, x: -0.02, y: 0.42, z: 0.35, scale: 1.2, phase: 2.0 },
-    ];
+    // Emptied out per request — no icons floating above the funnel. Left as
+    // an empty array (rather than deleting the glyph builders/materials
+    // below) so nothing else in the scene has to change; repopulate this to
+    // bring icons back.
+    const ICON_LAYOUT = [];
 
     const iconGroups = ICON_LAYOUT.map((cfg) => {
         const glyph = cfg.build(cfg.scale);
@@ -400,25 +624,43 @@ export function createMarketingFunnelScene(canvas, container) {
     funnel.name = 'funnel';
     funnelSystem.add(funnel);
 
-    // radius = ring radius, tube = ring thickness (bumped up from the previous
-    // 0.04-0.07 range — a thin tube reads as a flat line no matter how many
-    // contour circles trace it; a chunkier tube is what makes the roundness
-    // actually visible).
-    // particleCount bumped ~5x — matches the density of the site's other
-    // particle hero (hex-cubes-scene.js uses 700 points per cube).
+    // radius = ring radius (its overall diameter — what "ancho" meant),
+    // tube = ring thickness. tube is back to the earlier chunkier pass
+    // (0.14-0.094) — that got reverted by mistake, the actual "too wide"
+    // complaint was about radius, not tube. radius itself is down ~20% here
+    // (was 1.3/1.05/0.8/0.55) so each ring's own diameter is narrower.
+    // particleCount stays high: a dense cloud is what makes the ring stand
+    // out, independent of its size.
     const FUNNEL_LEVELS = [
-        { radius: 1.3, tube: 0.11, particleCount: 1300 },
-        { radius: 1.05, tube: 0.097, particleCount: 1100 },
-        { radius: 0.8, tube: 0.086, particleCount: 900 },
-        { radius: 0.55, tube: 0.075, particleCount: 650 },
+        { radius: 1.05, tube: 0.14, particleCount: 3000 },
+        { radius: 0.85, tube: 0.123, particleCount: 2500 },
+        { radius: 0.65, tube: 0.108, particleCount: 2000 },
+        { radius: 0.45, tube: 0.094, particleCount: 1500 },
     ];
 
-    // A point on the ring's own tube surface at contour angle u (around the
-    // funnel's Y axis) and cross-section angle v (around the tube) — ring lies
-    // flat in XZ, Y is the tube-thickness direction.
-    function ringSurfacePoint(radius, tube, u, v) {
-        const rad = radius + tube * Math.cos(v);
-        return new THREE.Vector3(rad * Math.cos(u), tube * Math.sin(v), rad * Math.sin(u));
+    // Box-Muller gaussian sample, same helper hex-cubes-scene.js uses for its
+    // volumetric point cloud.
+    function gaussianRandom() {
+        let a = 0, b = 0;
+        while (a === 0) a = Math.random();
+        while (b === 0) b = Math.random();
+        return Math.sqrt(-2 * Math.log(a)) * Math.cos(2 * Math.PI * b);
+    }
+
+    function clampAbs(v, bound) {
+        return Math.max(-bound, Math.min(bound, v));
+    }
+
+    // A point sampled INSIDE the tube's cross-section at contour angle u,
+    // clustered toward the tube's own center axis (gaussian, clamped so it
+    // never pokes past the tube's edge) instead of sitting exactly on the
+    // tube's outer shell — see TUBE_FILL_SIGMA/MARGIN above.
+    function ringVolumePoint(radius, tube, u) {
+        const bound = tube * TUBE_FILL_MARGIN;
+        const dRadial = clampAbs(gaussianRandom() * tube * TUBE_FILL_SIGMA, bound);
+        const dVertical = clampAbs(gaussianRandom() * tube * TUBE_FILL_SIGMA, bound);
+        const rad = radius + dRadial;
+        return new THREE.Vector3(rad * Math.cos(u), dVertical, rad * Math.sin(u));
     }
 
     function ringContourPoints(radius, yOffset = 0, segments = 64) {
@@ -442,39 +684,67 @@ export function createMarketingFunnelScene(canvas, container) {
         // Full, uniform opacity on purpose (no facing-based gradient here, and
         // fog disabled below): the ring should stay fully visible all the way
         // around as it rotates, not dim on the side swinging away from camera.
-        // (Also tried adding top/bottom mid-radius contours here, at the same
-        // radius as the ring's own centerline — from this near-frontal camera
-        // they read as a stray line cutting across the middle of each ring
-        // rather than hinting volume, so dropped.)
         const ringLineA = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringContourPoints(cfg.radius + cfg.tube, 0)), lineMatPrimary());
         const ringLineB = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringContourPoints(cfg.radius - cfg.tube, 0)), lineMatPrimary());
         ringLineA.material.fog = false;
         ringLineB.material.fog = false;
         level.add(ringLineA, ringLineB);
 
-        // (No diamond rib cross-sections: at a few angles they stood out as an
-        // odd stray rhombus among the contour lines instead of reading as
-        // roundness — the point cloud on the tube surface already implies it.)
+        // Top + bottom contours — the tube's own rounded top/underside,
+        // completing line coverage across the WHOLE tube profile.
+        const ringLineTop = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringContourPoints(cfg.radius, cfg.tube)), lineMatPrimary());
+        const ringLineBottom = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(ringContourPoints(cfg.radius, -cfg.tube)), lineMatPrimary());
+        ringLineTop.material.fog = false;
+        ringLineBottom.material.fog = false;
+        level.add(ringLineTop, ringLineBottom);
 
-        // Point cloud sampled directly on the ring's tube surface.
+        // Additive glow duplicates of all 4 contours — see ringGlowLineMat
+        // above. Bloom is what turns these into the ring's visible
+        // "resplandor". Their vertex colors are recomputed every frame in
+        // animate() (updateFrontFacingColors) so the glow only shows on the
+        // half of the ring currently facing the camera.
+        const contourUs = Array.from({ length: 65 }, (_, idx) => (idx / 64) * Math.PI * 2);
+        const ringGlowA = dynamicColorLineLoop(ringContourPoints(cfg.radius + cfg.tube, 0), ringGlowLineMat());
+        const ringGlowB = dynamicColorLineLoop(ringContourPoints(cfg.radius - cfg.tube, 0), ringGlowLineMat());
+        const ringGlowTop = dynamicColorLineLoop(ringContourPoints(cfg.radius, cfg.tube), ringGlowLineMat());
+        const ringGlowBottom = dynamicColorLineLoop(ringContourPoints(cfg.radius, -cfg.tube), ringGlowLineMat());
+        [ringGlowA, ringGlowB, ringGlowTop, ringGlowBottom].forEach((g) => {
+            g.material.fog = false;
+            level.add(g);
+        });
+
+        // Point cloud filling the tube's cross-section volume (see
+        // ringVolumePoint above), not just its outer shell — reads as a real
+        // 3D tube with depth/parallax as it rotates, particles clustered
+        // toward the center of each spiral (TUBE_FILL_SIGMA/MARGIN above).
         const glowCount = Math.round(cfg.particleCount * 0.12);
         const dimCount = cfg.particleCount - glowCount;
-        const surfacePoint = () =>
-            ringSurfacePoint(cfg.radius, cfg.tube, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
-        const dimPts = Array.from({ length: dimCount }, surfacePoint);
-        const glowPts = Array.from({ length: glowCount }, surfacePoint);
-        // Full opacity, fog disabled — same reasoning as the contours above.
-        const dimPoints = pointsFromArray(dimPts, pointMatDim());
+        const dimPts = Array.from({ length: dimCount }, () => ringVolumePoint(cfg.radius, cfg.tube, Math.random() * Math.PI * 2));
+        // Dim points keep the static roundness shading (ringPointsShaded) and
+        // stay visible all the way around — fog stays disabled, same
+        // reasoning as the contours above.
+        const dimPoints = ringPointsShaded(dimPts, ringPointMatDim(), cfg.radius);
         dimPoints.material.fog = false;
         level.add(dimPoints);
-        const glowPoints = pointsFromArray(glowPts, pointMatBright());
+
+        // Glow points keep their own random angle `u` (glowUs) so their
+        // color, like the glow lines' above, can be recomputed every frame
+        // to fade out on the back half instead of the static roundness tint.
+        const glowUs = [];
+        const glowPts = [];
+        for (let g = 0; g < glowCount; g++) {
+            const u = Math.random() * Math.PI * 2;
+            glowUs.push(u);
+            glowPts.push(ringVolumePoint(cfg.radius, cfg.tube, u));
+        }
+        const glowPoints = dynamicColorPoints(glowPts, ringPointMatBright());
         glowPoints.material.fog = false;
         glowPoints.name = 'glow';
         level.add(glowPoints);
 
         level.userData.spinSpeed = (i % 2 === 0 ? 1 : -1) * RING_DIFFERENTIAL_SPEED * (1 + i * 0.15);
         funnel.add(level);
-        return level;
+        return { level, ringGlowA, ringGlowB, ringGlowTop, ringGlowBottom, contourUs, glowPoints, glowUs };
     });
 
     // (No inter-ring connector scaffolding: at this near-frontal camera angle
@@ -520,7 +790,7 @@ export function createMarketingFunnelScene(canvas, container) {
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.55, 0.4, 0.45);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(1, 1), BLOOM_STRENGTH, BLOOM_RADIUS, BLOOM_THRESHOLD);
     composer.addPass(bloomPass);
     composer.addPass(new OutputPass());
 
@@ -560,6 +830,27 @@ export function createMarketingFunnelScene(canvas, container) {
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(container);
 
+    // Recomputes a glow element's per-vertex brightness from its stored
+    // angles (`us`, one per vertex/point, captured when it was built) plus
+    // the ring's CURRENT total rotation — front-facing (toward CAMERA_XZ)
+    // comes out bright, the back half comes out black (additive-blended
+    // black = invisible), so the glow only ever shows on the side of the
+    // ring currently facing the camera. Called every frame since the ring
+    // keeps slowly rotating underneath the fixed camera.
+    function updateFrontFacingColors(obj, us, totalRotation) {
+        const colorAttr = obj.geometry.attributes.color;
+        const arr = colorAttr.array;
+        for (let idx = 0; idx < us.length; idx++) {
+            const angle = us[idx] + totalRotation;
+            const facing = Math.cos(angle) * CAMERA_XZ.x + Math.sin(angle) * CAMERA_XZ.y;
+            const b = Math.max(0, facing);
+            arr[idx * 3] = b;
+            arr[idx * 3 + 1] = b;
+            arr[idx * 3 + 2] = b;
+        }
+        colorAttr.needsUpdate = true;
+    }
+
     // ---------------------------------------------------------------------
     // Idle animation — everything here is intentionally tiny ("apenas se perciba").
     // ---------------------------------------------------------------------
@@ -574,16 +865,24 @@ export function createMarketingFunnelScene(canvas, container) {
         lastTime = now;
         elapsed += dt;
 
-        funnelSystem.rotation.y += ROTATE_SPEED * dt;
+        // Applied to `funnel` (the rings only), not `funnelSystem` — the
+        // icons live in the sibling `audienceIcons` group, so they no longer
+        // orbit/spin along with the rings, just their own bob below.
+        funnel.rotation.y += ROTATE_SPEED * dt;
 
         iconGroups.forEach((g) => {
             g.position.y = g.userData.baseY + Math.sin(elapsed * ICON_BOB_SPEED + g.userData.phase) * ICON_BOB_AMOUNT;
         });
 
-        funnelLevels.forEach((level) => {
+        funnelLevels.forEach(({ level, ringGlowA, ringGlowB, ringGlowTop, ringGlowBottom, contourUs, glowPoints, glowUs }) => {
             level.rotation.y += level.userData.spinSpeed * dt;
-            const glow = level.getObjectByName('glow');
-            if (glow) glow.material.opacity = OPACITY_POINT_BRIGHT * (0.75 + 0.25 * Math.sin(elapsed * GLOW_PULSE_SPEED));
+            const totalRotation = funnel.rotation.y + level.rotation.y;
+            updateFrontFacingColors(ringGlowA, contourUs, totalRotation);
+            updateFrontFacingColors(ringGlowB, contourUs, totalRotation);
+            updateFrontFacingColors(ringGlowTop, contourUs, totalRotation);
+            updateFrontFacingColors(ringGlowBottom, contourUs, totalRotation);
+            updateFrontFacingColors(glowPoints, glowUs, totalRotation);
+            glowPoints.material.opacity = OPACITY_POINT_BRIGHT * (0.75 + 0.25 * Math.sin(elapsed * GLOW_PULSE_SPEED));
         });
 
         composer.render();
@@ -601,6 +900,7 @@ export function createMarketingFunnelScene(canvas, container) {
             }
         });
         dotTexture.dispose();
+        ringDotTexture.dispose();
         composer.dispose();
         renderer.dispose();
     }
