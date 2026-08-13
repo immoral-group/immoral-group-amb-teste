@@ -235,7 +235,13 @@ void main() {
     vec2 outsideBox = max(abs(screenPx - boxCenter) - halfSize, vec2(0.0));
     float distOutsideBox = length(outsideBox);
     float feather = 0.16 * uResolution.y;
-    float shield = 1.0 - smoothstep(0.0, feather, distOutsideBox);
+    float shieldBox = 1.0 - smoothstep(0.0, feather, distOutsideBox);
+    // Gradiente horizontal en vez de un rectángulo oscuro uniforme: más
+    // protegido a la izquierda (donde arranca el texto, lo que más necesita
+    // contraste) y se aclara hacia la derecha, dejando ver el fondo.
+    float localX = clamp((screenPx.x - uTextOrigin.x) / uTextSize.x, 0.0, 1.0);
+    float shieldGradient = mix(1.0, 0.0, localX);
+    float shield = shieldBox * shieldGradient;
     lum *= mix(1.0, 0.15, shield * uHasText);
 
     // Respiración lenta (mismo tween GSAP que antes animaba el contraste del
