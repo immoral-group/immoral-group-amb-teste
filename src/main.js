@@ -14,7 +14,6 @@ import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initNuestraHistoriaHero } from './nuestra-historia-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
-import { initCustomCursor } from './custom-cursor.js';
 import { initPlatformCarousel } from './platform-carousel.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import { initInfluencerCardConveyor } from './influencer-card-conveyor.js';
@@ -2081,7 +2080,6 @@ function initAll() {
         history.scrollRestoration = 'manual';
     }
 
-    initCustomCursor();
     initDropdowns();
     initMenu();
     initHowWeDo();
