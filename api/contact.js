@@ -16,6 +16,8 @@ const ALLOWED_ORIGINS = [
   'https://imcontent.es',
   'https://www.imcontent.es',
   'https://imcontent-landing.vercel.app',
+  'https://imfashion.es',
+  'https://www.imfashion.es',
   'https://immoral-group-amb-teste.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173',
@@ -79,7 +81,7 @@ export default async function handler(req, res) {
 
   const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-  const { token, nombre, email, mensaje, recaptchaToken } = req.body;
+  const { token, nombre, email, telefono, asunto, mensaje, recaptchaToken } = req.body;
 
   if (!token || !nombre || !email || !mensaje) {
     return res.status(400).json({ message: 'Faltan campos obligatorios' });
@@ -111,7 +113,14 @@ export default async function handler(req, res) {
 
   const { error: insertError } = await supabase
     .from('contact_messages')
-    .insert({ nombre, email, mensaje, etiqueta: tokenRow.etiqueta });
+    .insert({
+      nombre,
+      email,
+      telefono: telefono || null,
+      asunto: asunto || null,
+      mensaje,
+      etiqueta: tokenRow.etiqueta,
+    });
 
   if (insertError) {
     console.error('Error guardando el mensaje:', insertError);

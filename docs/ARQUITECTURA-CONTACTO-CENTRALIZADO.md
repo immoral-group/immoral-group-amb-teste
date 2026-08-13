@@ -73,6 +73,7 @@ RLS: sin políticas para `anon`/`authenticated` salvo `admin` (vía `is_admin()`
 |---|---|---|
 | `id` | `uuid` | PK |
 | `nombre`, `email`, `mensaje` | `text` | del formulario |
+| `telefono`, `asunto` | `text` | opcionales (`nullable`) — solo los usa el formulario de imfashion.es, que tiene más campos que el resto. Añadidos en `0015_contact_messages_telefono_asunto.sql` |
 | `etiqueta` | `text` | copiada de `tokens_validos` en el momento del insert |
 | `leido` | `boolean` | default `false` |
 | `created_at` | `timestamptz` | default `now()` |
@@ -86,6 +87,7 @@ RLS: `select`/`update` (marcar leído) para cualquier `authenticated` (admin o u
 | `723d7c6ffc60a2e785227136401be8a46a6c89bf637e3f4e` | `contacto-web-immoral` | **immoral.es** (producción, repo `immoral-group-cliente`) y el `/contacto` de **este ambiente de teste** — comparten token a propósito, son conceptualmente el mismo sitio en dos etapas |
 | `2b4c74a246f23d21717c34557d34d6e93d0c9068852a8296` | `contacto-web-immoralia` | **immoralia.es** |
 | `615990946ab69829f06132317e927275099b868ee1aa09e7` | `contacto-web-imcontent` | **imcontent.es** |
+| `38292742b8883a48f96e121097e558866f11429ef4d48de1` | `contacto-web-imfashion` | **imfashion.es** — único formulario del grupo con campos extra (`telefono`, `asunto`) |
 
 Para dar de alta un token nuevo (ej. imfilms.es en el futuro) **no hace falta tocar SQL**: entrar a `/tokens` en este panel (solo admin), poner la etiqueta, y el propio panel genera el token y lo inserta.
 

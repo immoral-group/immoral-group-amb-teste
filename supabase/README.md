@@ -19,6 +19,7 @@ Ejecutar en este orden, en **SQL Editor → New query**, pegando el contenido co
 11. `migrations/0012_tokens_validos_rls.sql` — RLS de `tokens_validos` para gestionarlos desde `/tokens`.
 12. `migrations/0013_job_openings_details.sql` — añade `slug`/`description`/`survey_url` a `job_openings` para la página de detalle de cada oferta (`/oferta.html?slug=...`).
 13. `migrations/0014_job_applications.sql` — tabla `job_applications`, RLS (solo admin, el CV es un dato personal sensible) y bucket privado `job-applications` para las candidaturas enviadas desde `/oferta.html`.
+14. `migrations/0015_contact_messages_telefono_asunto.sql` — añade `telefono`/`asunto` (opcionales) a `contact_messages` para el formulario de imfashion.es, que tiene más campos que el resto de webs del grupo.
 
 ## Pasos manuales en el Dashboard (no se pueden hacer por SQL)
 
