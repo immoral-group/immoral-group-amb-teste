@@ -157,28 +157,37 @@ float filaments(vec2 p, float aspect, float t) {
         // Las cintas se desvanecen hacia la izquierda (profundidad).
         float fade = mix(1.0, 0.35, smoothstep(0.35, 1.15, tX));
 
-        // FLUJO: pulso que VIAJA por la cinta (el término -t lo desplaza hacia
-        // fuera del foco), calculado ANTES del grosor porque ahora el pulso
-        // engorda la línea en vez de solo variar su brillo (ver coreW abajo).
-        float flowArg = tX * mix(5.5, 12.0, b.w) - t * mix(0.40, 0.85, a.w) + b.x * 6.2831853;
-        float pulse = pow(max(sin(flowArg * 3.14159265), 0.0), 3.0);
-
-        // Wireframe fino y COMPLETO (a pedido: línea siempre presente, no una
-        // cinta de luz que se prende y apaga) — bandW angosto de por sí. El
-        // pulso de luz ya no controla si la línea se ve, sino que la engorda
-        // localmente al pasar (como una cuenta de luz recorriendo un cable),
-        // que es la alternativa a un brillo difuso que se pidió explícitamente.
+        // Wireframe fino y COMPLETO (línea siempre presente, no una cinta que
+        // se prende y apaga) — grosor fijo, sin abultamiento por el pulso.
         float bandW = mix(0.006, 0.018, a.w); // volumen de la cinta (fino)
-        float coreW = mix(0.0014, 0.003, b.w) * (1.0 + pulse * 2.4); // grosor base + abultamiento del pulso
+        float coreW = mix(0.0014, 0.003, b.w);
 
         float band = exp(-(d * d) / (bandW * bandW));
         float core = exp(-(d * d) / (coreW * coreW));
 
-        // Línea base siempre visible (solo atenuada por profundidad, no por el
-        // pulso) + un extra de brillo donde pasa el pulso, para que se lea
-        // como luz recorriendo un wireframe fijo en vez de cintas parpadeando.
+        // PUNTO DE LUZ que viaja por la cinta como un círculo (a pedido: nada
+        // de engrosar la línea, un punto redondo como los vértices de la
+        // referencia de wireframe). flowArg es la fase a lo largo de la cinta;
+        // sin(flowArg*pi) vale 1 justo en el centro de cada punto, en
+        // flowArg = 0.5 + 2k. Se despeja esa distancia de fase y se convierte
+        // a una distancia aproximada "a lo largo de la cinta" (misma escala
+        // que d, la distancia perpendicular), para poder combinarlas en una
+        // distancia 2D real y dibujar un círculo, no una franja.
+        float freq = mix(5.5, 12.0, b.w);
+        float speed = mix(0.40, 0.85, a.w);
+        float flowArg = tX * freq - t * speed + b.x * 6.2831853;
+        float peakK = floor((flowArg - 0.5) / 2.0 + 0.5);
+        float deltaFlowArg = flowArg - (0.5 + 2.0 * peakK);
+        float alongDist = (deltaFlowArg / freq) * focalX;
+
+        float dotR = mix(0.010, 0.020, b.w); // radio del punto de luz
+        float distToDot = length(vec2(alongDist, d));
+        float dot = exp(-(distToDot * distToDot) / (dotR * dotR));
+
+        // Línea base siempre visible (solo atenuada por profundidad) + el
+        // punto de luz redondo viajando encima.
         lum += core * 1.6 * fade;
-        lum += core * 1.3 * pulse * fade;
+        lum += dot * 2.2 * fade;
         lum += band * mix(0.04, 0.08, a.z) * fade; // halo casi nulo, ya no es una cinta difusa
         bundle += band * 0.4 * fade;
     }
