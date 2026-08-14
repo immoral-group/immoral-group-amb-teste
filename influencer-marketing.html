@@ -143,7 +143,7 @@
                                 <a href="https://imcontent.es/" target="_blank" rel="noopener noreferrer">
                                     <li class="flex flex-col items-start gap-2 py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
                                         <img src="/imgs/Menues/logo-content.svg" alt="imcontent" class="h-7 w-auto">
-                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Estrategia de marca y contenido</span>
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Contenido creado con IA</span>
                                     </li>
                                 </a>
                                 <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">
@@ -326,7 +326,7 @@
                                 <li
                                     class="flex flex-col items-center py-4 px-5 border-b border-gray-300 hover:bg-blue-50 transition">
                                     <img src="/imgs/Menues/logo-content.svg" alt="imcontent" class="h-9 w-auto mx-auto">
-                                    <span class="mt-2 text-base font-light">Estrategia de marca y contenido</span>
+                                    <span class="mt-2 text-base font-light">Contenido creado con IA</span>
                                 </li>
                             </a>
                             <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">
@@ -404,41 +404,6 @@
         }
         .hero-cc-card {
             cursor: pointer;
-        }
-        /* Botón "liquid glass": vidrio esmerilado translúcido con highlight de luz arriba,
-           en vez del azul plano de antes. */
-        .hero-liquid-btn {
-            position: relative;
-            isolation: isolate;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(47, 128, 237, 0.55), rgba(47, 128, 237, 0.25));
-            backdrop-filter: blur(14px) saturate(160%);
-            -webkit-backdrop-filter: blur(14px) saturate(160%);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow:
-                inset 0 1px 1px rgba(255, 255, 255, 0.45),
-                inset 0 -1px 2px rgba(0, 0, 0, 0.2),
-                0 8px 24px rgba(47, 128, 237, 0.35);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-        }
-        .hero-liquid-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0) 55%);
-            pointer-events: none;
-        }
-        .hero-liquid-btn span {
-            position: relative;
-            z-index: 1;
-        }
-        .hero-liquid-btn:hover {
-            transform: translateY(-2px);
-            background: linear-gradient(135deg, rgba(47, 128, 237, 0.65), rgba(47, 128, 237, 0.32));
-            box-shadow:
-                inset 0 1px 1px rgba(255, 255, 255, 0.5),
-                inset 0 -1px 2px rgba(0, 0, 0, 0.2),
-                0 12px 32px rgba(47, 128, 237, 0.45);
         }
         @keyframes cc-badge-wiggle {
             0%, 100% { transform: translate(0, 0); }
@@ -572,8 +537,8 @@
 
                 <div class="pt-4">
                     <a href="contacto.html"
-                        class="hero-liquid-btn inline-block text-white px-8 py-4 rounded-lg text-sm md:text-base font-medium uppercase tracking-widest">
-                        <span>HABLEMOS</span>
+                        class="bg-white text-[#0B0F14] px-8 py-4 rounded-lg hover:bg-[#E9EDF2] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 inline-block text-sm md:text-base font-medium uppercase tracking-widest">
+                        HABLEMOS
                     </a>
                 </div>
             </div>
@@ -664,9 +629,8 @@
         @media (prefers-reduced-motion: reduce) {
             .ugc-flow-card { transition: none; }
         }
-        /* Tarjetas "liquid glass": mismo vidrio esmerilado translúcido que el botón
-           HABLEMOS del hero (.hero-liquid-btn), adaptado a un contenedor de contenido
-           en vez de a un botón — highlight de luz arriba, sin el hover de elevación. */
+        /* Tarjetas "liquid glass": vidrio esmerilado translúcido con highlight de luz
+           arriba, sin el hover de elevación. */
         .liquid-glass-card {
             position: relative;
             isolation: isolate;
@@ -720,8 +684,8 @@
 
                 <div class="pt-4">
                     <a href="contacto.html"
-                        class="hero-liquid-btn inline-block text-white px-8 py-4 rounded-lg text-sm md:text-base font-medium uppercase tracking-widest">
-                        <span>HABLEMOS</span>
+                        class="bg-white text-[#0B0F14] px-8 py-4 rounded-lg hover:bg-[#E9EDF2] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 inline-block text-sm md:text-base font-medium uppercase tracking-widest">
+                        HABLEMOS
                     </a>
                 </div>
             </div>
