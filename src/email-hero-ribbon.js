@@ -22,14 +22,18 @@ const MAX_ROTATE_X = 2;
 const ANIMATION_SPEED = 0.55; // rad/s de avance de la fase global — movimiento pausado
 
 const ROTATE_Z_FROM_SLOPE = 4.5;
-const OVERFLOW_FACTOR = 1.08; // la cinta sobresale un poco de los bordes
-const CARD_THICKNESS = 16;
+// La cinta sobresale bastante más allá de los bordes visibles: así, cuando el
+// fundido lateral (mask-image en `scene`) empieza a desvanecer, siempre hay
+// tarjetas de sobra detrás — si sobresaliera poco, el fundido llegaría a
+// "vacío" antes de completarse y volvería a leerse como un corte duro.
+const OVERFLOW_FACTOR = 1.35;
+const CARD_THICKNESS = 2; // línea fina (borde de wireframe), no un canto sólido
 
 // Relación ancho/paso: con MAX_ROTATE_Y=36°, cos(36°)≈0.81, así que la proyección
-// más estrecha de una tarjeta (width * 0.81) sigue siendo ~2.3x el paso entre
-// tarjetas. Esto garantiza matemáticamente que nunca aparezca un hueco negro
-// entre dos tarjetas vecinas, en cualquier punto de la animación.
-const STEP_RATIO = 0.355;
+// más estrecha de una tarjeta (width * 0.81) sigue siendo ~1.25x el paso entre
+// tarjetas — sigue sin dejar hueco negro entre dos tarjetas vecinas, pero con
+// bastante más aire entre ellas que antes (0.355, luego 0.48).
+const STEP_RATIO = 0.65;
 
 const HOVER_SCALE = 1.45;
 const HOVER_LIFT = 70; // px que se acerca al visitante la tarjeta bajo el cursor
@@ -37,8 +41,6 @@ const HOVER_EASE = 0.18; // suavizado del crecimiento/reducción al entrar/salir
 
 // Paleta neutra (blanco / gris / negro puros, sin tinte de color), del claro al oscuro.
 const PALETTE = ['#ffffff', '#f1f1f1', '#e0e0e0', '#c4c4c4', '#9e9e9e', '#757575', '#525252', '#2e2e2e', '#0a0a0a'];
-const GLOW_COLORS = ['rgba(255,255,255,0.75)', 'rgba(210,210,210,0.8)', 'rgba(150,150,150,0.85)', 'rgba(80,80,80,0.7)'];
-const GLOW_COUNT = 9;
 
 // Velocidad del desplazamiento horizontal continuo (px/s) — negativo = hacia la
 // izquierda, como una cinta transportadora. Las tarjetas hacen wraparound (ver
@@ -85,22 +87,13 @@ function colorForIndex(normalizedX) {
     return PALETTE[Math.floor(t * (PALETTE.length - 1))];
 }
 
-function shade(hex, amount) {
-    const num = parseInt(hex.slice(1), 16);
-    const r = clamp((num >> 16) + amount, 0, 255);
-    const g = clamp(((num >> 8) & 0xff) + amount, 0, 255);
-    const b = clamp((num & 0xff) + amount, 0, 255);
-    return `rgb(${r}, ${g}, ${b})`;
-}
-
 function rgba(hex, alpha) {
     const num = parseInt(hex.slice(1), 16);
     return `rgba(${num >> 16}, ${(num >> 8) & 0xff}, ${num & 0xff}, ${alpha})`;
 }
 
-// Misma superficie de onda que usan las tarjetas, muestreada en un punto cualquiera
-// (0..1). Se reutiliza tanto para las tarjetas como para los blobs de luz de fondo,
-// para que el halo siga exactamente el mismo movimiento que la cinta.
+// Superficie de onda que recorren las tarjetas, muestreada en un punto
+// cualquiera (0..1) de la cinta.
 function waveAt(normalizedX, globalPhase) {
     const cardPhase = normalizedX * WAVE_FREQUENCY + globalPhase;
     const y =
@@ -123,19 +116,16 @@ export function initEmailHeroRibbon() {
     scene.style.perspective = `${PERSPECTIVE}px`;
     // CSS no permite "recortar solo el eje horizontal": si overflow-x es hidden
     // y overflow-y es visible, la spec fuerza el valor computado de overflow-y a
-    // auto, que sigue recortando igual (solo agrega scrollbar). Por eso el fix
-    // real no es tocar overflow — es que buildGlow() nunca dimensione el
-    // resplandor más alto que esta caja (ver ahí), así su propio degradado
-    // termina de desvanecerse a transparente ANTES de llegar al borde, en vez
-    // de quedar cortado a mitad de camino todavía opaco.
+    // auto, que sigue recortando igual (solo agrega scrollbar).
     scene.style.overflow = 'hidden';
-
-    const glowLayer = document.createElement('div');
-    glowLayer.style.position = 'absolute';
-    glowLayer.style.left = '50%';
-    glowLayer.style.top = '50%';
-    glowLayer.style.width = '0';
-    glowLayer.style.height = '0';
+    // Fundido horizontal solo en el borde izquierdo: con SCROLL_SPEED negativo
+    // las tarjetas avanzan hacia la izquierda, así que salen/aparecen por la
+    // derecha (ese corte no se nota, siempre entra una tarjeta "nueva") y
+    // desaparecen por la izquierda, donde sí hace falta el fundido para que
+    // overflow:hidden no las corte en seco a media tarjeta.
+    const horizontalFade = 'linear-gradient(90deg, transparent 0%, black 12%, black 100%)';
+    scene.style.maskImage = horizontalFade;
+    scene.style.webkitMaskImage = horizontalFade;
 
     const stage = document.createElement('div');
     stage.style.position = 'absolute';
@@ -145,7 +135,6 @@ export function initEmailHeroRibbon() {
     stage.style.height = '0';
     stage.style.transformStyle = 'preserve-3d';
 
-    scene.appendChild(glowLayer);
     scene.appendChild(stage);
     container.appendChild(scene);
 
@@ -153,65 +142,11 @@ export function initEmailHeroRibbon() {
     let baseX = [];
     let hoverTarget = [];
     let hoverCurrent = [];
-    let glowBlobs = [];
-    let glowBaseX = [];
-    let coreGlow = null;
     let layout = null;
     let globalPhase = 0;
     let scrollOffset = 0;
     let lastTime = 0;
     let resizeTimeout = null;
-
-    function buildGlow() {
-        glowLayer.innerHTML = '';
-        glowBlobs = [];
-        glowBaseX = [];
-
-        // Halo ambiental grande y muy difuminado, centrado en la cinta: da el
-        // "resplandor" de fondo que baña toda la sección, no solo los bordes
-        // de cada tarjeta.
-        //
-        // maxGlowHeight: nunca más alto que la caja visible (con margen). El
-        // propio radial-gradient ya se desvanece a transparente antes de su
-        // borde (0% opaco -> 75% transparente) — si el elemento es más alto
-        // que el contenedor, ese fundido nunca llega a completarse: el
-        // overflow:hidden de arriba corta el círculo a mitad de camino,
-        // todavía opaco, y se ve como un corte duro en vez de un desvanecido.
-        const maxGlowHeight = container.clientHeight * 0.92;
-        coreGlow = document.createElement('div');
-        const coreW = layout.totalWidth * 0.55;
-        const coreH = Math.min(layout.cardHeight * 2.4, maxGlowHeight);
-        coreGlow.style.position = 'absolute';
-        coreGlow.style.width = `${coreW}px`;
-        coreGlow.style.height = `${coreH}px`;
-        coreGlow.style.marginLeft = `${-coreW / 2}px`;
-        coreGlow.style.marginTop = `${-coreH / 2}px`;
-        coreGlow.style.borderRadius = '50%';
-        coreGlow.style.background = 'radial-gradient(circle, rgba(255,255,255,0.35) 0%, rgba(160,160,160,0.18) 45%, rgba(0,0,0,0) 75%)';
-        coreGlow.style.filter = 'blur(60px)';
-        coreGlow.style.mixBlendMode = 'screen';
-        glowLayer.appendChild(coreGlow);
-
-        const w = layout.cardWidth * 3.2;
-        const h = Math.min(layout.cardHeight * 1.9, maxGlowHeight);
-
-        for (let i = 0; i < GLOW_COUNT; i++) {
-            const blob = document.createElement('div');
-            blob.style.position = 'absolute';
-            blob.style.width = `${w}px`;
-            blob.style.height = `${h}px`;
-            blob.style.marginLeft = `${-w / 2}px`;
-            blob.style.marginTop = `${-h / 2}px`;
-            blob.style.borderRadius = '50%';
-            blob.style.background = `radial-gradient(circle, ${GLOW_COLORS[i % GLOW_COLORS.length]} 0%, rgba(0,0,0,0) 70%)`;
-            blob.style.filter = 'blur(42px)';
-            blob.style.mixBlendMode = 'screen';
-            blob.style.willChange = 'transform';
-            glowLayer.appendChild(blob);
-            glowBlobs.push(blob);
-            glowBaseX.push((i / (GLOW_COUNT - 1) - 0.5) * layout.totalWidth);
-        }
-    }
 
     function buildCards() {
         stage.innerHTML = '';
@@ -231,14 +166,23 @@ export function initEmailHeroRibbon() {
             card.style.height = `${layout.cardHeight}px`;
             card.style.marginLeft = `${-layout.cardWidth / 2}px`;
             card.style.marginTop = `${-layout.cardHeight / 2}px`;
-            card.style.borderRadius = '9px';
-            // Degradado fijo (calculado una sola vez a partir del color base): da
-            // la sensación de curvatura/bisel sin depender de la rotación en vivo.
-            card.style.backgroundImage =
-                `linear-gradient(112deg, ${shade(color, 75)} 0%, ${shade(color, 25)} 14%, ${color} 55%, ${shade(color, -45)} 100%)`;
-            // Sombra de contacto + halo de color propio y estático (no animado):
-            // aporta al "glow" general sin causar una luz que viaje por la cinta.
-            card.style.boxShadow = `0 16px 34px rgba(0,0,0,0.4), 0 0 26px ${rgba(color, 0.4)}`;
+            // Radio proporcional al ancho de la tarjeta (más redondeado que una
+            // esquina apenas suavizada), consistente entre el layout de escritorio
+            // y el de móvil, que usan anchos de tarjeta distintos.
+            const cardRadius = Math.round(layout.cardWidth * 0.22);
+            card.style.borderRadius = `${cardRadius}px`;
+            card.style.boxSizing = 'border-box';
+            // Cara casi transparente con una retícula de puntos (nube de puntos, no
+            // relleno sólido) + borde: lee como wireframe, igual que los cubos
+            // de diseño de marca, en vez de la tarjeta "física" con degradado de antes.
+            card.style.backgroundColor = 'rgba(255,255,255,0.02)';
+            card.style.backgroundImage = `radial-gradient(circle, ${rgba(color, 0.55)} 1px, transparent 1.6px)`;
+            card.style.backgroundSize = '9px 9px';
+            // Borde más grueso para que la línea de wireframe se note con claridad.
+            card.style.border = `2.5px solid ${rgba(color, 0.7)}`;
+            // Halo mínimo, solo para separar el borde del fondo negro — el resplandor
+            // ambiental grande de toda la sección se quitó (ver comentario en resize()).
+            card.style.boxShadow = `0 0 8px ${rgba(color, 0.22)}`;
             card.style.transformStyle = 'preserve-3d';
             card.style.willChange = 'transform';
             card.style.backfaceVisibility = 'hidden';
@@ -250,7 +194,8 @@ export function initEmailHeroRibbon() {
             rightEdge.style.right = '0';
             rightEdge.style.width = `${CARD_THICKNESS}px`;
             rightEdge.style.height = '100%';
-            rightEdge.style.background = `linear-gradient(90deg, ${shade(color, -70)}, ${shade(color, -90)})`;
+            rightEdge.style.background = rgba(color, 0.6);
+            rightEdge.style.boxShadow = `0 0 6px ${rgba(color, 0.5)}`;
             rightEdge.style.transformOrigin = 'right center';
             rightEdge.style.transform = 'rotateY(-90deg)';
 
@@ -260,12 +205,40 @@ export function initEmailHeroRibbon() {
             leftEdge.style.left = '0';
             leftEdge.style.width = `${CARD_THICKNESS}px`;
             leftEdge.style.height = '100%';
-            leftEdge.style.background = `linear-gradient(90deg, ${shade(color, -40)}, ${shade(color, -60)})`;
+            leftEdge.style.background = rgba(color, 0.6);
+            leftEdge.style.boxShadow = `0 0 6px ${rgba(color, 0.5)}`;
             leftEdge.style.transformOrigin = 'left center';
             leftEdge.style.transform = 'rotateY(90deg)';
 
             card.appendChild(rightEdge);
             card.appendChild(leftEdge);
+
+            // Puntos de vértice (como los dots de las esquinas compartidas en los
+            // cubos wireframe): un punto brillante sobre la curva de cada esquina.
+            // Con esquina recta (radio 0) el punto va justo en la esquina de la
+            // caja; con esquina redondeada, el punto debe correrse hacia el centro
+            // de la curva: el punto a 45° sobre un arco de radio r, medido desde
+            // los bordes rectos de la caja, está a r*(1-cos45°) de cada borde —
+            // ahí es donde la línea del borde redondeado realmente pasa.
+            const DOT_SIZE = 5;
+            const cornerInset = cardRadius * (1 - Math.SQRT1_2) - DOT_SIZE / 2;
+            const corners = [
+                { top: `${cornerInset}px`, left: `${cornerInset}px` },
+                { top: `${cornerInset}px`, right: `${cornerInset}px` },
+                { bottom: `${cornerInset}px`, left: `${cornerInset}px` },
+                { bottom: `${cornerInset}px`, right: `${cornerInset}px` },
+            ];
+            corners.forEach((pos) => {
+                const dot = document.createElement('div');
+                dot.style.position = 'absolute';
+                dot.style.width = `${DOT_SIZE}px`;
+                dot.style.height = `${DOT_SIZE}px`;
+                dot.style.borderRadius = '50%';
+                dot.style.background = '#ffffff';
+                dot.style.boxShadow = '0 0 6px 1.5px rgba(255,255,255,0.75)';
+                Object.assign(dot.style, pos);
+                card.appendChild(dot);
+            });
 
             hoverTarget.push(1);
             hoverCurrent.push(1);
@@ -277,8 +250,6 @@ export function initEmailHeroRibbon() {
             cards.push(card);
             baseX.push((i - (n - 1) / 2) * layout.step);
         }
-
-        buildGlow();
     }
 
     function updateExistingCardSizes() {
@@ -303,7 +274,6 @@ export function initEmailHeroRibbon() {
         } else if (next.cardHeight !== layout.cardHeight) {
             layout = next;
             updateExistingCardSizes();
-            buildGlow();
         } else {
             layout = next;
             baseX = cards.map((_, i) => (i - (cards.length - 1) / 2) * layout.step);
@@ -355,20 +325,6 @@ export function initEmailHeroRibbon() {
                 el.style.filter = '';
             }
             el.style.zIndex = Math.round(scale * 100).toString();
-        }
-
-        for (let i = 0; i < glowBlobs.length; i++) {
-            const normalizedX = i / (GLOW_COUNT - 1);
-            const wave = waveAt(normalizedX, globalPhase);
-            const pulse = 1 + Math.sin(wave.cardPhase * 0.5 + i) * 0.1;
-            glowBlobs[i].style.transform =
-                `translate3d(${glowBaseX[i]}px, ${wave.y}px, ${wave.z - 130}px) scale(${pulse})`;
-        }
-
-        if (coreGlow) {
-            const centerWave = waveAt(0.5, globalPhase);
-            const corePulse = 1 + Math.sin(globalPhase * 0.4) * 0.06;
-            coreGlow.style.transform = `translate3d(0px, ${centerWave.y}px, -220px) scale(${corePulse})`;
         }
 
         requestAnimationFrame(tick);
