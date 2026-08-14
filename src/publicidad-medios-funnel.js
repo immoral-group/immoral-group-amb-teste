@@ -72,16 +72,23 @@ const COLOR_PRIMARY = 0xffffff;
 const COLOR_SECONDARY = 0xaeb8c2;
 const COLOR_GLOW = 0xd9e1e8;
 
-// Real shaded solid geometry (icons, funnel rings) — actual volume via real
-// lit surfaces instead of faking it with lines/points, per the request that
-// these read as objects, not line traces. Kept as its own grayscale material
-// (moderate opacity, not fully opaque) so the point cloud/wireframe accents
-// layered on top of each shape still show through.
+// Real shaded solid geometry — currently only the badge backdrop (see
+// buildBadge) uses this. Opacity dropped way down (was 0.62, then 0.18, then
+// 0.09, then 0.07, now 20% lower again) per request: the badge should read
+// almost entirely as its white line rim/glow border (see gradientLineLoop +
+// badgeGlowMat in buildBadge), with the fill behind it nearly invisible.
 const SOLID_COLOR = 0xc4cad2;
-const SOLID_OPACITY = 0.62;
+const SOLID_OPACITY = 0.056;
 const SOLID_ROUGHNESS = 0.55;
 const SOLID_METALNESS = 0.15;
 const ICON_EXTRUDE_DEPTH = 0.06; // real depth for the heart/message solids
+
+// Inner symbol fill (person/heart/message glyphs themselves, not their badge
+// backdrop) — unlit flat white (MeshBasicMaterial, fog disabled) so it always
+// reads as solid white regardless of scene lighting/distance, matching the
+// reference image's icons: solid white shapes inside a glassy frame.
+const SYMBOL_COLOR = 0xffffff;
+const SYMBOL_OPACITY = 0.97;
 
 // Badge backdrop for the floating icons — a thick rounded disc/plaque (circle
 // for the "person" glyphs, rounded square for heart/message) that the actual
@@ -116,7 +123,10 @@ const RING_POINT_SIZE = 0.024;
 // ringDotTexture — the earlier blur came from a soft texture at small sizes,
 // already fixed, not from additive blending itself). Bloom (lowered
 // threshold above) turns both into a visible radiance around the spiral.
-const RING_GLOW_LINE_OPACITY = 0.385; // was 0.55 — down 30% per request
+const RING_GLOW_LINE_OPACITY = 0.154; // was 0.55, then 0.385, then 0.308 — down another 50% per request
+// Split out from RING_GLOW_LINE_OPACITY so the badge rim's glow (see
+// badgeGlowMat) doesn't move when the ring's own glow above is tuned.
+const BADGE_GLOW_LINE_OPACITY = 0.385;
 
 // Tube fill — the particle cloud used to sit exactly ON the tube's outer
 // shell (fixed distance from the ring's centerline), which reads as a flat
@@ -136,6 +146,21 @@ const ICON_BOB_SPEED = 0.5;
 const ICON_BOB_AMOUNT = 0.05;
 const RING_DIFFERENTIAL_SPEED = 0.05; // extra per-level rotation on top of ROTATE_SPEED
 const GLOW_PULSE_SPEED = 0.8;
+
+// Mouse-hover on an ICON — the whole icon grows via a plain uniform scale
+// (smoothly lerped, see animate()), not a per-vertex bulge — keeps its shape
+// intact, just bigger.
+const HOVER_SCALE = 1.18;
+const HOVER_LERP_SPEED = 10; // higher = snappier grow/shrink transition
+
+// Mouse-hover on the RING — plain uniform scale like the icons (no per-vertex
+// deformation): hovering one ring level grows that level as a whole, AND the
+// whole spiral (the `funnel` group holding all 4 levels) grows a bit too, so
+// hovering any part of it reads as "the whole spiral responds", not just an
+// isolated level in place.
+const HOVER_RING_LEVEL_SCALE = 1.1; // the specific level under the cursor
+const HOVER_FUNNEL_SCALE = 1.05; // the whole 4-level stack, layered on top of the above
+const HOVER_RING_LERP_SPEED = 8; // eases both of the above in/out
 
 // Vertical layout (world units, Y up). Edit these to restack the icons/funnel.
 // Compact on purpose: the 4 rings are close enough to read as one continuous
@@ -238,7 +263,7 @@ export function createMarketingFunnelScene(canvas, container) {
     // Same idea for the icon badges' rim (see buildBadge) — static, no
     // vertexColors/per-frame fade needed since icons don't rotate.
     const badgeGlowMat = () =>
-        new THREE.LineBasicMaterial({ color: COLOR_GLOW, transparent: true, opacity: RING_GLOW_LINE_OPACITY, blending: THREE.AdditiveBlending });
+        new THREE.LineBasicMaterial({ color: COLOR_GLOW, transparent: true, opacity: BADGE_GLOW_LINE_OPACITY, blending: THREE.AdditiveBlending });
     const solidMat = () =>
         new THREE.MeshStandardMaterial({
             color: SOLID_COLOR,
@@ -246,6 +271,19 @@ export function createMarketingFunnelScene(canvas, container) {
             metalness: SOLID_METALNESS,
             transparent: true,
             opacity: SOLID_OPACITY,
+        });
+    // Bright near-opaque fill for the symbol itself (see SYMBOL_* above) —
+    // the badge backdrop stays on solidMat's glassy translucency.
+    // Unlit on purpose (MeshBasicMaterial, not MeshStandardMaterial like
+    // solidMat) — ignores scene lights entirely so the symbol always renders
+    // as flat solid white, never shaded toward grey on faces angled away from
+    // the key light. fog:false so distance/fog can't dim it either.
+    const symbolMat = () =>
+        new THREE.MeshBasicMaterial({
+            color: SYMBOL_COLOR,
+            transparent: true,
+            opacity: SYMBOL_OPACITY,
+            fog: false,
         });
 
     // vertexColors:true material for the fake-lighting gradient (see
@@ -331,29 +369,6 @@ export function createMarketingFunnelScene(canvas, container) {
         return new THREE.Points(geo, material);
     }
 
-    // Gives a flat outline real volume without THREE.ExtrudeGeometry: adds a
-    // second copy of the same outline offset by `depthOffset`, plus a handful
-    // of straight struts connecting corresponding points on the two copies —
-    // reads as a thin 3D shell/slab instead of a flat decal. (Extrude + a
-    // rounded feature fans out into dozens of facet edges — see the funnel
-    // ring/puzzle history above — so this stays deliberately strut-based.)
-    const ICON_DEPTH = new THREE.Vector3(0, 0, -0.14); // was -0.05 — too shallow to read as real thickness
-    function addDepthShell(group, frontPoints, strutCount = 5, closed = true) {
-        const backPoints = frontPoints.map((p) => p.clone().add(ICON_DEPTH));
-        const BackLine = closed ? THREE.LineLoop : THREE.Line;
-        group.add(new BackLine(new THREE.BufferGeometry().setFromPoints(backPoints), lineMatSecondary()));
-        const n = frontPoints.length;
-        for (let i = 0; i < strutCount; i++) {
-            const idx = Math.floor((i / strutCount) * n);
-            group.add(
-                new THREE.Line(
-                    new THREE.BufferGeometry().setFromPoints([frontPoints[idx], backPoints[idx]]),
-                    lineMatSecondary()
-                )
-            );
-        }
-    }
-
     // Scatters `count` points sampled evenly-ish along a closed/open polyline (used
     // to sprinkle particles over icon outlines, per the spec's "puntos distribuidos
     // sobre su geometría").
@@ -368,6 +383,36 @@ export function createMarketingFunnelScene(canvas, container) {
         }
         return out;
     }
+
+    // ---------------------------------------------------------------------
+    // Hover interaction — the icon or ring level under the cursor scales up
+    // as a whole (see HOVER_SCALE/HOVER_LERP_SPEED), smoothly lerped every
+    // frame in animate(). animate() raycasts against hoverRaycastTargets
+    // (the icon badge meshes + one invisible proxy torus per ring level,
+    // since the rings themselves are lines/points only, nothing solid to
+    // hit-test against); a hit's mesh.userData.hoverGroup says which group
+    // to grow. hoverScaleGroups lists every group that participates.
+    // ---------------------------------------------------------------------
+    const raycaster = new THREE.Raycaster();
+    const mouseNDC = new THREE.Vector2(2, 2); // starts off-screen — no hover until the first real pointermove
+    let mouseActive = false;
+    function onPointerMove(e) {
+        const rect = canvas.getBoundingClientRect();
+        mouseNDC.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouseNDC.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+        mouseActive = true;
+    }
+    function onPointerLeave() {
+        mouseActive = false;
+    }
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerleave', onPointerLeave);
+
+    const hoverRaycastTargets = [];
+    // Every entry is { group, targetScale } — icons push HOVER_SCALE, ring
+    // levels push HOVER_RING_LEVEL_SCALE (see animate()); plain uniform
+    // scale, no per-vertex geometry changes.
+    const hoverScaleGroups = [];
 
     // ---------------------------------------------------------------------
     // Root group — everything lives under here so idle rotation spins the
@@ -415,24 +460,80 @@ export function createMarketingFunnelScene(canvas, container) {
         return shape;
     }
 
-    // Builds the badge disc itself (solid extrude + lit rim outline + inner
-    // bevel contour + edge scatter) from a flat Shape — shared by the
-    // circular and rounded-square badges below. Real extruded depth already
-    // gives it volume, so unlike addDepthShell (for flat outlines with no
-    // real geometry) this doesn't need a fake back-copy — just the one lit
-    // outline plus a fainter inset line for the bevel.
+    // Same rounded-rect outline as roundedRectShape, but with a triangular
+    // tail cut into the bottom edge (offset toward the left) — the speech-
+    // bubble "pico" the reference image has and the plain rounded rect below
+    // was missing.
+    function bubbleWithTailShape(w, h, r, tailCx, tailW, tailDrop) {
+        const shape = new THREE.Shape();
+        const left = -w / 2;
+        const right = w / 2;
+        const bottom = -h / 2;
+        const top = h / 2;
+        const tailLeft = tailCx - tailW / 2;
+        const tailRight = tailCx + tailW / 2;
+        shape.moveTo(left + r, bottom);
+        shape.lineTo(tailLeft, bottom);
+        shape.lineTo(tailCx - tailW * 0.2, bottom - tailDrop);
+        shape.lineTo(tailRight, bottom);
+        shape.lineTo(right - r, bottom);
+        shape.absarc(right - r, bottom + r, r, -Math.PI / 2, 0, false);
+        shape.lineTo(right, top - r);
+        shape.absarc(right - r, top - r, r, 0, Math.PI / 2, false);
+        shape.lineTo(left + r, top);
+        shape.absarc(left + r, top - r, r, Math.PI / 2, Math.PI, false);
+        shape.lineTo(left, bottom + r);
+        shape.absarc(left + r, bottom + r, r, Math.PI, Math.PI * 1.5, false);
+        return shape;
+    }
+
+    // Builds the badge disc itself from a flat Shape — shared by the circular
+    // and rounded-square badges below. The fill is barely-there (see
+    // SOLID_OPACITY) on purpose: the badge is meant to read as a shape
+    // "delimited" by its line rims, not as a filled disc. To sell that at
+    // this opacity, the rim is now traced at BOTH the front and back face of
+    // the extrude (not one loop floating at its mid-depth) plus a few struts
+    // between them — the same front/back-contour idea the funnel rings use
+    // to read as a real 3D tube instead of a flat ring.
     function buildBadge(group, shape, outline, innerOutline) {
         const mesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: BADGE_DEPTH, bevelEnabled: false, curveSegments: 24 }), solidMat());
         mesh.position.z = -BADGE_DEPTH / 2;
         group.add(mesh);
 
-        group.add(gradientLineLoop(outline, ICON_LIGHT_DIR, XY_AXES));
-        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(innerOutline), lineMatSecondary()));
-        // Additive glow duplicate of the rim — same technique as the ring's
-        // ringGlowLineMat, bloom turns it into the "acrylic edge" glow from
-        // the reference. No front/back fade needed here (unlike the ring):
-        // icons don't spin, so the glow can just stay on evenly all around.
-        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(outline), badgeGlowMat()));
+        // Hover hit-testing: the badge's own (barely-visible) fill mesh
+        // doubles as the raycast target — real geometry, so opacity doesn't
+        // affect raycasting. A hit resolves back to this icon's root group
+        // via userData.hoverGroup, which animate() scales up on hover.
+        mesh.userData.hoverGroup = group;
+        hoverRaycastTargets.push(mesh);
+        hoverScaleGroups.push({ group, targetScale: HOVER_SCALE });
+
+        const frontZ = BADGE_DEPTH / 2;
+        const backZ = -BADGE_DEPTH / 2;
+        const frontOutline = outline.map((p) => new THREE.Vector3(p.x, p.y, frontZ));
+        const backOutline = outline.map((p) => new THREE.Vector3(p.x, p.y, backZ));
+        const frontInner = innerOutline.map((p) => new THREE.Vector3(p.x, p.y, frontZ));
+
+        // Front rim — lit gradient line + additive glow duplicate (same
+        // technique as the ring's ringGlowLineMat; bloom turns it into the
+        // "acrylic edge" glow from the reference).
+        group.add(gradientLineLoop(frontOutline, ICON_LIGHT_DIR, XY_AXES));
+        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(frontOutline), badgeGlowMat()));
+        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(frontInner), lineMatSecondary()));
+
+        // Back rim — plain secondary-color loop, no glow (keeps the glow
+        // reserved for the front-facing edge, same as the front/back split
+        // elsewhere in this file).
+        group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(backOutline), lineMatSecondary()));
+
+        // Struts connecting front to back rim at a handful of points — makes
+        // the extruded depth read as a real 3D box outline instead of two
+        // unconnected flat loops.
+        const strutCount = 8;
+        for (let i = 0; i < strutCount; i++) {
+            const idx = Math.floor((i / strutCount) * outline.length);
+            group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([frontOutline[idx], backOutline[idx]]), lineMatSecondary()));
+        }
     }
 
     function addCircleBadge(group, radius) {
@@ -453,9 +554,10 @@ export function createMarketingFunnelScene(canvas, container) {
         buildBadge(group, shape, outline, innerOutline);
     }
 
-    // A single "person": a real solid sphere for the head (not a flat circle
-    // outline) plus an arc of shoulders below it. Now sits raised on a
-    // circular badge (see addCircleBadge) instead of floating bare.
+    // A single "person": filled solid disc for the head plus a filled,
+    // flat-bottomed dome for the shoulders/torso — the classic avatar-glyph
+    // silhouette from the reference image (a full white shape, not a thin
+    // wireframe arc). Sits raised on a circular badge (see addCircleBadge).
     function createUserGlyph(scale) {
         const group = new THREE.Group();
         addCircleBadge(group, 0.24 * scale);
@@ -464,33 +566,56 @@ export function createMarketingFunnelScene(canvas, container) {
         symbol.position.z = BADGE_SYMBOL_LIFT;
         group.add(symbol);
 
-        // headR/shoulderR back up (was shrunk to 0.055/0.095) — the reference
-        // image shows the person figure filling most of its badge, not sitting
-        // small with a lot of empty margin.
-        const headR = 0.078 * scale;
-        const headCy = headR * 1.7;
+        // 40% smaller than the previous pass (was overflowing the badge rim)
+        // and recentered vertically — head-top/body-bottom now sit at equal
+        // distance from the badge's own center (y=0).
+        const headR = 0.048 * scale;
+        const headCy = 0.069 * scale;
 
-        const headMesh = new THREE.Mesh(new THREE.SphereGeometry(headR, 16, 12), solidMat());
-        headMesh.position.set(0, headCy, 0);
+        const headShape = new THREE.Shape();
+        headShape.absarc(0, 0, headR, 0, Math.PI * 2, false);
+        const headMesh = new THREE.Mesh(
+            new THREE.ExtrudeGeometry(headShape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false, curveSegments: 20 }),
+            symbolMat()
+        );
+        headMesh.position.set(0, headCy, -ICON_EXTRUDE_DEPTH / 2);
         symbol.add(headMesh);
-        // Thin equatorial accent line — the sphere itself carries the shape now.
-        const head = circlePoints(headR, 16, 0, headCy);
-        symbol.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(head), lineMatSecondary()));
+        const headOutline = circlePoints(headR, 20, 0, headCy);
+        symbol.add(gradientLineLoop(headOutline, ICON_LIGHT_DIR, XY_AXES));
 
-        const shoulderR = 0.135 * scale;
-        const shoulderCy = -headR * 0.15;
-        const shoulders = arcPoints(shoulderR, Math.PI * 0.12, Math.PI * 0.88, 14, 0, shoulderCy);
-        const shoulderLine = gradientLineLoop(shoulders, ICON_LIGHT_DIR, (p) => [p.x, p.y - shoulderCy], false);
-        symbol.add(shoulderLine);
-        addDepthShell(symbol, shoulders, 6, false);
+        // Shoulders — a half-ellipse dome (flat cut across the bottom), filled
+        // solid rather than a bare arc, so it reads as one continuous filled
+        // silhouette with the head, matching the reference.
+        const bodyRX = 0.09 * scale;
+        const bodyRY = 0.075 * scale;
+        const bodyCy = -0.042 * scale;
+        const bodySegments = 24;
+        const bodyPts = [];
+        for (let i = 0; i <= bodySegments; i++) {
+            const a = (i / bodySegments) * Math.PI;
+            bodyPts.push(new THREE.Vector3(Math.cos(a) * bodyRX, bodyCy + Math.sin(a) * bodyRY, 0));
+        }
+        const bodyShape = new THREE.Shape();
+        bodyPts.forEach((p, i) => (i === 0 ? bodyShape.moveTo(p.x, p.y) : bodyShape.lineTo(p.x, p.y)));
+        const bodyMesh = new THREE.Mesh(
+            new THREE.ExtrudeGeometry(bodyShape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false, curveSegments: 20 }),
+            symbolMat()
+        );
+        bodyMesh.position.z = -ICON_EXTRUDE_DEPTH / 2;
+        symbol.add(bodyMesh);
+        const bodyLine = gradientLineLoop(bodyPts, ICON_LIGHT_DIR, (p) => [p.x, p.y - bodyCy], false);
+        symbol.add(bodyLine);
 
-        const scatter = scatterAlongPath([...head, ...shoulders], 35);
+        const scatter = scatterAlongPath([...headOutline, ...bodyPts], 35);
         symbol.add(pointsFromArray(scatter, pointMatDim()));
         return group;
     }
 
     // Solid heart via the classic parametric heart curve, extruded into real
     // depth, raised on a rounded-square badge (see addRoundedSquareBadge).
+    // Reference image shows the heart filling most of its badge — bigger than
+    // the previous pass, using the bright symbolMat fill instead of the
+    // badge's own translucent glass material.
     function createHeartGlyph(scale) {
         const group = new THREE.Group();
         addRoundedSquareBadge(group, 0.34 * scale, 0.3 * scale, 0.08 * scale);
@@ -499,7 +624,11 @@ export function createMarketingFunnelScene(canvas, container) {
         symbol.position.z = BADGE_SYMBOL_LIFT;
         group.add(symbol);
 
-        const s = 0.0068 * scale; // was 0.0085 — shrunk so the heart sits inside its badge with margin instead of crowding the rim
+        // Shrunk ~35% from the previous pass (was filling almost the whole
+        // badge). The curve's own x/y ranges are already symmetric around 0
+        // (see the +6 shift below), so a uniform scale keeps it centered —
+        // no extra offset needed here, unlike the message bubble's tail.
+        const s = 0.0053 * scale;
         const pts = [];
         const segments = 40;
         for (let i = 0; i <= segments; i++) {
@@ -513,7 +642,7 @@ export function createMarketingFunnelScene(canvas, container) {
 
         const heartShape = new THREE.Shape();
         pts.forEach((p, i) => (i === 0 ? heartShape.moveTo(p.x, p.y) : heartShape.lineTo(p.x, p.y)));
-        const heartMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(heartShape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false }), solidMat());
+        const heartMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(heartShape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false }), symbolMat());
         heartMesh.position.z = -ICON_EXTRUDE_DEPTH / 2;
         symbol.add(heartMesh);
 
@@ -523,21 +652,32 @@ export function createMarketingFunnelScene(canvas, container) {
         return group;
     }
 
-    // Rounded rectangular bubble with 3 interior dots ("message" icon), raised
-    // on its own rounded-square badge.
+    // Speech bubble with a bottom-left tail and 3 interior dots ("message"
+    // icon), raised on its own rounded-square badge. The reference image's
+    // bubble has a pointed tail (missing from the previous flat rounded
+    // rect) — added via bubbleWithTailShape.
     function createMessageGlyph(scale) {
         const group = new THREE.Group();
         addRoundedSquareBadge(group, 0.34 * scale, 0.26 * scale, 0.07 * scale);
 
         const symbol = new THREE.Group();
         symbol.position.z = BADGE_SYMBOL_LIFT;
+        // The tail hangs below the bubble's own rect, so the shape's true
+        // vertical center sits below y=0, not on it — this shift brings it
+        // back to the badge's own center instead of just eyeballing it.
+        symbol.position.y = 0.016 * scale;
         group.add(symbol);
 
-        const w = 0.22 * scale; // was 0.26 — shrunk so it sits inside its badge with margin
-        const h = 0.15 * scale; // was 0.18
-        const r = 0.038 * scale; // was 0.045
-        const shape = roundedRectShape(w, h, r);
-        const bubbleMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false }), solidMat());
+        // Shrunk ~35% from the previous pass (bubble + tail were touching
+        // the badge edges).
+        const w = 0.143 * scale;
+        const h = 0.0975 * scale;
+        const r = 0.0247 * scale;
+        const tailCx = -w * 0.22;
+        const tailW = 0.039 * scale;
+        const tailDrop = 0.0325 * scale;
+        const shape = bubbleWithTailShape(w, h, r, tailCx, tailW, tailDrop);
+        const bubbleMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: ICON_EXTRUDE_DEPTH, bevelEnabled: false }), symbolMat());
         bubbleMesh.position.z = -ICON_EXTRUDE_DEPTH / 2;
         symbol.add(bubbleMesh);
 
@@ -586,12 +726,26 @@ export function createMarketingFunnelScene(canvas, container) {
     }
 
     // Irregular layout: different x/y/z per icon so nothing lines up on a grid —
-    // edit this array to reposition or rescale any single icon.
-    // Emptied out per request — no icons floating above the funnel. Left as
-    // an empty array (rather than deleting the glyph builders/materials
-    // below) so nothing else in the scene has to change; repopulate this to
-    // bring icons back.
-    const ICON_LAYOUT = [];
+    // edit this array to reposition or rescale any single icon. Reference:
+    // 4 person + 1 heart + 1 message, scattered at varied depths/heights,
+    // per the shared reference image.
+    // x/y/z from the previous pass scaled outward ~1.55x from the shared
+    // centroid (0,0,0) — same relative arrangement, more distance between
+    // each icon so their badges stop overlapping. Person badges also scaled
+    // down (~0.82x) so they read as smaller than the heart/message ones.
+    // Centroid stays at (0,0,0): a uniform scale from the origin doesn't
+    // shift it.
+    const ICON_LAYOUT = [
+        { build: createUserGlyph, x: -1.07, y: 0.17, z: 0.02, scale: 0.94, phase: 0.0 },
+        { build: createUserGlyph, x: 0.14, y: 0.33, z: -0.53, scale: 0.78, phase: 1.4 },
+        // This user badge and the message badge below were the closest pair
+        // (badges touching) — pushed apart along their shared axis, keeping
+        // their midpoint fixed, so the group's overall centroid is unaffected.
+        { build: createUserGlyph, x: 1.12, y: 0.01, z: 0.39, scale: 0.86, phase: 2.6 },
+        { build: createUserGlyph, x: -0.05, y: 0.48, z: 0.4, scale: 0.9, phase: 2.0 },
+        { build: createHeartGlyph, x: -0.51, y: -0.36, z: 0.29, scale: 1.0, phase: 0.8 },
+        { build: createMessageGlyph, x: 0.36, y: -0.66, z: -0.59, scale: 1.0, phase: 3.6 },
+    ];
 
     const iconGroups = ICON_LAYOUT.map((cfg) => {
         const glyph = cfg.build(cfg.scale);
@@ -676,6 +830,26 @@ export function createMarketingFunnelScene(canvas, container) {
         const level = new THREE.Group();
         level.name = `funnelLevel0${i + 1}`;
         level.position.y = FUNNEL_TOP_Y - i * FUNNEL_GAP;
+
+        // Hover hit-testing: the ring has no solid mesh to raycast against
+        // (lines/points only), so an invisible torus proxy stands in — same
+        // radius/tube as the level's own contours, DoubleSide so the exact
+        // winding direction from the 90°-rotation below doesn't matter. A hit
+        // scales this level up as a whole (see hoverScaleGroups in animate()),
+        // plus the whole `funnel` group (all 4 levels) scales up too.
+        hoverScaleGroups.push({ group: level, targetScale: HOVER_RING_LEVEL_SCALE });
+        const hoverProxyMat = new THREE.MeshBasicMaterial({
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+            colorWrite: false,
+            side: THREE.DoubleSide,
+        });
+        const hoverProxy = new THREE.Mesh(new THREE.TorusGeometry(cfg.radius, cfg.tube, 8, 32), hoverProxyMat);
+        hoverProxy.rotation.x = Math.PI / 2; // default torus lies flat in XY — rotate so its main circle sits in XZ, matching the ring
+        hoverProxy.userData.hoverRingLevel = level;
+        level.add(hoverProxy);
+        hoverRaycastTargets.push(hoverProxy);
 
         // Line-only on purpose: the funnel rings stay wireframe (per the user's
         // call) — solid geometry is reserved for the icons floating above.
@@ -885,6 +1059,43 @@ export function createMarketingFunnelScene(canvas, container) {
             glowPoints.material.opacity = OPACITY_POINT_BRIGHT * (0.75 + 0.25 * Math.sin(elapsed * GLOW_PULSE_SPEED));
         });
 
+        // Hover — raycast against the icon badges + ring proxies (see
+        // hoverRaycastTargets) using this frame's up-to-date transforms
+        // (updateMatrixWorld before raycasting, since rotations/positions
+        // above were just changed and haven't propagated to matrixWorld yet).
+        // Plain uniform scale everywhere, no per-vertex deformation: the hit
+        // icon or ring level grows on its own (hoverScaleGroups, per-entry
+        // targetScale), and on top of that, hovering ANY ring level also
+        // grows the whole `funnel` group (all 4 levels together).
+        funnelSystem.updateMatrixWorld(true);
+        let hitIconGroup = null;
+        let hitRingLevel = null;
+        if (mouseActive) {
+            raycaster.setFromCamera(mouseNDC, camera);
+            const hits = raycaster.intersectObjects(hoverRaycastTargets, false);
+            if (hits.length) {
+                const hitObject = hits[0].object;
+                if (hitObject.userData.hoverGroup) {
+                    hitIconGroup = hitObject.userData.hoverGroup;
+                } else if (hitObject.userData.hoverRingLevel) {
+                    hitRingLevel = hitObject.userData.hoverRingLevel;
+                }
+            }
+        }
+        const hitGroup = hitIconGroup || hitRingLevel;
+
+        const scaleStep = Math.min(1, dt * HOVER_LERP_SPEED);
+        hoverScaleGroups.forEach(({ group, targetScale }) => {
+            const target = group === hitGroup ? targetScale : 1;
+            const next = group.scale.x + (target - group.scale.x) * scaleStep;
+            group.scale.setScalar(next);
+        });
+
+        const funnelScaleStep = Math.min(1, dt * HOVER_RING_LERP_SPEED);
+        const funnelTarget = hitRingLevel ? HOVER_FUNNEL_SCALE : 1;
+        const funnelNext = funnel.scale.x + (funnelTarget - funnel.scale.x) * funnelScaleStep;
+        funnel.scale.setScalar(funnelNext);
+
         composer.render();
     }
     animate();
@@ -892,6 +1103,8 @@ export function createMarketingFunnelScene(canvas, container) {
     function dispose() {
         if (rafId !== null) cancelAnimationFrame(rafId);
         resizeObserver.disconnect();
+        canvas.removeEventListener('pointermove', onPointerMove);
+        canvas.removeEventListener('pointerleave', onPointerLeave);
         scene.traverse((obj) => {
             if (obj.geometry) obj.geometry.dispose();
             if (obj.material) {
