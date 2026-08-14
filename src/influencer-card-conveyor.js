@@ -122,8 +122,8 @@ function opacityForScale(scale) {
 // (pensadas para un escenario mucho más grande) para que quepan en esa columna.
 function getResponsiveFactor() {
     const w = window.innerWidth;
-    if (w <= 480) return 0.24;
-    return 0.34;
+    if (w <= 480) return 0.192;
+    return 0.272;
 }
 
 // Opacidad de las tarjetas que quedan "detrás" cuando una está en foco (clic).
@@ -173,6 +173,21 @@ function clamp(value, min, max) {
     return Math.max(min, Math.min(max, value));
 }
 
+// Altura del header fijo actualmente visible (el oscuro de escritorio o la barra
+// móvil/tablet) — se usa para que ninguna burbuja se coloque por debajo de él.
+function getHeaderHeight() {
+    const desktopNav = document.querySelector('nav.fixed');
+    if (desktopNav && getComputedStyle(desktopNav).display !== 'none') {
+        return desktopNav.getBoundingClientRect().height;
+    }
+    const menuBtn = document.getElementById('mobileMenuOpenBtn');
+    const mobileBar = menuBtn ? menuBtn.closest('.fixed') : null;
+    if (mobileBar && getComputedStyle(mobileBar).display !== 'none') {
+        return mobileBar.getBoundingClientRect().height;
+    }
+    return 0;
+}
+
 // Coloca cada badge por fuera de la caja REAL del carrusel (medida en pantalla con
 // getBoundingClientRect, no un porcentaje adivinado) más un margen de seguridad — así
 // nunca queda tocando ni tapado por la tarjeta grande, sin importar el tamaño de viewport.
@@ -187,65 +202,78 @@ function layoutBadges(stage) {
     const sectionRect = section.getBoundingClientRect();
     const left = stageRect.left - sectionRect.left;
     const top = stageRect.top - sectionRect.top;
-    const right = left + stageRect.width;
     const bottom = top + stageRect.height;
     const w = stageRect.width;
     const h = stageRect.height;
+    const center = left + w / 2;
 
-    const margin = window.innerWidth <= 640 ? 30 : 72;
+    const margin = window.innerWidth <= 640 ? 24 : 58;
     const pad = 10; // no pegarse al borde de la sección tampoco
-
-    // Cada badge se ancla por fuera de uno de los lados de la caja del carrusel, desplazado
-    // a lo largo de ese lado para no quedar todas en la misma línea. Sin "right": el stage
-    // ya va pegado al borde derecho de la sección (justify-end), así que ahí no queda margen
-    // real y el clamp() lo empuja de vuelta encima de la tarjeta — arriba/abajo/izquierda sí
-    // tienen espacio real medido... excepto en layout apilado (debajo de 1024px, donde el
-    // texto va arriba y las tarjetas abajo a todo el ancho): ahí tampoco hay margen a la
-    // izquierda, así que se usa solo arriba/abajo.
+    const gap = 14; // separación mínima entre dos badges del mismo lado, para que no se pisen
     const isStacked = window.innerWidth < 1024;
-    const placements = isStacked
-        ? [
-            { side: 'top', along: 0.12 },
-            { side: 'top', along: 0.68 },
-            { side: 'bottom', along: 0.18 },
-            { side: 'bottom', along: 0.5 },
-            { side: 'bottom', along: 0.82 },
-        ]
-        : [
-            { side: 'top', along: 0.1 },
-            { side: 'top', along: 0.6 },
-            { side: 'bottom', along: 0.22 },
-            { side: 'bottom', along: 0.68 },
-            { side: 'left', along: 0.5 },
-        ];
+    const gridEl = stage.closest('.grid');
+    const textCol = gridEl ? gridEl.firstElementChild : null;
 
-    badges.forEach((badge, i) => {
-        const placement = placements[i % placements.length];
-        const bw = badge.offsetWidth || 140;
-        const bh = badge.offsetHeight || 40;
-        let x;
-        let y;
+    // Techo real por encima del cual ninguna burbuja "top" puede colocarse: el borde
+    // inferior del header fijo siempre, y en layout apilado (el texto va arriba y el
+    // carrusel debajo, a todo el ancho) también el borde inferior del bloque de texto
+    // — si no, el margen fijo de separación podía no alcanzar y la burbuja quedaba
+    // encima del párrafo cuando ese hueco real era más pequeño de lo esperado.
+    let topObstacleBottom = getHeaderHeight() + 12;
+    if (isStacked && textCol) {
+        topObstacleBottom = Math.max(topObstacleBottom, textCol.getBoundingClientRect().bottom + 16);
+    }
+    const topPad = Math.max(pad, topObstacleBottom - sectionRect.top);
 
-        if (placement.side === 'top') {
-            x = left + w * placement.along;
-            y = top - margin - bh;
-        } else if (placement.side === 'bottom') {
-            x = left + w * placement.along;
-            y = bottom + margin;
-        } else if (placement.side === 'left') {
-            x = left - margin - bw;
-            y = top + h * placement.along;
-        } else {
-            x = right + margin;
-            y = top + h * placement.along;
-        }
+    // Límite izquierdo real: en layout no apilado hay una columna de texto a la
+    // izquierda del carrusel — ninguna burbuja debe invadirla, ni la que se ancla a
+    // su izquierda ni el extremo izquierdo de las filas de arriba/abajo si la fila
+    // se ensancha más que el propio carrusel (ver más abajo).
+    let leftBound = pad;
+    if (!isStacked && textCol) {
+        leftBound = Math.max(pad, (textCol.getBoundingClientRect().right - sectionRect.left) + 20);
+    }
 
-        x = clamp(x, pad, sectionRect.width - bw - pad);
-        y = clamp(y, pad, sectionRect.height - bh - pad);
+    const meas = badges.map((b) => ({ bw: b.offsetWidth || 140, bh: b.offsetHeight || 40 }));
 
-        badge.style.left = `${Math.round(x)}px`;
-        badge.style.top = `${Math.round(y)}px`;
+    // La 5ª burbuja ("compartidos") va a la izquierda del carrusel solo si cabe
+    // realmente entre el texto y el carrusel; si no (apilado, o el texto es largo y
+    // el viewport no es muy ancho), se suma a la fila de abajo con las otras dos.
+    const canPlaceLeft = !isStacked && (left - margin - meas[4].bw) >= leftBound;
+    const sides = badges.map((_, i) => {
+        if (i === 0 || i === 1) return 'top';
+        if (i === 4) return canPlaceLeft ? 'left' : 'bottom';
+        return 'bottom';
     });
+
+    // Arriba/abajo: las burbujas de un mismo lado se reparten centradas respecto al
+    // carrusel, con la separación real basada en su ancho MEDIDO (nunca un porcentaje
+    // fijo del ancho del carrusel) — así nunca se solapan entre sí, tanto si caben 2
+    // como si caen 3 en la misma fila (cuando la 5ª no puede ir a la izquierda), ni
+    // aunque el carrusel se haya reducido de tamaño.
+    ['top', 'bottom'].forEach((side) => {
+        const idxs = sides.reduce((acc, s, i) => { if (s === side) acc.push(i); return acc; }, []);
+        if (idxs.length === 0) return;
+        const totalContent = idxs.reduce((sum, i) => sum + meas[i].bw, 0) + gap * (idxs.length - 1);
+        const maxStartX = Math.max(leftBound, sectionRect.width - pad - totalContent);
+        let cursor = clamp(center - totalContent / 2, leftBound, maxStartX);
+        idxs.forEach((i) => {
+            const bh = meas[i].bh;
+            const rawY = side === 'top' ? (top - margin - bh) : (bottom + margin);
+            const y = clamp(rawY, topPad, sectionRect.height - bh - pad);
+            badges[i].style.left = `${Math.round(cursor)}px`;
+            badges[i].style.top = `${Math.round(y)}px`;
+            cursor += meas[i].bw + gap;
+        });
+    });
+
+    if (canPlaceLeft) {
+        const i = 4;
+        const x = clamp(left - margin - meas[i].bw, leftBound, sectionRect.width - meas[i].bw - pad);
+        const y = clamp(top + h * 0.5, topPad, sectionRect.height - meas[i].bh - pad);
+        badges[i].style.left = `${Math.round(x)}px`;
+        badges[i].style.top = `${Math.round(y)}px`;
+    }
 }
 
 export function initInfluencerCardConveyor() {
