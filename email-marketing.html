@@ -30,15 +30,6 @@
 </head>
 
 <body class="bg-black overflow-visible">
-    <!-- Filtro SVG para el efecto Liquid Glass (ver .liquid-glass en src/style.css) -->
-    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <defs>
-            <filter id="liquid-glass-distortion" x="-30%" y="-30%" width="160%" height="160%">
-                <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="7" result="noise" />
-                <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" />
-            </filter>
-        </defs>
-    </svg>
     <!-- Menu oscuro -->
     <nav
         class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100] top-0">
@@ -159,9 +150,7 @@
                                     <li
                                         class="flex flex-col items-start gap-2 py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
                                         <img src="/imgs/Menues/logo-content.svg" alt="imcontent" class="h-7 w-auto">
-                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Estrategia de
-                                            marca y
-                                            contenido</span>
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Contenido creado con IA</span>
                                     </li>
                                 </a>
                                 <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">
@@ -348,7 +337,7 @@
                                 <li
                                     class="flex flex-col items-center py-4 px-5 border-b border-gray-300 hover:bg-blue-50 transition">
                                     <img src="/imgs/Menues/logo-content.svg" alt="imcontent" class="h-9 w-auto mx-auto">
-                                    <span class="mt-2 text-base font-light">Estrategia de marca y contenido</span>
+                                    <span class="mt-2 text-base font-light">Contenido creado con IA</span>
                                 </li>
                             </a>
                             <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">
@@ -449,7 +438,7 @@
                     </p>
 
                     <a href="contacto.html"
-                        class="liquid-glass inline-block px-8 py-3 rounded-full text-white text-sm font-bold tracking-widest hover:scale-[1.05] transition-transform duration-300">
+                        class="bg-white text-[#0B0F14] px-8 py-4 rounded-lg hover:bg-[#E9EDF2] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 inline-block text-sm font-bold tracking-widest">
                         HABLEMOS
                     </a>
                 </div>
