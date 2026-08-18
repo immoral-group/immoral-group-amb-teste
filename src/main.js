@@ -854,23 +854,6 @@ function initGestionHero() {
             return () => trigger.kill();
         }
     });
-
-    // Add floating animation CSS if not exists
-    if (!document.getElementById('gestion-hero-styles')) {
-        const style = document.createElement('style');
-        style.id = 'gestion-hero-styles';
-        style.textContent = `
-            @keyframes float {
-                0% { transform: translateY(0px); }
-                50% { transform: translateY(-20px); }
-                100% { transform: translateY(0px); }
-            }
-            .animate-float-slow { animation: float 6s ease-in-out infinite; }
-            .animate-float-medium { animation: float 5s ease-in-out infinite; }
-            .animate-float-fast { animation: float 4s ease-in-out infinite; }
-        `;
-        document.head.appendChild(style);
-    }
 }
 
 // --- 11. SERVICE EVENTS ---

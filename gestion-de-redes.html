@@ -390,112 +390,102 @@
             <div
                 class="w-full lg:w-screen h-auto min-h-screen lg:h-full flex flex-col justify-center px-6 lg:px-24 py-24 lg:py-0 relative shrink-0">
 
-                <!-- Connecting Lines (Decorative): 4 tramos independientes que llenan casi toda la
-                     distancia entre cada icono y su vecino, con el mismo hueco chico (icono + ~2 unidades)
-                     en ambos extremos que ya se veía bien en Facebook. Cada uno se revela con un efecto
-                     "trim path" real (clip-path cuyo rect crece con <animate> nativo de SVG) — el trazo en
-                     sí queda punteado SIEMPRE (stroke-dasharray fijo), así el recorte solo revela más
-                     puntos progresivamente. El glow va por CSS `drop-shadow` (ver .social-connect-glow en
-                     style.css) en vez de <feGaussianBlur>: ese filtro estaba en unidades del viewBox, que al
-                     escalarse al tamaño real del contenedor se convertía en un blur de ~30-40px — mucho más
-                     grande que el hueco entre puntos (dasharray "1 0.9"), así que fundía los puntos en un
-                     bloque sólido en vez de dejarlos brillar como puntos. drop-shadow, al ir en píxeles CSS
-                     reales, no tiene ese problema de escala. -->
-                <svg id="social-connect-lines" viewBox="0 0 100 100" preserveAspectRatio="none"
-                    class="absolute inset-0 w-full h-full hidden lg:block pointer-events-none z-0 animate-float-medium"
-                    aria-hidden="true">
-                    <defs>
-                        <clipPath id="social-connect-clip-1" clipPathUnits="userSpaceOnUse">
-                            <rect x="0" y="-2" width="0" height="4"
-                                transform="translate(15.79 18.61) rotate(4.55)">
-                                <animate attributeName="width" from="0" to="49.2" begin="0.3s" dur="1.2s"
-                                    fill="freeze" />
-                            </rect>
-                        </clipPath>
-                        <clipPath id="social-connect-clip-2" clipPathUnits="userSpaceOnUse">
-                            <rect x="0" y="-2" width="0" height="4"
-                                transform="translate(70.89 25.40) rotate(46.13)">
-                                <animate attributeName="width" from="0" to="21" begin="1.5s" dur="1.2s"
-                                    fill="freeze" />
-                            </rect>
-                        </clipPath>
-                        <clipPath id="social-connect-clip-3" clipPathUnits="userSpaceOnUse">
-                            <rect x="0" y="-2" width="0" height="4"
-                                transform="translate(21.2 79.82) rotate(-17.75)">
-                                <animate attributeName="width" from="0" to="36.2" begin="2.7s" dur="1.2s"
-                                    fill="freeze" />
-                            </rect>
-                        </clipPath>
-                        <clipPath id="social-connect-clip-4" clipPathUnits="userSpaceOnUse">
-                            <rect x="0" y="-2" width="0" height="4"
-                                transform="translate(61.33 65.68) rotate(-39.86)">
-                                <animate attributeName="width" from="0" to="31" begin="3.9s" dur="1.2s"
-                                    fill="freeze" />
-                            </rect>
-                        </clipPath>
-                    </defs>
+                <!-- Órbita de íconos (Decorativo): todos los íconos viven del lado derecho (el texto
+                     queda del lado izquierdo) y giran en formación rígida alrededor de un anillo
+                     wireframe fino, en vez de flotar sueltos con glow fuerte como antes. El giro
+                     continuo se logra con dos animaciones sincronizadas: el "brazo" (.social-orbit-arm)
+                     gira 360°, y dentro suyo el ícono gira -360° a la misma velocidad para
+                     cancelar la rotación y quedar siempre derecho. Cada ícono arranca en un punto
+                     distinto del círculo usando animation-delay NEGATIVO (5 tramos de 26s/5), así
+                     quedan repartidos en formación de "pentágono" girando junto. Mismo lenguaje visual
+                     que el anillo de la sección "Cómo lo hacemos" más abajo (línea fina, azul de marca,
+                     giro lento) en vez del efecto glow pesado de antes. -->
+                <style>
+                    @keyframes social-orbit-spin {
+                        from { transform: rotate(0deg); }
+                        to { transform: rotate(360deg); }
+                    }
+                    @keyframes social-orbit-counter-spin {
+                        from { transform: rotate(0deg); }
+                        to { transform: rotate(-360deg); }
+                    }
+                    .social-orbit-ring-spin { animation: social-orbit-spin 26s linear infinite; transform-origin: 170px 170px; }
+                    .social-orbit-arm {
+                        position: absolute;
+                        inset: 0;
+                        margin: auto;
+                        width: 0;
+                        height: 0;
+                        animation: social-orbit-spin 26s linear infinite;
+                    }
+                    .social-orbit-radius {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        transform: translate(calc(140px - 50%), -50%);
+                    }
+                    .social-orbit-counter { animation: social-orbit-counter-spin 26s linear infinite; }
+                </style>
+                <div id="social-orbit"
+                    class="hidden lg:block absolute top-1/2 right-[2%] xl:right-[6%] -translate-y-1/2 w-[340px] h-[340px] pointer-events-none z-0">
+                    <!-- Anillo wireframe: guía fina estática + trazo punteado azul que gira -->
+                    <svg viewBox="0 0 340 340" class="absolute inset-0 w-full h-full" aria-hidden="true">
+                        <circle cx="170" cy="170" r="140" fill="none" stroke="#ffffff" stroke-opacity="0.15"
+                            stroke-width="1" />
+                        <g class="social-orbit-ring-spin">
+                            <circle cx="170" cy="170" r="140" fill="none" stroke="#2F80ED" stroke-opacity="0.8"
+                                stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 19" />
+                        </g>
+                    </svg>
 
-                    <!-- Cada tramo va en dos capas: la copia de GLOW no está dentro de ningún
-                         clip-path (un <filter>/drop-shadow dentro de un <g clip-path> se recorta al
-                         límite exacto del clip en vez de dejar que el resplandor se expanda — por
-                         eso no se veía nada de glow antes), y aparece con un fundido de opacidad +
-                         desenfoque. La copia NÍTIDA sigue yendo dentro del clip-path para el efecto
-                         "trim path" de revelado progresivo, sin ningún filtro. -->
-
-                    <!-- Tramo 1: Facebook → Pinterest -->
-                    <path class="social-connect-glow-1" d="M 15.79,18.61 L 64.81,22.51" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
-                        stroke-dasharray="1 0.9" />
-                    <g clip-path="url(#social-connect-clip-1)">
-                        <path d="M 15.79,18.61 L 64.81,22.51" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
-                    </g>
-
-                    <!-- Tramo 2: Pinterest → Instagram -->
-                    <path class="social-connect-glow-2" d="M 70.89,25.40 L 85.40,40.49" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
-                        stroke-dasharray="1 0.9" />
-                    <g clip-path="url(#social-connect-clip-2)">
-                        <path d="M 70.89,25.40 L 85.40,40.49" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
-                    </g>
-
-                    <!-- Tramo 3: TikTok → YouTube -->
-                    <path class="social-connect-glow-3" d="M 21.2,79.82 L 55.66,68.81" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
-                        stroke-dasharray="1 0.9" />
-                    <g clip-path="url(#social-connect-clip-3)">
-                        <path d="M 21.2,79.82 L 55.66,68.81" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
-                    </g>
-
-                    <!-- Tramo 4: YouTube → Instagram -->
-                    <path class="social-connect-glow-4" d="M 61.33,65.68 L 85.11,45.80" fill="none"
-                        stroke="#ffffff" stroke-opacity="0.9" stroke-width="0.1" stroke-linecap="round"
-                        stroke-dasharray="1 0.9" />
-                    <g clip-path="url(#social-connect-clip-4)">
-                        <path d="M 61.33,65.68 L 85.11,45.80" fill="none" stroke="#ffffff" stroke-opacity="0.9"
-                            stroke-width="0.1" stroke-linecap="round" stroke-dasharray="1 0.9" />
-                    </g>
-                </svg>
-
-                <!-- Floating Icons (Decorative) -->
-                <!-- brightness-0 invert: los SVG traen el trazo del círculo y el glifo pintados en
-                     #2b75db (azul) directamente en el propio archivo; como se cargan via <img>, no se
-                     puede recolorear su contenido con CSS normal — este truco de filtro (llevarlo a
-                     negro puro y después invertirlo) es la forma de forzarlos a blanco sin tocar los 5
-                     SVG. El drop-shadow azul no se ve afectado: drop-shadow() tiñe la sombra con su
-                     propio color, no con el color del contenido. -->
-                <img src="/imgs/ico-gestion-1.svg" alt=""
-                    class="absolute top-[15%] left-[10%] w-12 h-12 hidden lg:block animate-float-slow brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
-                <img src="/imgs/ico-gestion-2.svg" alt=""
-                    class="absolute top-[20%] right-[30%] w-10 h-10 hidden lg:block animate-float-medium brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
-                <img src="/imgs/ico-gestion-3.svg" alt=""
-                    class="absolute bottom-[15%] left-[15%] w-14 h-14 hidden lg:block animate-float-fast brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
-                <img src="/imgs/ico-gestion-4.svg" alt=""
-                    class="absolute top-[40%] right-[10%] w-12 h-12 hidden lg:block animate-float-slow brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
-                <img src="/imgs/ico-gestion-5.svg" alt=""
-                    class="absolute bottom-[30%] right-[40%] w-8 h-8 hidden lg:block animate-float-medium brightness-0 invert drop-shadow-[0_0_22px_rgba(47,128,237,1)] z-[2]">
+                    <!-- brightness-0 invert: los SVG traen el trazo del círculo y el glifo pintados en
+                         #2b75db (azul) directamente en el propio archivo; como se cargan via <img>, no se
+                         puede recolorear su contenido con CSS normal — este truco de filtro (llevarlo a
+                         negro puro y después invertirlo) es la forma de forzarlos a blanco sin tocar los 5
+                         SVG. El drop-shadow azul no se ve afectado: drop-shadow() tiñe la sombra con su
+                         propio color, no con el color del contenido. Glow bajado bastante respecto al
+                         original (era opaco a 22px) para que se sienta wireframe/sutil, no una mancha. -->
+                    <div class="social-orbit-arm" style="animation-delay:0s">
+                        <div class="social-orbit-radius">
+                            <div class="social-orbit-counter" style="animation-delay:0s">
+                                <img src="/imgs/ico-gestion-1.svg" alt="Facebook"
+                                    class="w-12 h-12 brightness-0 invert drop-shadow-[0_0_8px_rgba(47,128,237,0.6)]">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="social-orbit-arm" style="animation-delay:-5.2s">
+                        <div class="social-orbit-radius">
+                            <div class="social-orbit-counter" style="animation-delay:-5.2s">
+                                <img src="/imgs/ico-gestion-2.svg" alt="Pinterest"
+                                    class="w-12 h-12 brightness-0 invert drop-shadow-[0_0_8px_rgba(47,128,237,0.6)]">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="social-orbit-arm" style="animation-delay:-10.4s">
+                        <div class="social-orbit-radius">
+                            <div class="social-orbit-counter" style="animation-delay:-10.4s">
+                                <img src="/imgs/ico-gestion-3.svg" alt="TikTok"
+                                    class="w-12 h-12 brightness-0 invert drop-shadow-[0_0_8px_rgba(47,128,237,0.6)]">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="social-orbit-arm" style="animation-delay:-15.6s">
+                        <div class="social-orbit-radius">
+                            <div class="social-orbit-counter" style="animation-delay:-15.6s">
+                                <img src="/imgs/ico-gestion-4.svg" alt="Instagram"
+                                    class="w-12 h-12 brightness-0 invert drop-shadow-[0_0_8px_rgba(47,128,237,0.6)]">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="social-orbit-arm" style="animation-delay:-20.8s">
+                        <div class="social-orbit-radius">
+                            <div class="social-orbit-counter" style="animation-delay:-20.8s">
+                                <img src="/imgs/ico-gestion-5.svg" alt="YouTube"
+                                    class="w-12 h-12 brightness-0 invert drop-shadow-[0_0_8px_rgba(47,128,237,0.6)]">
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="max-w-5xl relative z-10">
                     <span class="block text-gray-500 text-sm md:text-base mb-6 tracking-wide">Gestión de Redes Sociales:</span>
