@@ -1293,41 +1293,6 @@ html {
     opacity: 1;
 }
 
-/* Gestión de Redes: 4 tramos independientes que salen de cada icono de redes sociales (Facebook,
-   Pinterest, TikTok, YouTube) hacia su vecino, punteados SIEMPRE (stroke-dasharray fijo en el
-   path). Cada uno se revela con un efecto "trim path" real: el <rect> de su <clipPath> crece en
-   ancho de 0 a la longitud real de cada tramo — la animación va con <animate> nativo de SVG (SMIL)
-   directamente en el markup (ver gestion-de-redes.html), no con @keyframes de CSS: animar el
-   ancho de un <rect> dentro de un <clipPath> por CSS no se ejecutaba de forma fiable (quedaba
-   congelado en 0, dejando el recorte siempre en ancho cero y la línea invisible). El trazo nunca
-   cambia de patrón, solo se ve más o menos de él. Aparecen uno tras otro: Facebook→Pinterest,
-   Pinterest→Instagram, TikTok→YouTube, YouTube→Instagram. El glow es `drop-shadow` (píxeles CSS
-   reales) en vez de `feGaussianBlur` (unidades del viewBox): ese filtro, al escalarse al tamaño
-   real del contenedor, generaba un blur mucho más grande que el hueco entre puntos del dasharray,
-   fundiéndolos en un bloque sólido en vez de dejarlos brillar como puntos individuales. El glow
-   anterior (3px/6px) seguía sin verse — la causa real: el `drop-shadow` estaba en un <path> dentro
-   de un <g clip-path="...">, y el resplandor de un filtro aplicado dentro de un `clip-path` se
-   recorta al límite exacto del clip en vez de dejar que se expanda más allá del trazo (por eso
-   `getComputedStyle` sí mostraba el filtro, pero no se pintaba nada extra). Se separó en dos capas
-   por tramo (ver gestion-de-redes.html): una copia SIN clip-path que lleva el glow + desenfoque de
-   entrada (aquí abajo) y aparece con un fundido de opacidad, y una copia nítida SIN filtro dentro
-   del <g clip-path> que sigue haciendo el "trim path" de revelado progresivo. */
-@keyframes social-connect-glowfade {
-    from {
-        opacity: 0;
-        filter: blur(4px) drop-shadow(0 0 4px rgba(255, 255, 255, 1)) drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
-    }
-    to {
-        opacity: 1;
-        filter: blur(0px) drop-shadow(0 0 4px rgba(255, 255, 255, 1)) drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 20px rgba(255, 255, 255, 0.4));
-    }
-}
-
-.social-connect-glow-1 { opacity: 0; animation: social-connect-glowfade 1.2s 0.3s ease-out forwards; }
-.social-connect-glow-2 { opacity: 0; animation: social-connect-glowfade 1.2s 1.5s ease-out forwards; }
-.social-connect-glow-3 { opacity: 0; animation: social-connect-glowfade 1.2s 2.7s ease-out forwards; }
-.social-connect-glow-4 { opacity: 0; animation: social-connect-glowfade 1.2s 3.9s ease-out forwards; }
-
 /* Fisheye Video Marquee Carousel Styles */
 @keyframes marqueeLeft {
     0% { transform: translate3d(0, 0, 0); }

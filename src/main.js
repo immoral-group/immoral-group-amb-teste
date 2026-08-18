@@ -855,21 +855,28 @@ function initGestionHero() {
         }
     });
 
-    // Add floating animation CSS if not exists
-    if (!document.getElementById('gestion-hero-styles')) {
-        const style = document.createElement('style');
-        style.id = 'gestion-hero-styles';
-        style.textContent = `
-            @keyframes float {
-                0% { transform: translateY(0px); }
-                50% { transform: translateY(-20px); }
-                100% { transform: translateY(0px); }
-            }
-            .animate-float-slow { animation: float 6s ease-in-out infinite; }
-            .animate-float-medium { animation: float 5s ease-in-out infinite; }
-            .animate-float-fast { animation: float 4s ease-in-out infinite; }
-        `;
-        document.head.appendChild(style);
+    // Acelera temporalmente el giro de la órbita de íconos mientras el usuario
+    // hace scroll, y lo vuelve a la velocidad normal medio segundo después de
+    // que deja de scrollear. Usa playbackRate (Web Animations API) en vez de
+    // tocar animation-duration: así la animación sigue desde donde iba, sin
+    // saltar de posición al cambiar de velocidad.
+    const orbit = document.getElementById('social-orbit');
+    if (orbit) {
+        const BOOST_RATE = 5;
+        const REVERT_DELAY = 500;
+        let revertTimeout = null;
+
+        window.addEventListener('scroll', () => {
+            orbit.getAnimations({ subtree: true }).forEach((anim) => {
+                anim.playbackRate = BOOST_RATE;
+            });
+            clearTimeout(revertTimeout);
+            revertTimeout = setTimeout(() => {
+                orbit.getAnimations({ subtree: true }).forEach((anim) => {
+                    anim.playbackRate = 1;
+                });
+            }, REVERT_DELAY);
+        }, { passive: true });
     }
 }
 
