@@ -383,24 +383,38 @@
 
         <div class="relative z-10 w-full">
 
-            <!-- Screen 1 Content (Título arriba, cinta 3D ocupa el resto) -->
-            <div class="min-h-screen w-full flex flex-col px-6 md:px-12 lg:px-24 pt-32 md:pt-36 pb-10">
-                <!-- Top Label -->
-                <p class="text-sm md:text-base font-light text-white mb-4 uppercase tracking-wider">
-                    Email Marketing Automation & Embudos de Venta:
-                </p>
+            <!-- Screen 1 Content: texto a la izquierda, cinta 3D a la derecha (md+),
+                 igual que el hero de diseño de marca. En móvil se apilan (texto
+                 arriba, cinta abajo). Padding solo a la izquierda (pl-*, no px-*):
+                 la cinta sale por el borde derecho de la cinta (ver scroll hacia
+                 la izquierda en initEmailHeroRibbon), así que ese lado no debe
+                 tener margen — si no, queda una franja negra "de seguridad" antes
+                 del borde real de la pantalla. El aire a la derecha del texto lo
+                 da su propio pr-*, no el contenedor entero. -->
+            <div class="min-h-screen w-full flex flex-col md:flex-row pl-6 md:pl-12 lg:pl-24 pt-32 md:pt-0 pb-10">
+                <!-- Left: Texto -->
+                <div class="w-full md:w-1/2 flex flex-col items-start justify-center pr-6 md:pr-8 lg:pr-12">
+                    <!-- Top Label -->
+                    <p class="text-base md:text-lg font-light text-white mb-4 uppercase tracking-wider">
+                        Email Marketing Automation & Embudos de Venta:
+                    </p>
 
-                <!-- Main Title -->
-                <h1 class="text-3xl md:text-5xl font-black text-white leading-tight mb-2">
-                    Mensajes que <span class="text-blue-600">Conectan.</span>
-                </h1>
-                <h2 class="text-3xl md:text-5xl font-black text-white leading-tight">
-                    Automatizaciones que <br class="hidden md:block" />
-                    <span class="text-blue-600">Convierten</span>
-                </h2>
+                    <!-- Main Title -->
+                    <h1 class="text-4xl md:text-6xl font-black text-white leading-tight mb-2">
+                        Mensajes que <span class="text-blue-600">Conectan.</span>
+                    </h1>
+                    <h2 class="text-4xl md:text-6xl font-black text-white leading-tight">
+                        Automatizaciones que <br class="hidden md:block" />
+                        <span class="text-blue-600">Convierten</span>
+                    </h2>
+                </div>
 
-                <!-- Cinta 3D de tarjetas (ver initEmailHeroRibbon en main.js) -->
-                <div id="email-hero-ribbon" class="relative w-full flex-1 min-h-0 mt-6"></div>
+                <!-- Right: Cinta 3D de tarjetas (ver initEmailHeroRibbon en main.js).
+                     El propio contenedor recorta (overflow:hidden en `scene`) y su
+                     ancho real —la mitad de la pantalla, no toda— es lo que hace
+                     que initEmailHeroRibbon() calcule menos tarjetas: no tapan el
+                     texto porque nunca se dibujan fuera de esta mitad. -->
+                <div id="email-hero-ribbon" class="relative w-full md:w-1/2 flex-1 md:flex-initial min-h-[320px] mt-6 md:mt-0"></div>
             </div>
 
             <!-- Screen 2 Content -->
