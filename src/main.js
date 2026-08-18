@@ -854,6 +854,30 @@ function initGestionHero() {
             return () => trigger.kill();
         }
     });
+
+    // Acelera temporalmente el giro de la órbita de íconos mientras el usuario
+    // hace scroll, y lo vuelve a la velocidad normal medio segundo después de
+    // que deja de scrollear. Usa playbackRate (Web Animations API) en vez de
+    // tocar animation-duration: así la animación sigue desde donde iba, sin
+    // saltar de posición al cambiar de velocidad.
+    const orbit = document.getElementById('social-orbit');
+    if (orbit) {
+        const BOOST_RATE = 5;
+        const REVERT_DELAY = 500;
+        let revertTimeout = null;
+
+        window.addEventListener('scroll', () => {
+            orbit.getAnimations({ subtree: true }).forEach((anim) => {
+                anim.playbackRate = BOOST_RATE;
+            });
+            clearTimeout(revertTimeout);
+            revertTimeout = setTimeout(() => {
+                orbit.getAnimations({ subtree: true }).forEach((anim) => {
+                    anim.playbackRate = 1;
+                });
+            }, REVERT_DELAY);
+        }, { passive: true });
+    }
 }
 
 // --- 11. SERVICE EVENTS ---
