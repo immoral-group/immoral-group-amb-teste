@@ -154,7 +154,8 @@ function buildItems(stage) {
         video.className = 'w-full h-full object-cover';
         // Cada ítem usa su clip dedicado (sin repetición — ITEMS.length === CLIPS.length)
         video.src = CLIPS[i];
-        video.autoplay = true;
+        // Sin autoplay: arranca en pausa y solo se reproduce cuando la sección
+        // entra en el viewport (ver IntersectionObserver más abajo).
         video.muted = true;
         video.loop = true;
         video.playsInline = true;
@@ -223,7 +224,7 @@ function buildFisheyeWall(stage) {
             const video = document.createElement('video');
             video.className = 'w-full h-full object-cover';
             video.src = src;
-            video.autoplay = true;
+            // Sin autoplay, mismo motivo que en buildItems.
             video.muted = true;
             video.loop = true;
             video.playsInline = true;
@@ -292,6 +293,22 @@ export function initDisenoScrollVideos() {
     const fisheyeWall = buildFisheyeWall(stage);
 
     if (items.length === 0) return;
+
+    // Control de reproducción por visibilidad: con los vídeos de vuelo (5) +
+    // el mural carrusel (hasta 40 más) puede haber ~45 vídeos <video> en esta
+    // página — todos arrancan en pausa (ver buildItems/buildFisheyeWall) y solo
+    // se reproducen mientras la sección está en el viewport, para no gastar
+    // CPU/GPU con vídeos fuera de pantalla.
+    const itemVideos = items.map((item) => item.querySelector('video')).filter(Boolean);
+    const fisheyeVideos = Array.from(fisheyeWall.querySelectorAll('video'));
+    const allVideos = [...itemVideos, ...fisheyeVideos];
+
+    function playVideos(vids) {
+        vids.forEach((v) => { if (v.paused) v.play().catch(() => {}); });
+    }
+    function pauseVideos(vids) {
+        vids.forEach((v) => { if (!v.paused) v.pause(); });
+    }
 
     const mm = gsap.matchMedia();
 
@@ -396,6 +413,12 @@ export function initDisenoScrollVideos() {
             pointerEvents: 'auto',
             duration: 0.8,
             ease: 'power2.out',
+            // Al entrar a la zona del mural (scrolleando hacia adelante) paramos
+            // los 5 vídeos de vuelo y arrancamos los del mural; al volver a
+            // scrollear hacia atrás por debajo de este punto, es al revés. Así
+            // nunca hay más de una etapa reproduciendo vídeo a la vez.
+            onStart: () => { pauseVideos(itemVideos); playVideos(fisheyeVideos); },
+            onReverseComplete: () => { playVideos(itemVideos); pauseVideos(fisheyeVideos); },
         }, fisheyeStart);
 
         if (centerCard) {
@@ -410,7 +433,27 @@ export function initDisenoScrollVideos() {
 
         tl.to({}, { duration: 0.2 });
 
+        // Gate general: mientras #dsv-pin no esté en el viewport (todavía no
+        // llegamos scrolleando, o ya lo pasamos hacia "Servicios"), ningún
+        // vídeo de esta sección reproduce. Al volver a entrar, se retoma la
+        // etapa que corresponda según en qué punto del timeline scrubbeado
+        // estemos (vuelo o mural), no siempre la primera.
+        const io = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                if (tl.time() >= fisheyeStart) {
+                    playVideos(fisheyeVideos);
+                } else {
+                    playVideos(itemVideos);
+                }
+            } else {
+                pauseVideos(allVideos);
+            }
+        }, { rootMargin: '-10% 0px -10% 0px' }); // exige que entre de verdad, no solo tocar el borde
+        io.observe(pinSection);
+
         return () => {
+            io.disconnect();
+            pauseVideos(allVideos);
             tl.scrollTrigger?.kill();
             tl.kill();
             gsap.set(items, { clearProps: 'all' });
@@ -447,7 +490,20 @@ export function initDisenoScrollVideos() {
             ).scrollTrigger
         );
 
+        // En mobile no hay una etapa "vuelo" vs "mural" excluyente como en
+        // desktop (todo vive en el flujo normal de la página, uno debajo del
+        // otro), así que alcanza con un único gate: reproducir todos los
+        // vídeos de esta sección mientras siga en el viewport, pausarlos
+        // cuando se scrollea a otra parte de la página.
+        const io = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) playVideos(allVideos);
+            else pauseVideos(allVideos);
+        }, { rootMargin: '-10% 0px -10% 0px' });
+        io.observe(pinSection);
+
         return () => {
+            io.disconnect();
+            pauseVideos(allVideos);
             triggers.forEach((t) => t?.kill());
             hidden.forEach((item) => { item.style.display = ''; });
             decor.forEach((d) => { d.el.style.display = ''; });
