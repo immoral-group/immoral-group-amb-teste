@@ -54,6 +54,7 @@ export default defineConfig({
                 'privacidad': resolve(__dirname, 'privacidad.html'),
                 'img1': resolve(__dirname, 'img1.html'),
                 'calendly': resolve(__dirname, 'calendly.html'),
+                'teste': resolve(__dirname, 'teste.html'),
                 '404': resolve(__dirname, '404.html'),
             },
         },
