@@ -47,19 +47,39 @@ function icon(name) {
  * @param {{ activeHref: string, email: string, role: string, isAdmin: boolean }} opts
  */
 export function renderShell(root, { activeHref, email, role, isAdmin }) {
-  const navItems = [
-    { href: '/admin', label: 'Equipo', icon: 'users' },
-    { href: '/ofertas', label: 'Ofertas activas', icon: 'briefcase' },
-    { href: '/logos', label: 'Barra de logos', icon: 'logos' },
-    { href: '/casos-admin', label: 'Casos de éxito', icon: 'trophy' },
-    { href: '/mensajes', label: 'Mensajes', icon: 'mail' },
-    { href: '/logs', label: 'Logs', icon: 'logs' },
+  // Nav agrupada en 3 secciones (Gestión / Diseño / Desarrollo) para que el
+  // sidebar no sea una lista plana de 6-9 links sin relación visual entre
+  // ellos. Los ítems solo-admin (Postulaciones, Tokens, Roles) se filtran
+  // dentro de su grupo en vez de agregarse aparte, así cada grupo mantiene
+  // el mismo orden lógico se vea o no como admin.
+  const navGroups = [
+    {
+      label: 'Gestión',
+      items: [
+        { href: '/admin', label: 'Equipo', icon: 'users' },
+        { href: '/ofertas', label: 'Ofertas activas', icon: 'briefcase' },
+        { href: '/mensajes', label: 'Mensajes', icon: 'mail' },
+        ...(isAdmin ? [{ href: '/postulaciones', label: 'Postulaciones', icon: 'inbox' }] : []),
+      ],
+    },
+    {
+      label: 'Diseño',
+      items: [
+        { href: '/logos', label: 'Barra de logos', icon: 'logos' },
+        { href: '/casos-admin', label: 'Casos de éxito', icon: 'trophy' },
+      ],
+    },
+    {
+      label: 'Desarrollo',
+      items: [
+        { href: '/logs', label: 'Logs', icon: 'logs' },
+        ...(isAdmin ? [
+          { href: '/tokens', label: 'Tokens', icon: 'key' },
+          { href: '/roles', label: 'Roles', icon: 'usercog' },
+        ] : []),
+      ],
+    },
   ];
-  if (isAdmin) {
-    navItems.push({ href: '/postulaciones', label: 'Postulaciones', icon: 'inbox' });
-    navItems.push({ href: '/tokens', label: 'Tokens', icon: 'key' });
-    navItems.push({ href: '/roles', label: 'Roles', icon: 'usercog' });
-  }
 
   root.innerHTML = `
     <div class="min-h-screen ${T.page} flex flex-col font-sans">
@@ -81,21 +101,28 @@ export function renderShell(root, { activeHref, email, role, isAdmin }) {
         </div>
       </header>
       <div class="flex flex-1 min-h-0">
-        <nav class="w-56 border-r border-[#2E2E2E] px-3 py-4 flex flex-col gap-0.5 flex-shrink-0 ${T.page}">
-          ${navItems.map((item) => {
-            const active = activeHref === item.href;
-            return `
-              <a href="${item.href}"
-                class="px-3 py-2 ${T.radiusSm} text-sm transition-colors flex items-center gap-2.5 ${
-                  active
-                    ? `bg-[#1C1C1C] ${T.textPrimary} font-medium`
-                    : `${T.textSecondary} hover:bg-[#1C1C1C] hover:${T.textPrimary}`
-                }">
-                ${icon(item.icon)}
-                ${item.label}
-              </a>
-            `;
-          }).join('')}
+        <nav class="w-56 border-r border-[#2E2E2E] px-3 py-4 flex flex-col flex-shrink-0 ${T.page}">
+          ${navGroups.map((group, groupIndex) => `
+            <div class="${groupIndex > 0 ? 'mt-4' : ''}">
+              <div class="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider ${T.textMuted}">${group.label}</div>
+              <div class="flex flex-col gap-0.5">
+                ${group.items.map((item) => {
+                  const active = activeHref === item.href;
+                  return `
+                    <a href="${item.href}"
+                      class="px-3 py-2 ${T.radiusSm} text-sm transition-colors flex items-center gap-2.5 ${
+                        active
+                          ? `bg-[#1C1C1C] ${T.textPrimary} font-medium`
+                          : `${T.textSecondary} hover:bg-[#1C1C1C] hover:${T.textPrimary}`
+                      }">
+                      ${icon(item.icon)}
+                      ${item.label}
+                    </a>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `).join('')}
         </nav>
         <main id="dashboard-content" class="flex-1 overflow-auto p-6"></main>
       </div>
