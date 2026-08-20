@@ -991,12 +991,29 @@ html {
         animation: blob-intense 10s infinite;
     }
 
-    /* Iconos de correo flotando sutilmente (hero de email-marketing.html). Duración y
-       delay se fijan por icono vía inline style para que no se muevan todos al unísono.
-       Estructura en dos capas porque una sola animación no puede controlar dos
-       transforms independientes en el mismo elemento: .envelope-wrap hace la entrada
-       (uno a uno, ver delay por icono) y el hover; .envelope-icon (el <svg> de dentro)
-       hace el flotado infinito. Así el hover no compite con el flotado ni con la entrada. */
+    /* Iconos de correo desplazándose hacia los lados en bucle (hero de
+       email-marketing.html), igual que la cinta de tarjetas de arriba
+       (initEmailHeroRibbon): drift horizontal continuo, siempre en la misma
+       dirección, con duración y delay por icono para que no vayan todos a la
+       vez. Tres capas porque cada una anima "transform" de forma
+       independiente y una sola animación no puede controlar dos transforms
+       distintos en el mismo elemento:
+       - .envelope-wrap: drift horizontal infinito (envelope-drift), de
+         izquierda a derecha. Todos parten de left:0 (nada de "left" por
+         icono) para que el propio recorrido de la animación (-20vw a 120vw)
+         sea, por sí solo, quien garantiza que arranca fuera de la pantalla
+         por la izquierda y termina fuera por la derecha — si el "left" base
+         variara por icono, un icono ya cercano a un borde podría arrancar o
+         terminar su ciclo dentro de la zona visible y "aparecer/desaparecer"
+         a mitad de pantalla en vez de entrar/salir por el borde.
+       - .envelope-hover: no anima nada por sí sola, solo existe para que el
+         zoom del :hover no compita con el drift del wrap.
+       - .envelope-icon (el <svg> de dentro): flotado vertical infinito independiente.
+       Además, .envelope-layer (el contenedor de todos los envelope-wrap) aplica
+       una máscara horizontal para que los iconos casi desaparezcan al pasar
+       por debajo del bloque de texto (columna izquierda) y recuperen su
+       opacidad normal pasada esa franja — mismo recurso que el fundido lateral
+       de la cinta de tarjetas, pero como mínimo de opacidad en vez de a cero. */
     @keyframes envelope-float {
         0%, 100% { transform: translate(0px, 0px) rotate(0deg); }
         50% { transform: translate(6px, -16px) rotate(4deg); }
@@ -1008,30 +1025,35 @@ html {
         animation-iteration-count: infinite;
     }
 
-    @keyframes envelope-enter {
-        0% { opacity: 0; transform: scale(0.4); }
-        100% { opacity: 1; transform: scale(1); }
+    @keyframes envelope-drift {
+        from { transform: translateX(-20vw); }
+        to { transform: translateX(120vw); }
     }
 
     .envelope-wrap {
         position: absolute;
+        left: 0;
         pointer-events: auto;
-        opacity: 0;
+        animation-name: envelope-drift;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+    }
+
+    .envelope-layer {
+        -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.06) 38%, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 1) 100%);
+        mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.06) 38%, rgba(0, 0, 0, 1) 55%, rgba(0, 0, 0, 1) 100%);
+    }
+
+    .envelope-hover {
         transition: transform 0.25s ease;
     }
 
-    /* Se añade por JS (IntersectionObserver, ver initEmailEnvelopeIcons en
-       main.js) solo cuando la sección entra en el viewport al hacer scroll —
-       así los sobres no aparecen ya "gastados" si el usuario llega scrolleando. */
-    .envelope-wrap.envelope-visible {
-        animation-name: envelope-enter;
-        animation-timing-function: ease-out;
-        animation-fill-mode: both;
+    .envelope-wrap:hover {
+        z-index: 5;
     }
 
-    .envelope-wrap:hover {
+    .envelope-wrap:hover .envelope-hover {
         transform: scale(1.55);
-        z-index: 5;
     }
 
     /* Equipo Conectado - Fallback móvil (sin física). El glow (box-shadow) se define inline por nodo. */

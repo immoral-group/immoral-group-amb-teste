@@ -9,7 +9,6 @@ import { initHablemosScroll } from './hablemos-scroll.js';
 import { initPublicidadMediosFunnel } from './publicidad-medios-funnel.js';
 import { initHomeBlackhole } from './home-blackhole.js';
 import { initEmailHeroRibbon } from './email-hero-ribbon.js';
-import { initEmailEnvelopeIcons } from './email-envelope-icons.js';
 import { initDisenoMarcaHero } from './diseno-marca-hero.js';
 import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initNuestraHistoriaHero } from './nuestra-historia-hero.js';
@@ -34,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try { initEmailHero(); } catch (e) { console.error("Error in initEmailHero:", e); }
     try { initEmailHeroRibbon(); } catch (e) { console.error("Error in initEmailHeroRibbon:", e); }
-    try { initEmailEnvelopeIcons(); } catch (e) { console.error("Error in initEmailEnvelopeIcons:", e); }
     try { initServicesCarousel(); } catch (e) { console.error("Error in initServicesCarousel:", e); }
     // initContactForm() ya no se llama aquí directamente: ahora vive dentro de
     // initAll() (ver más abajo), que es lo que realmente se re-ejecuta en cada
@@ -2120,7 +2118,6 @@ function initAll() {
     initGestionHero();
     initEmailHero();
     try { initEmailHeroRibbon(); } catch (e) { console.error("Error in initEmailHeroRibbon:", e); }
-    try { initEmailEnvelopeIcons(); } catch (e) { console.error("Error in initEmailEnvelopeIcons:", e); }
     initServicesCarousel();
     // Orden importante: en diseno-de-marca.html ambas secciones están pineadas
     // y la galería de vídeos va antes en el DOM — inicializarla primero hace
