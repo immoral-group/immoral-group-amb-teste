@@ -580,7 +580,10 @@
         <button id="cc-close" class="hero-cc-close" type="button" aria-label="Cerrar vídeo">✕</button>
     </section>
 
-    <!-- Section: UGC con IA -->
+    <!-- Section: UGC con IA — VERSIÓN ANTERIOR, comentada a pedido explícito del
+         usuario tras reemplazarla por el bento grid dinámico de abajo. Se deja
+         intacta (no se borra) por si hace falta volver a esta versión. -->
+    <!--
     <style>
         .ugc-flow-row {
             grid-column: 1 / -1;
@@ -668,7 +671,7 @@
     <section class="min-h-screen flex items-center lg:items-start bg-black px-6 lg:px-24 py-20 lg:pt-16 lg:pb-48 overflow-hidden">
         <div class="max-w-[1400px] mx-auto w-full grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
-            <!-- Left Column: Text Content -->
+            Left Column: Text Content
             <div class="space-y-8">
                 <span class="block text-gray-400 text-lg tracking-wide">Contenido generado con Inteligencia Artificial:</span>
 
@@ -690,7 +693,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: Benefit cards -->
+            Right Column: Benefit cards
             <div class="flex flex-col gap-4 w-full max-w-[480px] lg:ml-auto">
                 <div class="liquid-glass-card rounded-xl p-6">
                     <h3 class="text-white font-black text-xl mb-2">Velocidad de producción</h3>
@@ -709,7 +712,7 @@
                 </div>
             </div>
 
-            <!-- Full-width row: flujo ondulante de tarjetas UGC con IA. -->
+            Full-width row: flujo ondulante de tarjetas UGC con IA.
             <div class="ugc-flow-row">
                 <div id="ugc-flow-stage" class="ugc-flow-stage">
                     <div id="ugc-flow-scene" class="ugc-flow-scene">
@@ -723,6 +726,276 @@
             </div>
 
         </div>
+    </section>
+    -->
+
+    <!-- Section: UGC con IA (bento grid dinámico) — ver src/ugc-ia-bento.js.
+         Reemplaza al flujo ondulante de tarjetas que había antes (comentado arriba,
+         se deja intacto como respaldo). Mismos 5 videos de ugc-ia/ (+1 duplicado),
+         más 3 tarjetas de texto con el copy que antes vivía en las "benefit cards"
+         de la sección anterior, y el título/intro que antes iba fuera de la grilla. -->
+    <style>
+        .ugc-bento-scroll {
+            position: relative;
+            /* 650vh de transiciones + espacio extra para las pausas (HOLD_WEIGHT
+               en ugc-ia-bento.js) que se agregaron entre cada pantalla. */
+            height: 920vh;
+        }
+        .ugc-bento-sticky {
+            position: sticky;
+            top: 90px;
+        }
+        .ugc-bento-stage {
+            position: relative;
+            width: 100%;
+            height: calc(100dvh - 180px);
+            border-radius: 32px;
+            background: #0d0d0d;
+            overflow: hidden;
+        }
+        .ugc-bento-tile {
+            position: absolute;
+            border-radius: 20px;
+            overflow: hidden;
+            will-change: left, top, width, height, opacity;
+        }
+        .ugc-bento-tile video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .ugc-bento-tile.is-text {
+            background: #ffffff;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .ugc-bento-tile.is-text h3 {
+            color: #0B0F14;
+            font-weight: 900;
+            font-size: 1.5rem;
+            line-height: 1.05;
+        }
+        .ugc-bento-tile.is-text p {
+            color: rgba(11, 15, 20, 0.65);
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        /* Tile de título: reemplaza al encabezado que antes iba arriba de la grilla.
+           Cada línea arranca invisible/corrida y se revela una sola vez (JS agrega
+           .is-revealed) apenas la sección entra en pantalla — no atado al progreso
+           del scroll del grid, que ya se mueve bastante solo. */
+        .ugc-bento-tile.is-title {
+            background: #ffffff;
+            padding: 32px 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 14px;
+        }
+        .ugc-bento-tile.is-title .ugc-bento-eyebrow,
+        .ugc-bento-tile.is-title h2,
+        .ugc-bento-tile.is-title p {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .ugc-bento-tile.is-title h2 { transition-delay: 0.12s; }
+        .ugc-bento-tile.is-title p { transition-delay: 0.24s; }
+        .ugc-bento-tile.is-title.is-revealed .ugc-bento-eyebrow,
+        .ugc-bento-tile.is-title.is-revealed h2,
+        .ugc-bento-tile.is-title.is-revealed p {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .ugc-bento-tile.is-title .ugc-bento-eyebrow {
+            color: #6b7280;
+            font-size: 0.95rem;
+            letter-spacing: 0.02em;
+        }
+        .ugc-bento-tile.is-title h2 {
+            color: #2F80ED;
+            font-weight: 900;
+            font-size: 2rem;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+        }
+        .ugc-bento-tile.is-title p {
+            color: rgba(11, 15, 20, 0.65);
+            font-weight: 400;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        @media (max-width: 1024px) {
+            .ugc-bento-scroll { height: 600vh; }
+            .ugc-bento-sticky { top: 70px; }
+            .ugc-bento-stage { height: calc(100dvh - 140px); border-radius: 24px; }
+            .ugc-bento-tile { border-radius: 14px; }
+            .ugc-bento-tile.is-text { padding: 18px; }
+            .ugc-bento-tile.is-text h3 { font-size: 1.1rem; }
+            .ugc-bento-tile.is-text p { font-size: 0.85rem; margin-top: 6px; }
+            .ugc-bento-tile.is-title { padding: 20px 16px; gap: 8px; }
+            .ugc-bento-tile.is-title h2 { font-size: 1.3rem; }
+            .ugc-bento-tile.is-title .ugc-bento-eyebrow { font-size: 0.7rem; }
+            .ugc-bento-tile.is-title p { font-size: 0.75rem; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ugc-bento-scroll { height: auto; }
+            .ugc-bento-sticky { position: relative; top: 0; }
+            .ugc-bento-tile.is-title .ugc-bento-eyebrow,
+            .ugc-bento-tile.is-title h2,
+            .ugc-bento-tile.is-title p {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+        }
+    </style>
+    <section class="relative bg-black px-6 lg:px-24 py-20">
+        <div class="max-w-[1400px] mx-auto w-full">
+
+            <div id="ugc-bento-scroll" class="ugc-bento-scroll">
+              <div class="ugc-bento-sticky">
+                <div id="ugc-bento-stage" class="ugc-bento-stage">
+                    <div id="ugc-bento-v1" class="ugc-bento-tile"><video src="/videos/ugc-ia/ugc-ia-1.webm" autoplay muted loop playsinline></video></div>
+                    <div id="ugc-bento-title" class="ugc-bento-tile is-title">
+                        <span class="ugc-bento-eyebrow">Contenido generado con Inteligencia Artificial:</span>
+                        <h2>UGC CON IA</h2>
+                        <p>El UGC funciona porque parece real, no porque lo produzca una marca. Con Inteligencia Artificial escalamos la producción sin perder la autenticidad que convierte.</p>
+                    </div>
+                    <div id="ugc-bento-v3" class="ugc-bento-tile"><video src="/videos/ugc-ia/ugc-ia-3.webm" autoplay muted loop playsinline></video></div>
+                    <div id="ugc-bento-v4" class="ugc-bento-tile"><video src="/videos/ugc-ia/ugc-ia-4.webm" autoplay muted loop playsinline></video></div>
+                    <div id="ugc-bento-v5" class="ugc-bento-tile"><video src="/videos/ugc-ia/ugc-ia-5.webm" autoplay muted loop playsinline></video></div>
+                    <div id="ugc-bento-v6" class="ugc-bento-tile"><video src="/videos/ugc-ia/ugc-ia-3.webm" autoplay muted loop playsinline></video></div>
+                    <div id="ugc-bento-textA" class="ugc-bento-tile is-text">
+                        <h3>Velocidad de producción</h3>
+                        <p>Piezas listas en días, no en semanas.</p>
+                    </div>
+                    <div id="ugc-bento-textB" class="ugc-bento-tile is-text">
+                        <h3>Escalabilidad real</h3>
+                        <p>Multiplicamos variantes de un mismo mensaje para testear qué creativo convierte mejor.</p>
+                    </div>
+                    <div id="ugc-bento-textC" class="ugc-bento-tile is-text">
+                        <h3>Diseñado para vender</h3>
+                        <p>Estética nativa, pensada para convertir.</p>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-8 flex justify-center md:justify-start">
+                <a href="contacto.html"
+                    class="bg-white text-[#0B0F14] px-8 py-4 rounded-lg hover:bg-[#E9EDF2] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 inline-block text-sm md:text-base font-medium uppercase tracking-widest">
+                    HABLEMOS
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Section: UGC con personas reales — galería esférica de video (ver src/ugc-sphere-gallery.js).
+         Las 9 tarjetas se colocan en puntos fijos de una esfera invisible (theta/phi/radio a mano,
+         mismo criterio que ugc-flow-card más arriba) con la "cámara" en el centro; mover el mouse
+         rota la escena entera para simular que uno mira alrededor desde dentro del globo. -->
+    <style>
+        .ugc-sphere-stage {
+            position: absolute;
+            inset: 0;
+            perspective: 2870px;
+            cursor: grab;
+        }
+        .ugc-sphere-scene {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .ugc-sphere-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 170px;
+            height: 260px;
+            margin-left: -85px;
+            margin-top: -130px;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+            backface-visibility: hidden;
+        }
+        .ugc-sphere-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .ugc-sphere-stage { perspective: 1600px; }
+            .ugc-sphere-card { width: 105px; height: 160px; margin-left: -52.5px; margin-top: -80px; border-radius: 12px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ugc-sphere-stage { cursor: default; }
+        }
+    </style>
+    <section class="relative w-dvw h-dvh bg-black overflow-hidden">
+
+        <!-- Galería esférica de fondo, a pantalla completa: mové el mouse para "mirar alrededor". -->
+        <div id="ugc-sphere-stage" class="ugc-sphere-stage" aria-label="Galería de UGC con personas reales — mové el mouse para explorar">
+            <div id="ugc-sphere-scene" class="ugc-sphere-scene">
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-1.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-2.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-3.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-4.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-5.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-6.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-7.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-8.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-9.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-1.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-3.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-5.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-7.webm" autoplay muted loop playsinline></video></div>
+                <div class="ugc-sphere-card"><video src="/videos/influencers/influencer-9.webm" autoplay muted loop playsinline></video></div>
+            </div>
+        </div>
+
+        <!-- Velo radial detrás del texto: sin esto, el blanco se pierde contra los videos de
+             fondo al ocupar toda la pantalla. pointer-events-none, no interfiere con la esfera. -->
+        <div class="absolute inset-0 z-[5] pointer-events-none bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.78)_0%,rgba(0,0,0,0.4)_45%,transparent_72%)]"></div>
+
+        <!-- Texto centrado, superpuesto sobre la esfera (pointer-events-none para que el mouse
+             siga llegando al stage de abajo y la esfera reaccione igual aunque se pase por encima
+             del texto; el botón se reactiva a mano). -->
+        <div class="relative z-10 w-full h-full flex flex-col items-center justify-center text-center px-6 pointer-events-none">
+            <div class="max-w-2xl mx-auto">
+                <span class="block text-gray-400 text-lg tracking-wide">Contenido generado por personas reales:</span>
+
+                <h2 class="text-5xl md:text-6xl font-black text-white leading-[0.95] tracking-tight mt-4">
+                    UGC CON <span class="text-[#2F80ED]">PERSONAS REALES</span>
+                </h2>
+
+                <p class="text-lg md:text-xl font-light text-gray-300 leading-relaxed mt-6">
+                    El contenido generado por IA escala rápido, pero nada reemplaza la conexión de una
+                    persona real contando su propia experiencia con tu marca.<br>
+                    Trabajamos con creadores auténticos que graban donde viven, hablan como hablan y venden
+                    sin sonar a venta — el tipo de contenido que la audiencia comparte porque le cree.
+                </p>
+
+                <div class="pt-8 pointer-events-auto">
+                    <a href="contacto.html"
+                        class="bg-white text-[#0B0F14] px-8 py-4 rounded-lg hover:bg-[#E9EDF2] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/20 inline-block text-sm md:text-base font-medium uppercase tracking-widest">
+                        HABLEMOS
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </section>
 
     <!-- Section: Cómo lo hacemos - Scroll-driven capability showcase -->

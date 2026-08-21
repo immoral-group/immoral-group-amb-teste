@@ -17,6 +17,8 @@ import { initPlatformCarousel } from './platform-carousel.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import { initInfluencerCardConveyor } from './influencer-card-conveyor.js';
 import { initUgcCardFlow } from './ugc-card-flow.js';
+import { initUgcSphereGallery } from './ugc-sphere-gallery.js';
+import { initUgcIaBento } from './ugc-ia-bento.js';
 import { initOfertaDetail } from './ofertaDetail.js';
 import { getRecaptchaToken } from './recaptcha.js';
 import gsap from 'gsap';
@@ -2126,6 +2128,11 @@ function initAll() {
     try { initComoLoHacemosScroll(); } catch (e) { console.error("Error in initComoLoHacemosScroll:", e); }
     try { initInfluencerCardConveyor(); } catch (e) { console.error("Error in initInfluencerCardConveyor:", e); }
     try { initUgcCardFlow(); } catch (e) { console.error("Error in initUgcCardFlow:", e); }
+    try { initUgcSphereGallery(); } catch (e) { console.error("Error in initUgcSphereGallery:", e); }
+    // ugc-ia-bento usa `position: sticky` en vez de ScrollTrigger pin — a
+    // propósito, para no interferir con el rango de "Cómo lo hacemos" más abajo
+    // en esta misma página (ver la nota grande en ugc-ia-bento.js).
+    try { initUgcIaBento(); } catch (e) { console.error("Error in initUgcIaBento:", e); }
 
     // Import dinámico (no estático): si algún día un ad-blocker bloquea este archivo,
     // solo falla esta promesa — no tumba el resto de main.js como pasaba antes.
