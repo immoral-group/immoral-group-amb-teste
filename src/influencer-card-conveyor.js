@@ -254,16 +254,41 @@ function layoutBadges(stage) {
     ['top', 'bottom'].forEach((side) => {
         const idxs = sides.reduce((acc, s, i) => { if (s === side) acc.push(i); return acc; }, []);
         if (idxs.length === 0) return;
-        const totalContent = idxs.reduce((sum, i) => sum + meas[i].bw, 0) + gap * (idxs.length - 1);
-        const maxStartX = Math.max(leftBound, sectionRect.width - pad - totalContent);
-        let cursor = clamp(center - totalContent / 2, leftBound, maxStartX);
+
+        // Si las burbujas de este lado no entran todas en una sola fila (viewports
+        // angostos con 3 burbujas abajo), se reparten en más de una línea — antes se
+        // forzaban en una sola fila igual y la última terminaba saliéndose del viewport.
+        const availableWidth = Math.max(0, sectionRect.width - pad - leftBound);
+        const rows = [];
+        let currentRow = [];
+        let currentWidth = 0;
         idxs.forEach((i) => {
-            const bh = meas[i].bh;
-            const rawY = side === 'top' ? (top - margin - bh) : (bottom + margin);
-            const y = clamp(rawY, topPad, sectionRect.height - bh - pad);
-            badges[i].style.left = `${Math.round(cursor)}px`;
-            badges[i].style.top = `${Math.round(y)}px`;
-            cursor += meas[i].bw + gap;
+            const addWidth = meas[i].bw + (currentRow.length ? gap : 0);
+            if (currentRow.length && currentWidth + addWidth > availableWidth) {
+                rows.push(currentRow);
+                currentRow = [i];
+                currentWidth = meas[i].bw;
+            } else {
+                currentRow.push(i);
+                currentWidth += addWidth;
+            }
+        });
+        if (currentRow.length) rows.push(currentRow);
+
+        rows.forEach((rowIdxs, rowIndex) => {
+            const totalContent = rowIdxs.reduce((sum, i) => sum + meas[i].bw, 0) + gap * (rowIdxs.length - 1);
+            const maxStartX = Math.max(leftBound, sectionRect.width - pad - totalContent);
+            let cursor = clamp(center - totalContent / 2, leftBound, maxStartX);
+            const rowStep = meas[rowIdxs[0]].bh + gap;
+            const rowOffset = side === 'top' ? -rowIndex * rowStep : rowIndex * rowStep;
+            rowIdxs.forEach((i) => {
+                const bh = meas[i].bh;
+                const rawY = (side === 'top' ? (top - margin - bh) : (bottom + margin)) + rowOffset;
+                const y = clamp(rawY, topPad, sectionRect.height - bh - pad);
+                badges[i].style.left = `${Math.round(cursor)}px`;
+                badges[i].style.top = `${Math.round(y)}px`;
+                cursor += meas[i].bw + gap;
+            });
         });
     });
 
@@ -295,6 +320,20 @@ export function initInfluencerCardConveyor() {
         if (resizeTimeoutId) clearTimeout(resizeTimeoutId);
         resizeTimeoutId = setTimeout(() => layoutBadges(stage), 150);
     });
+
+    // El número de cada badge cuenta hacia arriba en bucle (animateViewBadge) y eso
+    // cambia su ancho renderizado (p. ej. "0 vistas" -> "+18.795 vistas") — sin volver
+    // a correr layoutBadges, la burbuja se ensancha con el tiempo e invade el hueco ya
+    // asignado a la vecina, que solo se calculó una vez al cargar. Sin debounce a
+    // propósito: el número cambia de ancho en casi todos los frames durante ~2s de
+    // cada ciclo, así que un debounce se reprograma sin parar y nunca llega a
+    // ejecutarse hasta la pausa entre ciclos — justo cuando ya creció casi todo. El
+    // navegador ya agrupa los callbacks de ResizeObserver a uno por frame, así que
+    // llamar layoutBadges directo acá no es más costoso.
+    if ('ResizeObserver' in window) {
+        const badgeResizeObserver = new ResizeObserver(() => layoutBadges(stage));
+        document.querySelectorAll('.cc-badge').forEach((b) => badgeResizeObserver.observe(b));
+    }
 
     let responsiveFactor = getResponsiveFactor();
     window.addEventListener('resize', () => {
