@@ -20,6 +20,7 @@ Ejecutar en este orden, en **SQL Editor → New query**, pegando el contenido co
 12. `migrations/0013_job_openings_details.sql` — añade `slug`/`description`/`survey_url` a `job_openings` para la página de detalle de cada oferta (`/oferta.html?slug=...`).
 13. `migrations/0014_job_applications.sql` — tabla `job_applications`, RLS (solo admin, el CV es un dato personal sensible) y bucket privado `job-applications` para las candidaturas enviadas desde `/oferta.html`.
 14. `migrations/0015_contact_messages_telefono_asunto.sql` — añade `telefono`/`asunto` (opcionales) a `contact_messages` para el formulario de imfashion.es, que tiene más campos que el resto de webs del grupo.
+15. `migrations/0016_qr_codes.sql` — tabla `qr_codes` para los códigos QR dinámicos gestionados desde `/qr-codes` (el QR impreso codifica `/qr/<slug>`, que `api/qr.js` resuelve contra el `target_url` actual — cambiar el destino no requiere reimprimir el código).
 
 ## Pasos manuales en el Dashboard (no se pueden hacer por SQL)
 

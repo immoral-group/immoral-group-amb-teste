@@ -15,6 +15,7 @@ export default defineConfig({
                 ofertas: resolve(__dirname, 'ofertas.html'),
                 oferta: resolve(__dirname, 'oferta.html'),
                 postulaciones: resolve(__dirname, 'postulaciones.html'),
+                'qr-codes': resolve(__dirname, 'qr-codes.html'),
                 logos: resolve(__dirname, 'logos.html'),
                 logs: resolve(__dirname, 'logs.html'),
                 'casos-admin': resolve(__dirname, 'casos-admin.html'),
