@@ -21,6 +21,7 @@ Ejecutar en este orden, en **SQL Editor → New query**, pegando el contenido co
 13. `migrations/0014_job_applications.sql` — tabla `job_applications`, RLS (solo admin, el CV es un dato personal sensible) y bucket privado `job-applications` para las candidaturas enviadas desde `/oferta.html`.
 14. `migrations/0015_contact_messages_telefono_asunto.sql` — añade `telefono`/`asunto` (opcionales) a `contact_messages` para el formulario de imfashion.es, que tiene más campos que el resto de webs del grupo.
 15. `migrations/0016_qr_codes.sql` — tabla `qr_codes` para los códigos QR dinámicos gestionados desde `/qr-codes` (el QR impreso codifica `/qr/<slug>`, que `api/qr.js` resuelve contra el `target_url` actual — cambiar el destino no requiere reimprimir el código).
+16. `migrations/0017_partner_logos_clientes.sql` — reemplaza la barra de logos de la home (`partner_logos`): eran herramientas que usamos, pasan a ser las marcas de nuestros clientes (reutiliza los mismos archivos ya usados en `casos-de-exito.html`). Grupo Mimara queda fuera a propósito — no tiene logo propio subido, ver el comentario en la migración.
 
 ## Pasos manuales en el Dashboard (no se pueden hacer por SQL)
 
