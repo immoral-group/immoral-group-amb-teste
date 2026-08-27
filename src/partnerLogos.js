@@ -7,8 +7,10 @@ function escapeHtml(str) {
 }
 
 function logoImgHTML(logo) {
+    const multiplier = Number(logo.size_multiplier) || 1;
     return `<img src="${escapeHtml(logo.image_url)}" alt="${escapeHtml(logo.name)}"
-        class="h-6 w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />`;
+        style="height: calc(1.5rem * ${multiplier})"
+        class="w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />`;
 }
 
 /**
@@ -22,7 +24,7 @@ export async function renderPartnerLogos(track) {
 
     const { data, error } = await supabase
         .from('partner_logos')
-        .select('name, image_url')
+        .select('name, image_url, size_multiplier')
         .eq('is_active', true)
         .order('position', { ascending: true });
 
