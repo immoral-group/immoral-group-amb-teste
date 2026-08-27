@@ -1102,9 +1102,10 @@ function initHeroPhysics() {
     const isMobile = window.innerWidth < 768;
 
     // Burbujas de cristal (glassmorphism) con el nombre de cada caso de éxito.
-    // Más pequeñas en mobile. Rango amplio a propósito (pedido explícito del
-    // usuario: "más variación de tamaños") en vez del rango estrecho anterior.
-    const CASE_CIRCLE_SIZE_MIN = isMobile ? 25 : 34;
+    // Más pequeñas en mobile. Mínimo subido (pedido explícito del usuario:
+    // que la burbuja/figura más chica se lea más grande) manteniendo el
+    // máximo igual que antes.
+    const CASE_CIRCLE_SIZE_MIN = isMobile ? 44 : 58;
     const CASE_CIRCLE_SIZE_MAX = isMobile ? 64 : 86;
     const DOT_SIZE = isMobile ? 15 : 25;
     const TEXTURE_SIZE = 500; // Tamaño de referencia del canvas, escalado luego al radio real.
