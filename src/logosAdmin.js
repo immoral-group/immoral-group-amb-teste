@@ -6,7 +6,7 @@ import { renderLoginView } from './loginView.js';
 
 const app = document.getElementById('logos-app');
 
-const SIZE_OPTIONS = [1, 2, 2.5, 3];
+const SIZE_OPTIONS = [1, 1.25, 1.5, 1.75, 2, 2.5, 3];
 
 function escapeHtml(str) {
   const div = document.createElement('div');

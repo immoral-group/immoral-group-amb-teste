@@ -6,4 +6,4 @@
 
 alter table public.partner_logos
   add column if not exists size_multiplier numeric not null default 1
-  check (size_multiplier in (1, 2, 2.5, 3));
+  check (size_multiplier in (1, 1.25, 1.5, 1.75, 2, 2.5, 3));
