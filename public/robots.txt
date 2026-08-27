@@ -10,6 +10,7 @@ Disallow: /casos-admin
 Disallow: /mensajes
 Disallow: /tokens
 Disallow: /postulaciones
+Disallow: /qr-codes
 
 User-agent: ClaudeBot
 Allow: /
@@ -23,6 +24,7 @@ Disallow: /casos-admin
 Disallow: /mensajes
 Disallow: /tokens
 Disallow: /postulaciones
+Disallow: /qr-codes
 
 User-agent: PerplexityBot
 Allow: /
@@ -36,6 +38,7 @@ Disallow: /casos-admin
 Disallow: /mensajes
 Disallow: /tokens
 Disallow: /postulaciones
+Disallow: /qr-codes
 
 User-agent: *
 Allow: /
@@ -61,5 +64,7 @@ Disallow: /tokens
 Disallow: /tokens.html
 Disallow: /postulaciones
 Disallow: /postulaciones.html
+Disallow: /qr-codes
+Disallow: /qr-codes.html
 
 Sitemap: https://immoral.es/sitemap.xml
