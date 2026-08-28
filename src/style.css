@@ -607,6 +607,23 @@ html {
     border-color: rgba(72, 137, 235, 0.9);
 }
 
+/* Al hacer hover sobre una tarjeta del grid de casos de éxito, el resto
+   se oscurece con una capa negra para que la tarjeta activa quede
+   destacada. */
+.case-card .case-card-dim {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+}
+
+.case-grid:hover .case-card:not(:hover) .case-card-dim {
+    opacity: 0.6;
+}
+
 /* View Transitions API - Versión Robusta */
 @view-transition {
     navigation: auto;

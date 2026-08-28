@@ -700,6 +700,7 @@ function caseCardHtml(cs) {
                                 </h3>
                             </div>
                         </div>
+                        <div class="case-card-dim"></div>
                     </article>
                 </a>`;
 }
