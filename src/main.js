@@ -1102,11 +1102,10 @@ function initHeroPhysics() {
     const isMobile = window.innerWidth < 768;
 
     // Burbujas de cristal (glassmorphism) con el nombre de cada caso de éxito.
-    // Más pequeñas en mobile. Mínimo subido (pedido explícito del usuario:
-    // que la burbuja/figura más chica se lea más grande) manteniendo el
-    // máximo igual que antes.
-    const CASE_CIRCLE_SIZE_MIN = isMobile ? 44 : 58;
-    const CASE_CIRCLE_SIZE_MAX = isMobile ? 64 : 86;
+    // Más pequeñas en mobile. Todas del mismo tamaño (pedido explícito del
+    // usuario: que al caer se vean uniformes, ni distintos tamaños ni
+    // distintas formas).
+    const CASE_CIRCLE_SIZE = isMobile ? 54 : 72;
     const DOT_SIZE = isMobile ? 15 : 25;
     const TEXTURE_SIZE = 500; // Tamaño de referencia del canvas, escalado luego al radio real.
 
@@ -1308,15 +1307,12 @@ function initHeroPhysics() {
         if (!document.getElementById('hero-physics')) return;
 
         // Una burbuja de cristal por cada caso de éxito que exista ahora mismo en la rejilla.
-        // La mayoría son círculos ("globos"), pero se mezclan cuadrados y triángulos
-        // (pedido explícito del usuario) siguiendo este patrón para asegurar variedad
-        // aunque haya pocos casos, en vez de dejarlo a un random que podría salir todo
-        // círculos.
-        const SHAPE_PATTERN = ['circle', 'circle', 'square', 'circle', 'triangle'];
+        // Todas circulares (pedido explícito del usuario: al caer, todos los
+        // elementos deben ser redondos, sin cuadrados ni triángulos mezclados).
         const cases = getCaseStudyLogos();
         const bubbles = await Promise.all(
-            cases.map(async ({ logoUrl, slug }, i) => {
-                const shape = SHAPE_PATTERN[i % SHAPE_PATTERN.length];
+            cases.map(async ({ logoUrl, slug }) => {
+                const shape = 'circle';
                 const fillRatio = SMALL_LOGO_SLUGS.has(slug) ? LEGACY_LOGO_FILL_RATIO : 0.9;
                 const texture = await createGlassBubbleTexture(logoUrl, fillRatio, shape);
                 return { texture, shape };
@@ -1407,8 +1403,8 @@ function initHeroPhysics() {
         spawnMaxY = Math.max(spawnMinY + 1, spawnMaxY);
 
         const bodies = [];
-        bubbles.forEach(({ texture, shape }) => {
-            const radius = CASE_CIRCLE_SIZE_MIN + Math.random() * (CASE_CIRCLE_SIZE_MAX - CASE_CIRCLE_SIZE_MIN);
+        const radius = CASE_CIRCLE_SIZE;
+        bubbles.forEach(({ texture }) => {
             const x = spawnMinX + Math.random() * (spawnMaxX - spawnMinX);
             const y = spawnMinY + Math.random() * (spawnMaxY - spawnMinY);
             const bodyOptions = {
@@ -1417,15 +1413,7 @@ function initHeroPhysics() {
                 frictionAir: 0.005,
                 render: { sprite: { texture: texture, xScale: (radius * 2) / TEXTURE_SIZE, yScale: (radius * 2) / TEXTURE_SIZE } }
             };
-            let body;
-            if (shape === 'square') {
-                body = Bodies.rectangle(x, y, radius * 2, radius * 2, bodyOptions);
-            } else if (shape === 'triangle') {
-                body = Bodies.fromVertices(x, y, [triangleVertices(x, y, radius)], bodyOptions);
-            } else {
-                body = Bodies.circle(x, y, radius, bodyOptions);
-            }
-            bodies.push(body);
+            bodies.push(Bodies.circle(x, y, radius, bodyOptions));
         });
 
         for (let i = 0; i < 2; i++) {
