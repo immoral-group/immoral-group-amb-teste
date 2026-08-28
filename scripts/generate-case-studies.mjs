@@ -682,7 +682,7 @@ function caseCardHtml(cs) {
   const resultadoSlug = slugifyValue(cs.resultado);
   return `                <a href="caso-${cs.slug}.html" class="case-card group cursor-pointer" data-sector="${sectorSlug}"
                     data-resultado="${resultadoSlug}" data-logo="${escapeHtml(cs.logo_url)}">
-                    <article class="relative overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 h-80 xl:h-96 bg-black">
+                    <article class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 h-80 xl:h-96 bg-black">
                         <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                             src="${escapeHtml(cs.cover_image_url)}"
                             alt="${escapeHtml(cs.cover_image_alt)}"
