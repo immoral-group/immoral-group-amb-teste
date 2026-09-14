@@ -33,6 +33,7 @@ URLs are listed below grouped by section, with recommended sitemap priority and 
 - `/gestion-de-redes` ← `gestion-de-redes.html`
 - `/influencer-marketing` ← `influencer-marketing.html`
 - `/publicidad-en-medios` ← `publicidad-en-medios.html`
+- `/posicionamiento-geo` ← `posicionamiento-geo.html` — placeholder (solo título), enlazado desde el menú "Servicios"; pendiente de contenido real
 
 ### Case Studies Hub (priority 0.9, changefreq: weekly)
 
