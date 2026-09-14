@@ -4,9 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manifesto — La forma de pensar de Immoral Group</title>
-    <meta name="description" content="Nuestro manifesto: los principios que guían la forma de trabajar de Immoral Group, la agencia de crecimiento digital.">
-    <link rel="canonical" href="https://immoral.es/manifesto">
+    <title>Posicionamiento y GEO | Immoral Group</title>
+    <meta name="description" content="Posicionamiento y GEO — servicio de Immoral Group.">
+    <script type="module" src="/src/main.js"></script>
+    <link rel="canonical" href="https://immoral.es/posicionamiento-geo">
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -23,27 +24,28 @@
   ]
 }
 </script>
-    <link rel="icon" type="image/svg+xml" href="imgs/favicon.svg">
+    <link rel="icon" type="image/png" href="imgs/favicon.png">
     <!-- Matter.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
 
-<body class="overflow-x-hidden w-dvw font-sans">
-    <!-- Menú Light -->
-    <nav class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100]">
+<body class="overflow-visible">
+    <!-- Menu oscuro -->
+    <nav
+        class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100] top-0">
         <a href="index.html" aria-label="Immoral — ir al inicio">
-            <div><img src="/imgs/Menues/logo-menu-oscuro.png" alt=""></div>
+            <div><img src="/imgs/Menues/logo-menu-claro.png" alt=""></div>
         </a>
         <div>
-            <div class="list-none flex flex-row items-center gap-12 text-black">
+            <div class="list-none flex flex-row items-center gap-12 text-white">
 
-                <div class="w-35 items-center flex flex-col relative" id="dropdownButton">
+                <div class="w-auto items-center flex flex-col relative" id="dropdownButton">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes Somos
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
-                    <div class="mt-3 absolute left-0 top-full z-[100] w-50 hidden font-medium text-sm capitalize transition-all ease-out duration-300"
+                    <div class="mt-3 absolute left-0 top-full z-40 w-40 hidden font-medium text-sm transition-all ease-out duration-300"
                         id="dropdown">
-                        <ul class="flex flex-col bg-[#f7f7f7] text-black">
+                        <ul class="flex flex-col bg-[#f7f7f7] text-white">
                             <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
                             <a href="nuestra-historia.html">
                                 <li
@@ -69,9 +71,9 @@
 
                 <div class="w-30 items-center flex flex-col relative" id="dropdownButton2">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button2">Servicios
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
-                    <div class="mt-3 absolute left-1/2 -translate-x-1/2 top-full z-[100] hidden w-52 font-medium text-sm capitalize transition-all ease-out duration-300"
+                    <div class="mt-3 absolute left-1/2 -translate-x-1/2 top-full z-40 hidden w-52 font-medium text-sm transition-all ease-out duration-300"
                         id="dropdown2">
                         <ul class="flex flex-col bg-[#f7f7f7] text-black">
                             <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
@@ -128,9 +130,9 @@
                 </div>
                 <div class="w-30 items-center flex flex-col relative" id="dropdownButton3">
                     <div class="uppercase flex flex-row gap-3 justify-center" id="button3">Sectores
-                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3 invert">
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
-                    <div class="mt-3 absolute left-0 top-full z-[100] hidden w-max font-medium capitalize transition-all ease-out duration-300"
+                    <div class="mt-3 absolute left-0 top-full z-40 hidden w-max font-medium capitalize transition-all ease-out duration-300"
                         id="dropdown3">
                         <div class="bg-[#f7f7f7] text-black">
                             <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
@@ -166,19 +168,18 @@
             </div>
         </div>
     </nav>
-
     <!-- Mobile/Tablet Header (visible solo en móvil y tablet) -->
-    <div class="bg-white xl:hidden fixed top-0 inset-x-0 z-50 box-border w-full flex items-center justify-between px-4 py-4"
+    <div class="bg-black xl:hidden fixed top-0 inset-x-0 z-50 box-border w-full flex items-center justify-between px-4 py-4"
         style="padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);">
-        <a href="index.html"><img src="/imgs/Menues/logo-menu-oscuro.svg" alt="immoral" class="ml-4 h-6 w-auto"></a>
+        <a href="index.html"><img src="/imgs/Menues/logo-menu-oscuro.svg" alt="immoral"
+                class="ml-4 h-6 w-auto invert"></a>
         <button id="mobileMenuOpenBtn" aria-label="Abrir menú"
-            class="p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            class="invert p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M4 6h16M4 12h16M4 18h16" stroke="#000" stroke-width="1" stroke-linecap="round" />
+                <path d="M4 6h16M4 12h16M4 18h16" stroke="#000" stroke-width="2" stroke-linecap="round" />
             </svg>
         </button>
     </div>
-
     <!-- Overlay del Menú Móvil/Tablet -->
     <div id="mobileMenuOverlay"
         class="xl:hidden fixed inset-0 bg-white z-[60] hidden overflow-y-auto overflow-x-hidden">
@@ -190,7 +191,7 @@
                 <button id="mobileMenuCloseBtn" aria-label="Cerrar menú"
                     class="p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 6l12 12M18 6l-12 12" stroke="#000" stroke-width="1" stroke-linecap="round" />
+                        <path d="M6 6l12 12M18 6l-12 12" stroke="#000" stroke-width="2" stroke-linecap="round" />
                     </svg>
                 </button>
             </div>
@@ -204,7 +205,7 @@
                         QUIÉNES SOMOS
                         <svg class="w-4 h-4 arrow-icon transition-transform" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" />
                         </svg>
                     </button>
@@ -238,7 +239,7 @@
                         SERVICIOS
                         <svg class="w-4 h-4 arrow-icon transition-transform" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" />
                         </svg>
                     </button>
@@ -296,7 +297,7 @@
                         SECTORES
                         <svg class="w-4 h-4 arrow-icon transition-transform" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" />
                         </svg>
                     </button>
@@ -338,206 +339,26 @@
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="w-full pt-24 pb-16 px-6 sm:px-12 xl:pt-32 xl:px-24 bg-white">
-        <div class="reveal-group max-w-[1400px] mx-auto flex flex-col gap-0">
-            <a class="block-reveal">
-                <h1 class="font-black text-3xl xl:text-5xl mb-6">Nuestro Manifesto</h1>
-            </a>
-            <a class="block-reveal">
-                <p class="text-lg xl:text-xl font-light text-gray-800">Una visión clara. Una misión sin concesiones.
-                </p>
-            </a>
-            <a class="block-reveal">
-                <p class="text-lg xl:text-xl font-light text-[#4889eb]">Unos valores que no se negocian.</p>
-            </a>
-        </div>
-    </header>
 
-    <!-- Seccion 1: Visión (Fondo Negro) -->
-    <section class="w-full aspect-video bg-black text-white py-20 xl:py-32 px-6 sm:px-12 xl:px-24">
-        <div class="max-w-[1400px] mx-auto flex flex-col xl:flex-row gap-16 items-center">
-            <!-- Texto -->
-            <div class="reveal-group w-full xl:w-1/2">
-                <h2 class="font-black text-4xl sm:text-5xl mb-8">Visión</h2>
-                <h3 class="font-light text-xl sm:text-2xl mb-2 text-gray-400">No queremos ser una
-                    agencia.</h3>
-                <h3 class="font-light text-xl sm:text-2xl mb-12 text-[#4889eb]">Queremos ser el equipo que
-                    transforma
-                    realidades.</h3>
-
-                <div class="space-y-6 font-light text-lg text-gray-300 leading-relaxed">
-                    <p class="reveal-lines">Nos proyectamos hacia un futuro donde el marketing deje de ser solo ruido y
-                        falsas promesas para
-                        convertirse en una fuerza de cambio.</p>
-                    <p class="reveal-lines">Un mundo donde las marcas no nos ven como proveedores, sino como el socio
-                        estratégico que empuja,
-                        cuestiona y hace que las cosas pasen.</p>
-                    <p class="reveal-lines">Creemos que el marketing puede —y debe— transformar positivamente la vida de
-                        las personas.</p>
-                    <p class="reveal-lines">Y lo hace cuando se ejecuta con ética, con propósito, con excelencia.
-                        Queremos dejar huella. Pero
-                        no cualquier huella. Una que sume. Una que inspire. Una que transforme.</p>
-                </div>
-            </div>
-            <!-- Imagen -->
-            <div class="w-full xl:w-1/2 flex justify-end items-center">
-                <img src="/imgs/img-manifesto-vision.webp" alt="Vision Architecture" class="w-10/12">
-            </div>
-        </div>
+    <!-- Hero Section (placeholder — pendiente de contenido) -->
+    <section class="relative w-full min-h-screen z-[1] bg-black text-white flex flex-col items-center justify-center px-6 text-center">
+        <span class="block text-sm md:text-base font-light tracking-wide text-gray-400 mb-4">
+            Servicios
+        </span>
+        <h1 class="text-4xl md:text-6xl font-black leading-tight tracking-tight">
+            Posicionamiento <span class="text-[#2f80ed]">y GEO</span>
+        </h1>
+        <p class="text-base md:text-lg font-light text-gray-400 leading-relaxed max-w-lg mt-8">
+            Página en construcción.
+        </p>
+        <a href="contacto.html"
+            class="mt-10 inline-flex items-center h-12 px-8 bg-blue-500 text-white rounded hover:bg-blue-600 uppercase text-sm font-bold tracking-wide">
+            Hablemos
+        </a>
     </section>
-
-    <!-- Seccion 2: Misión (Fondo Azul) -->
-    <section class="w-full bg-black text-white py-20 xl:py-32 px-6 sm:px-12 xl:px-24">
-        <div class="max-w-[1400px] mx-auto flex flex-col-reverse xl:flex-row gap-16 items-center">
-            <!-- Imagen -->
-            <div class="w-full xl:w-1/2 flex justify-center items-center">
-                <img src="/imgs/img-manifesto-mision.webp" alt="Columnas Immoral" class="w-10/12">
-            </div>
-            <!-- Texto -->
-            <div class="reveal-group w-full xl:w-1/2">
-                <h2 class="font-black text-4xl sm:text-5xl mb-8">Misión</h2>
-                <h3 class="font-light text-xl sm:text-2xl mb-2">Somos el puente entre las marcas y el
-                    cambio.</h3>
-                <h3 class="font-light text-xl sm:text-2xl mb-12 opacity-90">Entre lo que son hoy y todo lo
-                    que pueden
-                    llegar a ser.</h3>
-
-                <div class="space-y-6 font-light text-lg leading-relaxed opacity-95">
-                    <p class="reveal-lines">Nuestro compromiso es claro: crear estrategias éticas, efectivas y a la
-                        altura de un mundo
-                        digital que evoluciona cada segundo.</p>
-                    <p class="reveal-lines">Nos integramos como parte del equipo. Pensamos como negocio. Actuamos con
-                        inteligencia. Con
-                        todas.</p>
-                    <p class="reveal-lines">Cada campaña que lanzamos, cada automatización que diseñamos, cada contenido
-                        que publicamos, está
-                        pensado para una sola cosa: hacer que el negocio funcione mejor y que la marca se haga más
-                        fuerte.</p>
-                    <p class="reveal-lines">Trabajamos con exigencia, con transparencia y con una obsesión sana por el
-                        resultado.</p>
-                    <p class="reveal-lines">Y sobre todo, trabajamos con marcas que, como nosotros, quieren dejar de
-                        hacer más de lo mismo.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <!-- Seccion 3: En qué creemos (Cards) -->
-    <section class="w-full bg-white py-20 xl:py-32 px-6 sm:px-12 xl:px-24">
-        <div class="max-w-[1400px] mx-auto flex flex-col xl:flex-row gap-16">
-            <!-- Título a la izquierda -->
-            <div class="reveal-group w-full xl:w-1/3">
-                <h2 class="font-black text-5xl xl:text-6xl text-black">Nuestros</h2>
-                <h2 class="font-black text-5xl xl:text-6xl mb-4 text-black">Valores</h2>
-                <p class="reveal-lines font-light text-xl text-black">No los repetimos porque suena bien.</p>
-                <p class="reveal-lines font-light text-xl text-black">Lo vivimos cada día</p>
-            </div>
-
-            <!-- Grid de Cards 2x2 a la derecha -->
-            <div class="w-full xl:w-2/3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <!-- Card 1 -->
-                    <div
-                        class="group bg-gray-50 hover:bg-black p-8 rounded-3xl flex flex-col min-h-[280px] border border-gray-200 hover:border-black transition-all duration-300 hover:rotate-2 cursor-pointer">
-                        <img src="/imgs/ico-mani-box-1.png" alt="icon"
-                            class="w-12 h-12 mb-6 fade-in-up brightness-0 group-hover:invert">
-                        <h4 class="block-reveal font-bold text-lg mb-3 text-black group-hover:text-white transition-all duration-300">01.
-                            Servicio</h4>
-                        <p
-                            class="reveal-lines font-light text-black group-hover:text-white text-sm leading-relaxed transition-all duration-300">
-                            No estamos aquí para cumplir tareas. Estamos para ayudarte a crecer. Nos involucramos,
-                            pensamos contigo, y vamos más allá de lo que esperas.
-                        </p>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div
-                        class="group bg-gray-50 hover:bg-black p-8 rounded-3xl flex flex-col min-h-[280px] border border-gray-200 hover:border-black transition-all duration-300 hover:rotate-2 cursor-pointer">
-                        <img src="/imgs/ico-mani-box-2.png" alt="icon"
-                            class="w-12 h-12 mb-6 fade-in-up brightness-0 group-hover:invert">
-                        <h4 class="block-reveal font-bold text-lg mb-3 text-black group-hover:text-white transition-all duration-300">02.
-                            Transparencia
-                        </h4>
-                        <p
-                            class="reveal-lines font-light text-black group-hover:text-white text-sm leading-relaxed transition-all duration-300">
-                            Nada de letra pequeña. Nada de promesas vacías. Hablamos claro. Compartimos todo.
-                            Construimos confianza con hechos.
-                        </p>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div
-                        class="group bg-gray-50 hover:bg-black p-8 rounded-3xl flex flex-col min-h-[280px] border border-gray-200 hover:border-black transition-all duration-300 hover:rotate-2 cursor-pointer">
-                        <svg viewBox="0 0 24 24" fill="none" class="w-12 h-12 mb-6 fade-in-up"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9 18h6M10 21h4" stroke="#4889eb" stroke-width="1" stroke-linecap="round" />
-                            <path
-                                d="M12 3a6 6 0 0 0-3.5 10.9c.6.45 1 1.15 1 1.9V17h5v-1.2c0-.75.4-1.45 1-1.9A6 6 0 0 0 12 3Z"
-                                stroke="#4889eb" stroke-width="1" stroke-linejoin="round" />
-                        </svg>
-                        <h4 class="block-reveal font-bold text-lg mb-3 text-black group-hover:text-white transition-all duration-300">03.
-                            Innovación
-                        </h4>
-                        <p
-                            class="reveal-lines font-light text-black group-hover:text-white text-sm leading-relaxed transition-all duration-300">
-                            No seguimos tendencias. Las analizamos, las entendemos y aplicamos solo lo que funciona. La
-                            innovación no es una excusa para el desorden, es nuestra herramienta para encontrar lo que
-                            aún no está resuelto.
-                        </p>
-                    </div>
-
-                    <!-- Card 4 -->
-                    <div
-                        class="group bg-gray-50 hover:bg-black p-8 rounded-3xl flex flex-col min-h-[280px] border border-gray-200 hover:border-black transition-all duration-300 hover:rotate-2 cursor-pointer">
-                        <svg viewBox="0 0 24 24" fill="none" class="w-12 h-12 mb-6 fade-in-up"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 16l6-6 4 4 6-7" stroke="#4889eb" stroke-width="1" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path d="M15 6h5v5" stroke="#4889eb" stroke-width="1" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                        <h4 class="block-reveal font-bold text-lg mb-3 text-black group-hover:text-white transition-all duration-300">04.
-                            Resultados
-                        </h4>
-                        <p
-                            class="reveal-lines font-light text-black group-hover:text-white text-sm leading-relaxed transition-all duration-300">
-                            No trabajamos por premios ni por likes. Trabajamos para que tu negocio crezca, tu equipo
-                            respire y tu marca avance. Si no suma, no sirve.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- Seccion CTA -->
-    <section
-        class="w-full relative min-h-[70vh] flex items-center justify-start overflow-hidden py-20 px-6 sm:px-12 xl:px-24">
-        <!-- Background Video -->
-        <video class="absolute inset-0 w-full h-full object-cover z-0" autoplay muted loop playsinline
-            disablepictureinpicture aria-hidden="true" tabindex="-1">
-            <source src="/imgs/escalera.webm" type="video/webm">
-        </video>
-        <!-- Overlay opcional si necesitas oscurecer -->
-        <div class="absolute inset-0 z-10"></div>
-
-        <div class="reveal-group relative z-20 text-left w-full max-w-4xl">
-            <h2 class="block-reveal font-black text-3xl sm:text-4xl xl:text-5xl text-white leading-tight">
-                Porque imaginar<br>no es suficiente.
-            </h2>
-            <p class="reveal-lines font-light text-base sm:text-lg text-white mt-6 leading-relaxed max-w-2xl">
-                Nosotros creamos soluciones reales que impulsan marcas, automatizan procesos y escalan negocios con
-                inteligencia.
-            </p>
-        </div>
-    </section>
-
 
     <!-- Footer -->
     <footer id="site-footer"></footer>
-    <script type="module" src="/src/main.js"></script>
 </body>
 
 </html>
