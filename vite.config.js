@@ -50,6 +50,8 @@ export default defineConfig({
                 'caso-wetribu': resolve(__dirname, 'caso-wetribu.html'),
                 'caso-velites': resolve(__dirname, 'caso-velites.html'),
                 'caso-nutfruit': resolve(__dirname, 'caso-nutfruit.html'),
+                'posicionamiento-geo': resolve(__dirname, 'posicionamiento-geo.html'),
+                'prospeccion-b2b': resolve(__dirname, 'prospeccion-b2b.html'),
                 'aviso-legal': resolve(__dirname, 'aviso-legal.html'),
                 'cookies': resolve(__dirname, 'cookies.html'),
                 'privacidad': resolve(__dirname, 'privacidad.html'),
