@@ -14,6 +14,7 @@ import { initAutomatizacionHero } from './automatizacion-hero.js';
 import { initNuestraHistoriaHero } from './nuestra-historia-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import { initPlatformCarousel } from './platform-carousel.js';
+import { initIncluyeCarousel } from './incluye-carousel.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import { initInfluencerCardConveyor } from './influencer-card-conveyor.js';
 import { initUgcCardFlow } from './ugc-card-flow.js';
@@ -2097,6 +2098,7 @@ function initAll() {
     initEquipoNetwork();
     try { initPublicidadMediosFunnel(); } catch (e) { console.error("Error in initPublicidadMediosFunnel:", e); }
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
+    try { initIncluyeCarousel(); } catch (e) { console.error("Error in initIncluyeCarousel:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
     try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
