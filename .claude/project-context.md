@@ -34,6 +34,7 @@ URLs are listed below grouped by section, with recommended sitemap priority and 
 - `/influencer-marketing` ← `influencer-marketing.html`
 - `/publicidad-en-medios` ← `publicidad-en-medios.html`
 - `/posicionamiento-geo` ← `posicionamiento-geo.html` — placeholder (solo título), enlazado desde el menú "Servicios"; pendiente de contenido real
+- `/prospeccion-b2b` ← `prospeccion-b2b.html` — página completa (copy real del usuario), enlazada desde el menú "Servicios"; reemplaza el link externo que antes salía a imsales.es
 
 ### Case Studies Hub (priority 0.9, changefreq: weekly)
 
