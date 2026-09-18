@@ -133,7 +133,7 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
               <a href="manifesto.html">
                 <li
                   class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                  <span class="submenu-content">Manifesto</span>
+                  <span class="submenu-content">Manifiesto</span>
                 </li>
               </a>
               <a href="equipo.html">
@@ -164,19 +164,13 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
               <a href="diseno-de-marca.html">
                 <li
                   class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                  <span class="submenu-content">Contenido y marca</span>
+                  <span class="submenu-content">Diseño de marca y contenidos</span>
                 </li>
               </a>
               <a href="gestion-de-redes.html">
                 <li
                   class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                  <span class="submenu-content">Gestión de Redes Sociales</span>
-                </li>
-              </a>
-              <a href="automatizacion-de-procesos.html">
-                <li
-                  class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                  <span class="submenu-content">Automatización de Procesos & IA</span>
+                  <span class="submenu-content">Gestión de redes sociales</span>
                 </li>
               </a>
               <a href="email-marketing.html">
@@ -188,13 +182,13 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
               <a href="influencer-marketing.html">
                 <li
                   class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                  <span class="submenu-content">Influencer Marketing</span>
+                  <span class="submenu-content">Influencer marketing</span>
                 </li>
               </a>
               <a href="posicionamiento-geo.html">
                 <li
                   class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                  <span class="submenu-content">Posicionamiento y GEO</span>
+                  <span class="submenu-content">Posicionamiento en buscadores y en IA</span>
                 </li>
               </a>
               <a href="https://imsales.es/" target="_blank" rel="noopener noreferrer">
@@ -297,7 +291,7 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
               </a>
               <a href="manifesto.html">
                 <li class="py-4 px-5 border-b border-gray-300 w-full hover:bg-blue-50 hover:text-blue-600 transition">
-                  Manifesto</li>
+                  Manifiesto</li>
               </a>
               <a href="equipo.html">
                 <li class="py-4 px-5 border-b border-gray-300 w-full hover:bg-blue-50 hover:text-blue-600 transition">
@@ -327,15 +321,11 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
               </a>
               <a href="diseno-de-marca.html">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                  Contenido y marca</li>
+                  Diseño de marca y contenidos</li>
               </a>
               <a href="gestion-de-redes.html">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
                   Gestión de redes sociales</li>
-              </a>
-              <a href="automatizacion-de-procesos.html">
-                <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                  Automatización de procesos + IA</li>
               </a>
               <a href="email-marketing.html">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
@@ -343,11 +333,11 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
               </a>
               <a href="influencer-marketing.html">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                  Influencer Marketing</li>
+                  Influencer marketing</li>
               </a>
               <a href="posicionamiento-geo.html">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                  Posicionamiento y GEO</li>
+                  Posicionamiento en buscadores y en IA</li>
               </a>
               <a href="https://imsales.es/" target="_blank" rel="noopener noreferrer">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
