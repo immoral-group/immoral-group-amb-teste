@@ -16,9 +16,12 @@ const FOOTER_HTML = `
         <div class="grid md:grid-cols-2 gap-8 items-center mb-8 pb-8">
             <div>
                 <h2 class="font-light text-4xl text-white">
-                    Transformamos tu<br />
-                    incertidumbre en prosperidad
+                    El crecimiento real empieza con una conversación.
                 </h2>
+                <p class="text-[#B9C0CA] mt-4 max-w-md">
+                    No necesitas más ruido. Necesitas una estrategia que funcione, procesos que fluyan y un equipo que
+                    piense como tú.
+                </p>
             </div>
             <div class="flex items-center justify-start md:justify-end md:pr-16">
                 <a href="contacto.html" id="hablemos-cta-btn"
@@ -32,7 +35,7 @@ const FOOTER_HTML = `
         <div class="grid md:grid-cols-2 gap-12 lg:gap-16">
             <!-- Social -->
             <div class="space-y-6">
-                <h3 class="text-blue-500">Síguenos y crea un gran impacto</h3>
+                <h3 class="text-blue-500">Síguenos.</h3>
                 <div class="flex items-center gap-4 flex-wrap">
 
                     <!-- WhatsApp -->

@@ -1,31 +1,34 @@
-# Immoral Group
+# Immoral
 
-> Immoral Group es una agencia de marketing y crecimiento digital. No se define como una agencia tradicional, sino como un ecosistema que combina estrategia, paid media, contenido, diseño de marca, automatización e inteligencia artificial para hacer crecer negocios de ecommerce y B2B.
+Immoral es una agencia de marketing y crecimiento digital con sede en Barcelona. Funciona como el equipo de marketing de sus clientes: lleva la publicidad en medios, el diseño de marca y contenidos, la gestión de redes, el influencer marketing, los embudos de venta y el CRM, el posicionamiento en buscadores y en IA y la prospección B2B, con un solo interlocutor y un especialista distinto detrás de cada disciplina. Más de 20 años de experiencia acumulada, más de 300 marcas y más de 50 millones de euros de inversión publicitaria gestionada.
 
-Immoral Group trabaja con marcas de moda, retail, salud, servicios financieros, B2B y comunidades, combinando publicidad en medios (Meta, Google, TikTok), diseño de marca y contenido, email marketing y automatizaciones, gestión de redes sociales, influencer marketing y automatización de procesos con IA.
+Immoral trabaja principalmente con marcas de ecommerce y DTC y con empresas B2B de servicio, industria y formación. Immoral incluye dos marcas de sector —imfilms para campañas de estreno de cine e imfashion para marcas de moda— y una unidad independiente, immoralia, dedicada a la automatización de procesos y la inteligencia artificial aplicada a la operación de una empresa, no a su marketing.
 
 ## Servicios
 
-- [Publicidad en Medios](https://immoral.es/publicidad-en-medios): estrategia y ejecución de paid media (Meta, Google, TikTok y otras plataformas) con enfoque data-driven.
-- [Diseño de Marca y Contenidos](https://immoral.es/diseno-de-marca): identidad visual, creatividades y contenido para campañas y redes.
-- [Email Marketing](https://immoral.es/email-marketing): automatizaciones y embudos de venta por email que conectan y convierten.
-- [Gestión de Redes Sociales](https://immoral.es/gestion-de-redes): estrategia, creatividad y tecnología aplicadas a la gestión de redes sociales.
-- [Influencer Marketing](https://immoral.es/influencer-marketing): campañas de colaboración con creadores de contenido.
-- [Automatización de Procesos](https://immoral.es/automatizacion-de-procesos): automatizaciones a medida con IA para procesos de marketing y ventas.
+1. Publicidad en medios: gestión de campañas en Google, Meta, TikTok, LinkedIn y Spotify, con medición verificada y un objetivo por campaña.
+2. Diseño de marca y contenidos: identidad, rebranding, creatividades para campaña, contenido para redes, vídeo UGC y copywriting.
+3. Gestión de redes sociales: estrategia de contenido, publicación, community management y social listening.
+4. Influencer marketing: selección de creadores por datos, gestión integral de campañas y contenido UGC con personas reales o producido con IA.
+5. Embudos, CRM y email marketing: embudos de venta, automatizaciones, segmentación de base de datos e integración con CRM y ecommerce.
+6. Posicionamiento en buscadores y en IA: SEO técnico y de contenido, y GEO para que los modelos de lenguaje citen la marca.
+7. Prospección B2B: outbound gestionado, desde la definición del cliente objetivo hasta la cualificación de respuestas.
 
-## Casos de éxito
+La automatización de procesos y la inteligencia artificial aplicada a la operación de una empresa no forman parte del catálogo de Immoral: las lleva immoralia, una unidad independiente de la misma casa, en immoralia.es.
 
-- [Casos de éxito](https://immoral.es/casos-de-exito): resultados reales de campañas para clientes como Bobo Choses, TravelPerk, Velites, Cool Bottles, AMLUL, Vasquiat y otras marcas de ecommerce y B2B.
+## Marcas
 
-## Empresa
+1. Immoral: la marca por defecto para todo el marketing que no está verticalizado por sector.
+2. imfilms: campañas de estreno para distribuidoras y productoras de cine, con audiencia acumulada en más de 70 estrenos.
+3. imfashion: crecimiento para marcas de moda, con equipo propio especializado en el sector.
+4. immoralia: IA y automatización de la operación de la empresa.
 
-- [Nuestra Historia](https://immoral.es/nuestra-historia): cómo nació Immoral Group y su forma de entender el marketing.
-- [Manifesto](https://immoral.es/manifesto): los principios que guían la forma de trabajar de Immoral Group.
-- [Equipo](https://immoral.es/equipo): las personas detrás de Immoral Group.
-- [Contacto](https://immoral.es/contacto): cómo ponerse en contacto con Immoral Group.
+## Casos y referencias
 
-## Notas
+Casos publicados con resultados reales en marcas de moda, alimentación y bebidas, salud y bienestar y servicios B2B. Referencias citables: Bobo Choses, Mun Kombucha y Angela Navarro.
 
-- Sitio web: https://immoral.es
-- Idioma: español
-- Este archivo sigue la convención propuesta por llmstxt.org para ofrecer a modelos de lenguaje y motores de búsqueda conversacionales un resumen curado del sitio.
+## Datos
+
+1. Sitio web: https://immoral.es
+2. Sede: Paseo de Gràcia 12, 1º, 08007 Barcelona
+3. Idioma: español
