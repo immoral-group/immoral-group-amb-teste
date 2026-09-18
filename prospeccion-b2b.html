@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prospección B2B · Outbound gestionado para empresas · Immoral</title>
+    <meta name="description" content="Conversaciones con tu cliente objetivo sin depender de que llamen a la puerta. Prospección B2B gestionada de principio a fin: lista, mensaje y seguimiento.">
+    <script type="module" src="/src/main.js"></script>
+    <link rel="canonical" href="https://immoral.es/prospeccion-b2b">
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Immoral Group",
+  "alternateName": "Immoral Growth Group",
+  "url": "https://immoral.es/",
+  "logo": "https://immoral.es/imgs/Menues/logo-menu-oscuro.png",
+  "sameAs": [
+    "https://www.instagram.com/immoral.group/",
+    "https://www.linkedin.com/company/immoral-group/",
+    "https://www.tiktok.com/@immoral.group",
+    "https://www.youtube.com/@immoralmarketing"
+  ]
+}
+</script>
+    <link rel="icon" type="image/png" href="imgs/favicon.png">
+    <!-- Matter.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+</head>
+
+<body class="overflow-visible">
+    <!-- Menu oscuro -->
+    <nav
+        class="hidden xl:flex justify-between fixed inset-x-0 box-border px-10 pt-5 pb-5 font-black text-xs z-[100] top-0">
+        <a href="index.html" aria-label="Immoral — ir al inicio">
+            <div><img src="/imgs/Menues/logo-menu-claro.png" alt=""></div>
+        </a>
+        <div>
+            <div class="list-none flex flex-row items-center gap-12 text-white">
+
+                <div class="w-auto items-center flex flex-col relative" id="dropdownButton">
+                    <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes Somos
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
+                    </div>
+                    <div class="mt-3 absolute left-0 top-full z-40 w-40 hidden font-medium text-sm transition-all ease-out duration-300"
+                        id="dropdown">
+                        <ul class="flex flex-col bg-[#f7f7f7] text-white">
+                            <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
+                            <a href="nuestra-historia.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Nuestra historia</span>
+                                </li>
+                            </a>
+                            <a href="manifesto.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Manifesto</span>
+                                </li>
+                            </a>
+                            <a href="equipo.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Equipo</span>
+                                </li>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="w-30 items-center flex flex-col relative" id="dropdownButton2">
+                    <div class="uppercase flex flex-row gap-3 justify-center" id="button2">Servicios
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
+                    </div>
+                    <div class="mt-3 absolute left-1/2 -translate-x-1/2 top-full z-40 hidden w-52 font-medium text-sm transition-all ease-out duration-300"
+                        id="dropdown2">
+                        <ul class="flex flex-col bg-[#f7f7f7] text-black">
+                            <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
+                            <a href="publicidad-en-medios.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Publicidad en medios</span>
+                                </li>
+                            </a>
+                            <a href="diseno-de-marca.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Contenido y marca</span>
+                                </li>
+                            </a>
+                            <a href="gestion-de-redes.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Gestión de Redes Sociales</span>
+                                </li>
+                            </a>
+                            <a href="automatizacion-de-procesos.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Automatización de Procesos & IA</span>
+                                </li>
+                            </a>
+                            <a href="email-marketing.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Embudos, CRM y email</span>
+                                </li>
+                            </a>
+                            <a href="influencer-marketing.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Influencer Marketing</span>
+                                </li>
+                            </a>
+                            <a href="posicionamiento-geo.html">
+                                <li
+                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Posicionamiento y GEO</span>
+                                </li>
+                            </a>
+                            <a href="prospeccion-b2b.html">
+                                <li
+                                    class="py-3 px-5 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                    <span class="submenu-content">Prospección B2B</span>
+                                </li>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+                <div class="w-30 items-center flex flex-col relative" id="dropdownButton3">
+                    <div class="uppercase flex flex-row gap-3 justify-center" id="button3">Sectores
+                        <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
+                    </div>
+                    <div class="mt-3 absolute left-0 top-full z-40 hidden w-max font-medium capitalize transition-all ease-out duration-300"
+                        id="dropdown3">
+                        <div class="bg-[#f7f7f7] text-black">
+                            <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
+                            <ul class="flex flex-col">
+                                <a href="https://imfilms.es/" target="_blank" rel="noopener noreferrer">
+                                    <li
+                                        class="flex flex-col items-start gap-2 py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                        <img src="/imgs/Menues/logo-films.svg" alt="imfilms" class="h-7 w-auto">
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Publicidad para cine</span>
+                                    </li>
+                                </a>
+                                <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
+                                    <li
+                                        class="flex flex-col items-start gap-2 py-4 px-5 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
+                                        <img src="/imgs/Menues/logo-fashion.svg" alt="imfashion" class="h-7 w-auto">
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Brandformance para moda</span>
+                                    </li>
+                                </a>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer" class="uppercase">
+                    <li>IMMORALIA</li>
+                </a>
+                <a href="casos-de-exito.html" class="uppercase">
+                    <li>Casos de Éxito</li>
+                </a>
+                <a href="contacto.html"
+                    class="uppercase flex items-center self-center h-10 px-8 bg-blue-500 text-white rounded hover:bg-blue-600">
+                    <li>Contacto</li>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <!-- Mobile/Tablet Header (visible solo en móvil y tablet) -->
+    <div class="bg-black xl:hidden fixed top-0 inset-x-0 z-50 box-border w-full flex items-center justify-between px-4 py-4"
+        style="padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);">
+        <a href="index.html"><img src="/imgs/Menues/logo-menu-oscuro.svg" alt="immoral"
+                class="ml-4 h-6 w-auto invert"></a>
+        <button id="mobileMenuOpenBtn" aria-label="Abrir menú"
+            class="invert p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 6h16M4 12h16M4 18h16" stroke="#000" stroke-width="2" stroke-linecap="round" />
+            </svg>
+        </button>
+    </div>
+    <!-- Overlay del Menú Móvil/Tablet -->
+    <div id="mobileMenuOverlay"
+        class="xl:hidden fixed inset-0 bg-white z-[60] hidden overflow-y-auto overflow-x-hidden">
+        <div class="flex flex-col h-[100dvh]">
+            <div class="flex items-center justify-between px-4 pt-4 pb-2 shrink-0 box-border w-full"
+                style="padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);">
+                <a href="index.html"><img src="/imgs/Menues/logo-menu-oscuro.svg" alt="immoral"
+                        class="ml-4 h-6 w-auto"></a>
+                <button id="mobileMenuCloseBtn" aria-label="Cerrar menú"
+                    class="p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 6l12 12M18 6l-12 12" stroke="#000" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="flex-1 px-5 sm:px-8 pt-2 pb-8 w-full max-w-[520px] mx-auto flex flex-col justify-evenly">
+                <!-- QUIÉNES SOMOS -->
+                <div class="border-b border-gray-200 pb-2">
+                    <button
+                        class="w-full flex items-center justify-center gap-2 text-black font-black text-2xl sm:text-3xl uppercase tracking-wide text-center py-4 sm:py-6"
+                        data-target="mobile-submenu-quienes" aria-expanded="false">
+                        QUIÉNES SOMOS
+                        <svg class="w-4 h-4 arrow-icon transition-transform" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div id="mobile-submenu-quienes" class="hidden mt-4 overflow-hidden">
+                        <ul class="flex flex-col bg-[#f7f7f7] text-black rounded-md overflow-hidden text-center">
+                            <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
+                            <a href="nuestra-historia.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 w-full hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Nuestra historia</li>
+                            </a>
+                            <a href="manifesto.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 w-full hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Manifesto</li>
+                            </a>
+                            <a href="equipo.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 w-full hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Equipo</li>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- SERVICIOS -->
+                <div class="border-b border-gray-200 pb-2">
+                    <button
+                        class="w-full flex items-center justify-center gap-2 text-black font-black text-2xl sm:text-3xl uppercase tracking-wide text-center py-4 sm:py-6"
+                        data-target="mobile-submenu-servicios" aria-expanded="false">
+                        SERVICIOS
+                        <svg class="w-4 h-4 arrow-icon transition-transform" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div id="mobile-submenu-servicios" class="hidden mt-4 overflow-hidden">
+                        <ul class="flex flex-col bg-[#f7f7f7] text-black rounded-md overflow-hidden text-center">
+                            <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
+                            <a href="publicidad-en-medios.html">
+                                <li class="py-4 px-5 hover:bg-blue-50 hover:text-blue-600 transition">Publicidad en
+                                    medios</li>
+                            </a>
+                            <a href="diseno-de-marca.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Contenido y marca</li>
+                            </a>
+                            <a href="gestion-de-redes.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Gestión de redes sociales</li>
+                            </a>
+                            <a href="automatizacion-de-procesos.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Automatización de procesos + IA</li>
+                            </a>
+                            <a href="email-marketing.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Embudos, CRM y email</li>
+                            </a>
+                            <a href="influencer-marketing.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Influencer Marketing</li>
+                            </a>
+                            <a href="posicionamiento-geo.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Posicionamiento y GEO</li>
+                            </a>
+                            <a href="prospeccion-b2b.html">
+                                <li
+                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
+                                    Prospección B2B</li>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- GRUPO -->
+                <div class="border-b border-gray-200 pb-2">
+                    <button
+                        class="w-full flex items-center justify-center gap-2 text-black font-black text-2xl sm:text-3xl uppercase tracking-wide text-center py-4 sm:py-6"
+                        data-target="mobile-submenu-verticales" aria-expanded="false">
+                        SECTORES
+                        <svg class="w-4 h-4 arrow-icon transition-transform" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div id="mobile-submenu-verticales" class="hidden mt-4 overflow-hidden">
+                        <ul class="flex flex-col bg-[#f7f7f7] text-black rounded-md overflow-hidden text-center">
+                            <div class="w-full h-1 bg-gradient-to-r from-blue-300 via-blue-400 to-blue-700"></div>
+                            <a href="https://imfilms.es/" target="_blank" rel="noopener noreferrer">
+                                <li
+                                    class="flex flex-col items-center py-4 px-5 border-b border-gray-300 hover:bg-blue-50 transition">
+                                    <img src="/imgs/Menues/logo-films.svg" alt="imfilms" class="h-9 w-auto mx-auto">
+                                    <span class="mt-2 text-base font-light">Publicidad para cine</span>
+                                </li>
+                            </a>
+                            <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
+                                <li class="flex flex-col items-center py-4 px-5 hover:bg-blue-50 transition">
+                                    <img src="/imgs/Menues/logo-fashion.svg" alt="imfashion" class="h-9 w-auto mx-auto">
+                                    <span class="mt-2 text-base font-light">Brandformance para moda</span>
+                                </li>
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- IMMORALIA -->
+                <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer"
+                    class="block text-black font-black text-2xl sm:text-3xl uppercase tracking-wide text-center py-4 sm:py-6 border-b border-gray-200">IMMORALIA</a>
+
+                <!-- CASOS DE ÉXITO -->
+                <a href="casos-de-exito.html"
+                    class="block text-black font-black text-2xl sm:text-3xl uppercase tracking-wide text-center py-4 sm:py-6">CASOS
+                    DE ÉXITO</a>
+
+                <!-- CTA CONTACTO -->
+                <div class="pt-2">
+                    <a href="contacto.html"
+                        class="block w-full max-w-[280px] mx-auto h-14 px-8 bg-blue-500 text-white rounded hover:bg-blue-600 text-lg sm:text-xl font-light text-center leading-[3.5rem]">CONTACTO</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <style>
+        @keyframes pb2b-line-draw {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        .pb2b-cut-line {
+            height: 3px;
+            background: #2f80ed;
+            transform-origin: left;
+            animation: pb2b-line-draw 1s cubic-bezier(.65,0,.35,1) .2s both;
+        }
+
+        /* Hero: esfera de alambre 3D, arrastrable (red de prospectos) */
+        .pb2b-globe-wrap {
+            width: min(96vw, 620px);
+            height: min(96vw, 620px);
+            margin: 0 auto;
+            perspective: 1200px;
+            cursor: grab;
+            touch-action: none;
+        }
+        .pb2b-globe-wrap:active { cursor: grabbing; }
+        .pb2b-globe {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .pb2b-ring {
+            position: absolute;
+            inset: 10%;
+            border: 2.5px solid rgba(255,255,255,.5);
+            border-radius: 50%;
+            transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+        }
+        .pb2b-nucleus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 26px;
+            height: 26px;
+            margin: -13px 0 0 -13px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, #eaf4ff 0%, #7bb4ff 32%, #2f80ed 62%, #113c78 100%);
+            animation: pb2b-nucleus-pulse 2.4s ease-in-out infinite;
+        }
+        @keyframes pb2b-nucleus-pulse {
+            0%, 100% { box-shadow: 0 0 26px 9px rgba(47,128,237,.55), 0 0 55px 20px rgba(47,128,237,.28); }
+            50% { box-shadow: 0 0 38px 15px rgba(47,128,237,.8), 0 0 75px 28px rgba(47,128,237,.42); }
+        }
+        .pb2b-spoke {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            height: 0;
+            border-top: 2px dotted rgba(47,128,237,.85);
+            transform-origin: left center;
+            pointer-events: none;
+        }
+        .pb2b-node-3d {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 13px;
+            height: 13px;
+            margin: -6.5px 0 0 -6.5px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 32% 28%, #ffffff 0%, #dbe2ec 40%, #97a2b5 72%, #4a5163 100%);
+            transform: translate3d(var(--nx), var(--ny), var(--nz));
+            box-shadow: 0 0 10px 2px rgba(255,255,255,.5);
+        }
+        .pb2b-node-3d.accent {
+            background: radial-gradient(circle at 32% 28%, #d6ebff 0%, #6fb0ff 35%, #2f80ed 68%, #123a73 100%);
+            box-shadow: 0 0 12px 3px rgba(47,128,237,.8);
+        }
+
+        /* Para quién funciona: citas */
+        .pb2b-quote { border-left: 2px solid rgba(255,255,255,.15); padding-left: 1.5rem; transition: border-color .3s ease; }
+        .pb2b-quote:hover { border-left-color: #2f80ed; }
+        .pb2b-quote-mark { display: block; font-size: 3.5rem; line-height: 1; font-weight: 900; color: #2f80ed; margin-bottom: .5rem; }
+
+        /* Qué hacemos: lista editorial */
+        .pb2b-row { position: relative; overflow: hidden; }
+        .pb2b-row::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: #2f80ed;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .45s cubic-bezier(.65,0,.35,1);
+            z-index: 0;
+        }
+        .pb2b-row:hover::before { transform: scaleX(1); }
+        .pb2b-row > * { position: relative; z-index: 1; }
+        .pb2b-row-index { transition: color .3s ease; }
+        .pb2b-row:hover .pb2b-row-index { color: #000; }
+        .pb2b-row:hover h3, .pb2b-row:hover p { color: #000 !important; }
+
+        /* En qué se nota: bloque de tarjetas glass, todas visibles */
+        .pb2b-nota-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .pb2b-nota-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .pb2b-nota {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 220px;
+            border-radius: 1.5rem;
+            padding: 2.5rem 2.25rem;
+            background: rgba(255,255,255,.14);
+            border: 1px solid rgba(255,255,255,.35);
+            backdrop-filter: blur(22px) saturate(160%);
+            -webkit-backdrop-filter: blur(22px) saturate(160%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 8px 32px -12px rgba(0,0,0,.7);
+            transition: transform .4s cubic-bezier(.34,1.56,.64,1), background .4s ease, border-color .4s ease, box-shadow .4s ease;
+        }
+        @media (min-width: 768px) {
+            .pb2b-nota { height: 340px; }
+        }
+        .pb2b-nota:hover {
+            transform: scale(1.045);
+            background: rgba(47,128,237,.28);
+            border-color: rgba(47,128,237,.65);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 24px 60px -20px rgba(47,128,237,.65);
+        }
+        .pb2b-nota-bar { display: block; width: 2.5rem; height: 3px; background: #2f80ed; margin-bottom: 1.75rem; transition: background .4s ease; }
+
+        /* Cómo lo hacemos: línea y pasos que se dibujan al entrar en viewport */
+        #pb2b-timeline .pb2b-step-line {
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 1.2s cubic-bezier(.65,0,.35,1);
+        }
+        #pb2b-timeline.in-view .pb2b-step-line { transform: scaleY(1); }
+        #pb2b-timeline .pb2b-step-dot {
+            opacity: 0;
+            transform: scale(.4);
+            transition: opacity .5s ease, transform .5s cubic-bezier(.34,1.56,.64,1);
+            transition-delay: var(--sd, 0s);
+        }
+        #pb2b-timeline.in-view .pb2b-step-dot { opacity: 1; transform: scale(1); }
+        #pb2b-timeline .pb2b-step-body {
+            opacity: 0;
+            transform: translateX(-12px);
+            transition: opacity .5s ease, transform .5s ease;
+            transition-delay: var(--sd, 0s);
+        }
+        #pb2b-timeline.in-view .pb2b-step-body { opacity: 1; transform: translateX(0); }
+
+        /* FAQ */
+        .pb2b-faq-toggle { transition: transform .3s ease; }
+        details[open] .pb2b-faq-toggle { transform: rotate(45deg); }
+        .pb2b-faq summary::-webkit-details-marker { display: none; }
+        .pb2b-faq summary { list-style: none; }
+
+        /* CTA */
+        .pb2b-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: .75rem;
+            background: #2f80ed;
+            color: #fff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            padding: 1.1rem 2.2rem;
+            border-radius: 9999px;
+            transition: gap .25s ease, background .25s ease, color .25s ease;
+            font-size: .85rem;
+        }
+        .pb2b-cta:hover { gap: 1.25rem; background: #fff; color: #2f80ed; }
+    </style>
+
+    <!-- Scrollable Content -->
+    <div class="relative z-10">
+
+        <!-- Section 1: Hero -->
+        <section class="relative min-h-screen flex flex-col md:flex-row items-center justify-between gap-16 md:gap-10 bg-black text-white overflow-hidden px-6 md:px-[84px] lg:px-[120px] py-32">
+            <div class="max-w-2xl space-y-8">
+                <div class="pb2b-cut-line w-24"></div>
+                <h1 class="text-4xl md:text-6xl font-black leading-[0.95] tracking-tight">
+                    Prospección<br>B2B
+                </h1>
+                <p class="text-xl md:text-2xl font-light leading-snug max-w-xl">
+                    Vender en frío sin depender de la suerte ni de que alguien del equipo tenga un buen día.
+                </p>
+                <p class="text-base md:text-lg font-light text-gray-400 leading-relaxed max-w-lg">
+                    Construimos el sistema completo: a quién se le escribe, qué se le ofrece, cómo se hace el
+                    seguimiento y qué pasa cuando responde. Tu comercial dedica el tiempo a hablar con quien tiene
+                    sentido, no a buscarlo.
+                </p>
+                <div class="pt-2">
+                    <a href="contacto.html" class="pb2b-cta">
+                        Solicita tu auditoría
+                        <span>&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Red de prospectos: esfera de alambre 3D, arrastrable -->
+            <div class="w-full md:w-auto shrink-0">
+                <div class="pb2b-globe-wrap" id="pb2b-globe-wrap">
+                    <div class="pb2b-globe" id="pb2b-globe">
+                        <div class="pb2b-ring" style="--ry:0deg"></div>
+                        <div class="pb2b-ring" style="--ry:30deg"></div>
+                        <div class="pb2b-ring" style="--ry:60deg"></div>
+                        <div class="pb2b-ring" style="--ry:90deg"></div>
+                        <div class="pb2b-ring" style="--ry:120deg"></div>
+                        <div class="pb2b-ring" style="--ry:150deg"></div>
+                        <div class="pb2b-ring" style="--rx:90deg"></div>
+
+                        <div class="pb2b-nucleus"></div>
+                        <div class="pb2b-node-3d" id="pb2b-n1" style="--nx:242px; --ny:0px; --nz:0px"></div>
+                        <div class="pb2b-node-3d accent" id="pb2b-n2" style="--nx:-116px; --ny:175px; --nz:-135px"></div>
+                        <div class="pb2b-node-3d" id="pb2b-n3" style="--nx:116px; --ny:-175px; --nz:135px"></div>
+                        <div class="pb2b-node-3d" id="pb2b-n4" style="--nx:-175px; --ny:-135px; --nz:116px"></div>
+                        <div class="pb2b-node-3d" id="pb2b-n5" style="--nx:175px; --ny:78px; --nz:-175px"></div>
+                        <div class="pb2b-node-3d" id="pb2b-n6" style="--nx:0px; --ny:213px; --nz:116px"></div>
+                        <div class="pb2b-node-3d" id="pb2b-n7" style="--nx:-213px; --ny:38px; --nz:-116px"></div>
+                    </div>
+                </div>
+                <p class="text-center text-xs uppercase tracking-widest text-white/30 font-bold mt-6">
+                    Arrastra para girar
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 2: Para quién es -->
+        <section class="bg-black px-6 py-24 md:py-32 relative z-10 text-white">
+            <div class="w-full xl:px-24 mx-auto max-w-4xl">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-8 tracking-tight">
+                    Para quién funciona
+                </h2>
+                <p class="text-gray-300 text-lg md:text-xl font-light max-w-3xl leading-relaxed mb-16">
+                    Para empresas B2B de servicio, industria, software o formación con un ticket que justifique una
+                    conversación comercial y un ciclo de venta donde una reunión bien cualificada vale dinero. Si tu
+                    venta se cierra en un clic y sin hablar con nadie, este canal no es el tuyo y te lo diremos.
+                </p>
+
+                <p class="text-sm uppercase tracking-widest text-white/40 font-bold mb-8">
+                    Cómo lo dice el cliente que nos llama
+                </p>
+                <div class="grid md:grid-cols-3 gap-10 md:gap-8">
+                    <div class="pb2b-quote">
+                        <span class="pb2b-quote-mark">&ldquo;</span>
+                        <p class="text-white font-light text-lg leading-snug">Los leads que llegan no son mi cliente.</p>
+                    </div>
+                    <div class="pb2b-quote">
+                        <span class="pb2b-quote-mark">&ldquo;</span>
+                        <p class="text-white font-light text-lg leading-snug">Mi comercial no tiene con quién hablar.</p>
+                    </div>
+                    <div class="pb2b-quote">
+                        <span class="pb2b-quote-mark">&ldquo;</span>
+                        <p class="text-white font-light text-lg leading-snug">El ciclo es largo y no sé qué está funcionando.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Qué hacemos (lista editorial) -->
+        <section class="bg-black px-6 py-24 md:py-32 relative z-10 text-white">
+            <div class="w-full xl:px-24 mx-auto max-w-5xl">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-16 tracking-tight">
+                    Qué hacemos
+                </h2>
+
+                <div class="divide-y divide-white/10 border-y border-white/10">
+                    <div class="pb2b-row grid md:grid-cols-[80px_1fr] gap-2 md:gap-8 px-2 md:px-4 py-8">
+                        <span class="pb2b-row-index text-2xl font-light text-white/30">01</span>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2">Definición del cliente objetivo</h3>
+                            <p class="text-gray-400 font-light leading-relaxed max-w-2xl">Sector, tamaño, cargo, señales de que es el momento. Sin esto, todo lo demás es ruido bien redactado.</p>
+                        </div>
+                    </div>
+                    <div class="pb2b-row grid md:grid-cols-[80px_1fr] gap-2 md:gap-8 px-2 md:px-4 py-8">
+                        <span class="pb2b-row-index text-2xl font-light text-white/30">02</span>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2">Construcción de la lista</h3>
+                            <p class="text-gray-400 font-light leading-relaxed max-w-2xl">Listas verificadas y depuradas, no compradas a granel. Un listado sucio quema los dominios y no se recupera.</p>
+                        </div>
+                    </div>
+                    <div class="pb2b-row grid md:grid-cols-[80px_1fr] gap-2 md:gap-8 px-2 md:px-4 py-8">
+                        <span class="pb2b-row-index text-2xl font-light text-white/30">03</span>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2">Infraestructura de envío</h3>
+                            <p class="text-gray-400 font-light leading-relaxed max-w-2xl">Dominios, autenticación y calentamiento. La parte que nadie ve y que decide si tu correo llega a la bandeja o a spam.</p>
+                        </div>
+                    </div>
+                    <div class="pb2b-row grid md:grid-cols-[80px_1fr] gap-2 md:gap-8 px-2 md:px-4 py-8">
+                        <span class="pb2b-row-index text-2xl font-light text-white/30">04</span>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2">Oferta y mensaje</h3>
+                            <p class="text-gray-400 font-light leading-relaxed max-w-2xl">Qué se le ofrece a cambio de su atención. La oferta pesa más que la personalización, y eso cambia cómo se escribe todo.</p>
+                        </div>
+                    </div>
+                    <div class="pb2b-row grid md:grid-cols-[80px_1fr] gap-2 md:gap-8 px-2 md:px-4 py-8">
+                        <span class="pb2b-row-index text-2xl font-light text-white/30">05</span>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2">Secuencias y seguimiento</h3>
+                            <p class="text-gray-400 font-light leading-relaxed max-w-2xl">Varios contactos con criterio y sin insistencia. Se cierra el hilo, no se persigue.</p>
+                        </div>
+                    </div>
+                    <div class="pb2b-row grid md:grid-cols-[80px_1fr] gap-2 md:gap-8 px-2 md:px-4 py-8">
+                        <span class="pb2b-row-index text-2xl font-light text-white/30">06</span>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2">Gestión de respuestas</h3>
+                            <p class="text-gray-400 font-light leading-relaxed max-w-2xl">Cualificación de quien contesta y traspaso a tu equipo comercial con contexto.</p>
+                        </div>
+                    </div>
+                    <div class="pb2b-row grid md:grid-cols-[80px_1fr] gap-2 md:gap-8 px-2 md:px-4 py-8">
+                        <span class="pb2b-row-index text-2xl font-light text-white/30">07</span>
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold text-white mb-2">Medición</h3>
+                            <p class="text-gray-400 font-light leading-relaxed max-w-2xl">Respuestas, cualificadas y reuniones. Nada de tasas de apertura como métrica de éxito.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: En qué se nota (tarjetas glass, todas visibles) -->
+        <section class="bg-black px-6 py-24 md:py-32 relative z-10 text-white overflow-hidden">
+            <div class="w-full xl:px-24 mx-auto max-w-5xl relative">
+                <h2 class="text-4xl md:text-5xl font-black text-white tracking-tight mb-12 md:mb-16">
+                    En qué se nota
+                </h2>
+
+                <div class="pb2b-nota-grid">
+                    <div class="pb2b-nota">
+                        <span class="pb2b-nota-bar"></span>
+                        <h3 class="text-2xl md:text-3xl font-black leading-tight mb-4">
+                            Lo que ofrecemos vale <span class="text-[#2f80ed]">aunque no te contraten.</span>
+                        </h3>
+                        <p class="text-gray-400 font-light text-base leading-relaxed">
+                            Cada campaña entrega algo real —una auditoría, un análisis, una pieza— que el
+                            destinatario puede quedarse sin responder. Es lo que separa un correo frío que
+                            construye reputación de uno que la quema.
+                        </p>
+                    </div>
+                    <div class="pb2b-nota">
+                        <span class="pb2b-nota-bar"></span>
+                        <h3 class="text-2xl md:text-3xl font-black leading-tight mb-4">
+                            <span class="text-[#2f80ed]">La oferta</span> antes que la personalización.
+                        </h3>
+                        <p class="text-gray-400 font-light text-base leading-relaxed">
+                            Una línea personalizada mal construida hace más daño que la ausencia de
+                            personalización. Primero se acierta con lo que se ofrece.
+                        </p>
+                    </div>
+                    <div class="pb2b-nota">
+                        <span class="pb2b-nota-bar"></span>
+                        <h3 class="text-2xl md:text-3xl font-black leading-tight mb-4">
+                            Sin <span class="text-[#2f80ed]">heroicidades.</span>
+                        </h3>
+                        <p class="text-gray-400 font-light text-base leading-relaxed">
+                            El objetivo es un sistema que repita resultados sin depender de que una persona
+                            concreta esté inspirada esa semana.
+                        </p>
+                    </div>
+                    <div class="pb2b-nota">
+                        <span class="pb2b-nota-bar"></span>
+                        <h3 class="text-2xl md:text-3xl font-black leading-tight mb-4">
+                            Te decimos <span class="text-[#2f80ed]">cuándo parar.</span>
+                        </h3>
+                        <p class="text-gray-400 font-light text-base leading-relaxed">
+                            Si el mercado no responde, la conclusión es que hay que cambiar la oferta, no mandar
+                            más correos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Cómo lo hacemos (timeline vertical, fondo blanco) -->
+        <section class="bg-white px-6 py-24 md:py-32 relative z-10 text-black">
+            <div class="w-full xl:px-24 mx-auto max-w-4xl">
+                <h2 class="text-4xl md:text-5xl font-black text-black mb-20 tracking-tight">
+                    Cómo lo hacemos
+                </h2>
+
+                <div class="relative" id="pb2b-timeline">
+                    <div class="pb2b-step-line absolute left-[22px] md:left-[27px] top-3 bottom-3 w-px bg-black/15"></div>
+                    <div class="space-y-14">
+                        <div class="flex gap-6 md:gap-8">
+                            <div class="pb2b-step-dot relative z-10 shrink-0 w-11 h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white flex items-center justify-center font-bold text-black" style="--sd:.05s">01</div>
+                            <div class="pb2b-step-body pt-1 md:pt-2" style="--sd:.05s">
+                                <h3 class="reveal-lines text-xl md:text-2xl font-bold text-black mb-2">Definición y lista</h3>
+                                <p class="reveal-lines text-gray-600 font-light leading-relaxed max-w-lg">Cliente objetivo, señales de prioridad y construcción de la base.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 md:gap-8">
+                            <div class="pb2b-step-dot relative z-10 shrink-0 w-11 h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white flex items-center justify-center font-bold text-black" style="--sd:.2s">02</div>
+                            <div class="pb2b-step-body pt-1 md:pt-2" style="--sd:.2s">
+                                <h3 class="reveal-lines text-xl md:text-2xl font-bold text-black mb-2">Infraestructura</h3>
+                                <p class="reveal-lines text-gray-600 font-light leading-relaxed max-w-lg">Dominios, cuentas y calentamiento antes de enviar nada.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 md:gap-8">
+                            <div class="pb2b-step-dot relative z-10 shrink-0 w-11 h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white flex items-center justify-center font-bold text-black" style="--sd:.35s">03</div>
+                            <div class="pb2b-step-body pt-1 md:pt-2" style="--sd:.35s">
+                                <h3 class="reveal-lines text-xl md:text-2xl font-bold text-black mb-2">Oferta y secuencias</h3>
+                                <p class="reveal-lines text-gray-600 font-light leading-relaxed max-w-lg">Qué se ofrece, con qué mensaje y en qué cadencia.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 md:gap-8">
+                            <div class="pb2b-step-dot relative z-10 shrink-0 w-11 h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white flex items-center justify-center font-bold text-black" style="--sd:.5s">04</div>
+                            <div class="pb2b-step-body pt-1 md:pt-2" style="--sd:.5s">
+                                <h3 class="reveal-lines text-xl md:text-2xl font-bold text-black mb-2">Ejecución y cualificación</h3>
+                                <p class="reveal-lines text-gray-600 font-light leading-relaxed max-w-lg">Envío, gestión de respuestas y traspaso a comercial.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6 md:gap-8">
+                            <div class="pb2b-step-dot relative z-10 shrink-0 w-11 h-11 md:w-14 md:h-14 rounded-full border border-black/30 bg-white flex items-center justify-center font-bold text-black" style="--sd:.65s">05</div>
+                            <div class="pb2b-step-body pt-1 md:pt-2" style="--sd:.65s">
+                                <h3 class="reveal-lines text-xl md:text-2xl font-bold text-black mb-2">Iteración</h3>
+                                <p class="reveal-lines text-gray-600 font-light leading-relaxed max-w-lg">Cada oleada corrige la anterior con lo que se ha aprendido.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Preguntas frecuentes (details/summary nativo) -->
+        <section class="bg-black px-6 py-24 md:py-32 relative z-10 text-white">
+            <div class="w-full xl:px-24 mx-auto max-w-3xl">
+                <h2 class="text-4xl md:text-5xl font-black text-white mb-16 tracking-tight">
+                    Preguntas frecuentes
+                </h2>
+
+                <div class="pb2b-faq divide-y divide-white/15 border-t border-white/15">
+                    <details class="group py-7">
+                        <summary class="flex items-center justify-between gap-6 cursor-pointer">
+                            <span class="text-lg md:text-xl font-medium text-white">¿Esto es legal?</span>
+                            <span class="pb2b-faq-toggle shrink-0 w-8 h-8 rounded-full border border-white/30 flex items-center justify-center text-lg">+</span>
+                        </summary>
+                        <p class="mt-4 text-gray-400 font-light leading-relaxed">
+                            La prospección B2B entre empresas es legal en España cumpliendo los requisitos de
+                            información, interés legítimo y derecho de oposición. Trabajamos con esos requisitos
+                            incorporados al proceso, no como un añadido posterior.
+                        </p>
+                    </details>
+                    <details class="group py-7">
+                        <summary class="flex items-center justify-between gap-6 cursor-pointer">
+                            <span class="text-lg md:text-xl font-medium text-white">¿Enviáis desde nuestro dominio?</span>
+                            <span class="pb2b-faq-toggle shrink-0 w-8 h-8 rounded-full border border-white/30 flex items-center justify-center text-lg">+</span>
+                        </summary>
+                        <p class="mt-4 text-gray-400 font-light leading-relaxed">
+                            No. Se usan dominios específicos de envío para no comprometer la entregabilidad del
+                            correo corporativo con el que tu empresa trabaja todos los días.
+                        </p>
+                    </details>
+                    <details class="group py-7">
+                        <summary class="flex items-center justify-between gap-6 cursor-pointer">
+                            <span class="text-lg md:text-xl font-medium text-white">¿Cuánto tarda en dar reuniones?</span>
+                            <span class="pb2b-faq-toggle shrink-0 w-8 h-8 rounded-full border border-white/30 flex items-center justify-center text-lg">+</span>
+                        </summary>
+                        <p class="mt-4 text-gray-400 font-light leading-relaxed">
+                            Las primeras respuestas llegan en días, pero la primera oleada sirve sobre todo para
+                            aprender qué segmento responde y qué oferta funciona. La lectura seria del canal se
+                            hace después de varias oleadas.
+                        </p>
+                    </details>
+                    <details class="group py-7">
+                        <summary class="flex items-center justify-between gap-6 cursor-pointer">
+                            <span class="text-lg md:text-xl font-medium text-white">¿Quién atiende a quien responde?</span>
+                            <span class="pb2b-faq-toggle shrink-0 w-8 h-8 rounded-full border border-white/30 flex items-center justify-center text-lg">+</span>
+                        </summary>
+                        <p class="mt-4 text-gray-400 font-light leading-relaxed">
+                            Nosotros cualificamos y tu equipo comercial cierra. También podemos acompañar la
+                            primera conversación si el producto necesita explicación técnica.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Cierre -->
+        <section class="bg-black py-32 px-6 md:px-12 relative z-10 text-white text-center">
+            <div class="max-w-3xl mx-auto space-y-10">
+                <h2 class="text-3xl md:text-5xl font-black leading-tight tracking-tight">
+                    ¿Le damos a tu comercial<br><span class="text-[#2f80ed]">con quién hablar?</span>
+                </h2>
+                <a href="contacto.html" class="pb2b-cta">
+                    Solicita tu auditoría
+                    <span>&rarr;</span>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        (function () {
+            // Hero: esfera de alambre 3D, arrastrable con inercia
+            const globeWrap = document.getElementById('pb2b-globe-wrap');
+            const globe = document.getElementById('pb2b-globe');
+            if (globeWrap && globe) {
+                // Conecta el núcleo central con cada punto de la esfera (matriz de rotación exacta,
+                // sin ambigüedad de signos: mapea el eje local +X del spoke al vector real del nodo)
+                function spokeTransform(x, y, z) {
+                    const len = Math.sqrt(x * x + y * y + z * z) || 1;
+                    const ux = x / len, uy = y / len, uz = z / len;
+                    let ax = 0, ay = -uz, az = uy;
+                    const axisLen = Math.sqrt(ax * ax + ay * ay + az * az);
+                    const angle = Math.acos(Math.max(-1, Math.min(1, ux)));
+                    let m;
+                    if (axisLen < 1e-6) {
+                        m = ux > 0 ? [1, 0, 0, 0, 1, 0, 0, 0, 1] : [-1, 0, 0, 0, 1, 0, 0, 0, -1];
+                    } else {
+                        ax /= axisLen; ay /= axisLen; az /= axisLen;
+                        const c = Math.cos(angle), s = Math.sin(angle), t = 1 - c;
+                        m = [
+                            t * ax * ax + c, t * ax * ay - s * az, t * ax * az + s * ay,
+                            t * ax * ay + s * az, t * ay * ay + c, t * ay * az - s * ax,
+                            t * ax * az - s * ay, t * ay * az + s * ax, t * az * az + c
+                        ];
+                    }
+                    return `matrix3d(${m[0]},${m[3]},${m[6]},0, ${m[1]},${m[4]},${m[7]},0, ${m[2]},${m[5]},${m[8]},0, 0,0,0,1)`;
+                }
+                const billboards = []; // nodos + núcleo: deben "inflarse" siempre hacia cámara, nunca de canto
+                globe.querySelectorAll('.pb2b-node-3d').forEach((node) => {
+                    const nx = parseFloat(node.style.getPropertyValue('--nx')) || 0;
+                    const ny = parseFloat(node.style.getPropertyValue('--ny')) || 0;
+                    const nz = parseFloat(node.style.getPropertyValue('--nz')) || 0;
+                    const length = Math.sqrt(nx * nx + ny * ny + nz * nz);
+                    const spoke = document.createElement('div');
+                    spoke.className = 'pb2b-spoke';
+                    spoke.style.width = length + 'px';
+                    spoke.style.transform = spokeTransform(nx, ny, nz);
+                    globe.insertBefore(spoke, node);
+                    billboards.push({ el: node, nx, ny, nz });
+                });
+                const nucleus = globe.querySelector('.pb2b-nucleus');
+                if (nucleus) billboards.push({ el: nucleus, nx: 0, ny: 0, nz: 0 });
+
+                const BASE_VEL_Y = 0.06;
+                let rotX = -14;
+                let rotY = 0;
+                let velX = 0;
+                let velY = BASE_VEL_Y;
+                let dragging = false;
+                let lastX = 0;
+                let lastY = 0;
+
+                function apply() {
+                    globe.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+                    // Contra-rotación: cancela el giro del padre para que cada punto y el núcleo
+                    // permanezcan siempre redondos e "inflados" de cara a la cámara.
+                    billboards.forEach((b) => {
+                        b.el.style.transform =
+                            `translate3d(${b.nx}px, ${b.ny}px, ${b.nz}px) rotateY(${-rotY}deg) rotateX(${-rotX}deg)`;
+                    });
+                }
+                function tick() {
+                    if (!dragging) {
+                        rotX += velX;
+                        rotY += velY;
+                        velX *= 0.95;
+                        velY *= 0.97;
+                        if (Math.abs(velY) < BASE_VEL_Y) velY = BASE_VEL_Y;
+                        rotX = Math.max(-55, Math.min(55, rotX));
+                        apply();
+                    }
+                    requestAnimationFrame(tick);
+                }
+
+                globeWrap.addEventListener('pointerdown', (e) => {
+                    dragging = true;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    globeWrap.setPointerCapture(e.pointerId);
+                });
+                globeWrap.addEventListener('pointermove', (e) => {
+                    if (!dragging) return;
+                    const dx = e.clientX - lastX;
+                    const dy = e.clientY - lastY;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    rotY += dx * 0.4;
+                    rotX = Math.max(-55, Math.min(55, rotX - dy * 0.4));
+                    velY = dx * 0.4;
+                    velX = -dy * 0.4;
+                    apply();
+                });
+                const endDrag = () => { dragging = false; };
+                globeWrap.addEventListener('pointerup', endDrag);
+                globeWrap.addEventListener('pointercancel', endDrag);
+
+                apply();
+                tick();
+            }
+
+            // Cómo lo hacemos: la línea y los pasos se dibujan al entrar en pantalla
+            const timeline = document.getElementById('pb2b-timeline');
+            if (timeline && 'IntersectionObserver' in window) {
+                const io = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            timeline.classList.add('in-view');
+                            io.disconnect();
+                        }
+                    });
+                }, { threshold: 0.25 });
+                io.observe(timeline);
+            } else if (timeline) {
+                timeline.classList.add('in-view');
+            }
+        })();
+    </script>
+    <!-- Footer -->
+    <footer id="site-footer"></footer>
+</body>
+
+</html>

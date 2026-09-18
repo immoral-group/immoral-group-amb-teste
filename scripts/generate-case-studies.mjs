@@ -191,7 +191,7 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
                   <span class="submenu-content">Posicionamiento en buscadores y en IA</span>
                 </li>
               </a>
-              <a href="https://imsales.es/" target="_blank" rel="noopener noreferrer">
+              <a href="prospeccion-b2b.html">
                 <li
                   class="py-3 px-5 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
                   <span class="submenu-content">Prospección B2B</span>
@@ -339,7 +339,7 @@ const NAV_AND_MOBILE_MENU = `<body class="bg-white overflow-visible">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
                   Posicionamiento en buscadores y en IA</li>
               </a>
-              <a href="https://imsales.es/" target="_blank" rel="noopener noreferrer">
+              <a href="prospeccion-b2b.html">
                 <li class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
                   Prospección B2B</li>
               </a>
