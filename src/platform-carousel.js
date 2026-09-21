@@ -39,6 +39,12 @@ const PLATFORMS = [
         desc: 'Impactamos a tu audiencia en momentos de atención real, cuando escucha, conecta y está receptiva al mensaje.',
         wig: [2.2, 4.2]
     },
+    {
+        icon: '/imgs/publi-ico-8.png', alt: 'ChatGPT', iconClass: 'h-20', color: '#10A37F',
+        label: 'ChatGPT',
+        desc: 'Un canal nuevo donde la mayoría de tu competencia todavía no está. Cuando alguien busca preguntando en lugar de buscando, el espacio publicitario es otro.',
+        wig: [2.8, 4]
+    },
 ];
 
 function computeVisible() {
@@ -65,6 +71,7 @@ export function initPlatformCarousel() {
                     <div class="platform-content absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center text-center px-7 w-full">
                         <img src="${data.icon}" alt="${data.alt}"
                             class="platform-icon w-auto ${data.iconClass} ${data.invert ? 'group-hover:invert' : ''} group-hover:scale-110 transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)]">
+                        ${data.label ? `<span class="mt-3 text-sm font-medium ${data.invert ? 'text-black' : 'text-white'}">${data.label}</span>` : ''}
                         <div class="platform-desc-wrap max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 group-hover:mt-4 transition-all duration-500 overflow-hidden" style="transition-timing-function: cubic-bezier(.22,1,.36,1);">
                             <p class="platform-desc text-sm font-light leading-snug ${data.invert ? 'text-black' : 'text-white'}">${data.desc}</p>
                         </div>
