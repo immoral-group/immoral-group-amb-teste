@@ -15,6 +15,9 @@ import { initNuestraHistoriaHero } from './nuestra-historia-hero.js';
 import { initComoLoHacemosScroll } from './como-lo-hacemos-scroll.js';
 import { initPlatformCarousel } from './platform-carousel.js';
 import { initIncluyeCarousel } from './incluye-carousel.js';
+import { initGeoBenefitsCarousel } from './geo-benefits-carousel.js';
+import { initGeoMentionScene } from './geo-mention-scene.js';
+import { initGeoSignalField } from './geo-signal-field.js';
 import { initDisenoScrollVideos } from './diseno-scroll-videos.js';
 import { initInfluencerCardConveyor } from './influencer-card-conveyor.js';
 import { initUgcCardFlow } from './ugc-card-flow.js';
@@ -2099,6 +2102,9 @@ function initAll() {
     try { initPublicidadMediosFunnel(); } catch (e) { console.error("Error in initPublicidadMediosFunnel:", e); }
     try { initPlatformCarousel(); } catch (e) { console.error("Error in initPlatformCarousel:", e); }
     try { initIncluyeCarousel(); } catch (e) { console.error("Error in initIncluyeCarousel:", e); }
+    try { initGeoBenefitsCarousel(); } catch (e) { console.error("Error in initGeoBenefitsCarousel:", e); }
+    try { initGeoMentionScene(); } catch (e) { console.error("Error in initGeoMentionScene:", e); }
+    try { initGeoSignalField(); } catch (e) { console.error("Error in initGeoSignalField:", e); }
     try { initHomeBlackhole(); } catch (e) { console.error("Error in initHomeBlackhole:", e); }
     try { initDisenoMarcaHero(); } catch (e) { console.error("Error in initDisenoMarcaHero:", e); }
     try { initAutomatizacionHero(); } catch (e) { console.error("Error in initAutomatizacionHero:", e); }
