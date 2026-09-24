@@ -6,8 +6,8 @@ import { renderLoginView } from './loginView.js';
 
 const app = document.getElementById('casos-admin-app');
 
-const SECTORES = ['Moda & Lifestyle', 'Alimentación & Bebidas', 'Salud & Bienestar', 'Servicios B2B & SaaS'];
-const RESULTADOS = ['Ventas', 'Leads', 'Awareness'];
+const SECTORES = ['Moda y lifestyle', 'Alimentación y bebidas', 'Salud y bienestar', 'Servicios B2B y software'];
+const RESULTADOS = ['Ventas', 'Leads', 'Notoriedad'];
 const BUCKET = 'case-study-media';
 
 function escapeHtml(str) {
