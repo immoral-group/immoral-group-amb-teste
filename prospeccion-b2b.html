@@ -13,7 +13,6 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Immoral Group",
-  "alternateName": "Immoral Growth Group",
   "url": "https://immoral.es/",
   "logo": "https://immoral.es/imgs/Menues/logo-menu-oscuro.png",
   "sameAs": [
@@ -24,7 +23,51 @@
   ]
 }
 </script>
-    <link rel="icon" type="image/png" href="imgs/favicon.png">
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Prospección B2B",
+  "description": "Outbound gestionado de principio a fin: definición del cliente objetivo, construcción de lista, mensaje y cualificación de respuestas.",
+  "url": "https://immoral.es/prospeccion-b2b",
+  "provider": {
+    "@type": "Organization",
+    "name": "Immoral",
+    "url": "https://immoral.es/"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "España"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://immoral.es/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Servicios",
+      "item": "https://immoral.es/#servicios"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Prospección B2B",
+      "item": "https://immoral.es/prospeccion-b2b"
+    }
+  ]
+}
+    </script>
+<link rel="icon" type="image/png" href="imgs/favicon.png">
     <!-- Matter.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
@@ -40,7 +83,7 @@
             <div class="list-none flex flex-row items-center gap-12 text-white">
 
                 <div class="w-auto items-center flex flex-col relative" id="dropdownButton">
-                    <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes Somos
+                    <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes somos
                         <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-0 top-full z-40 w-40 hidden font-medium text-sm transition-all ease-out duration-300"
@@ -56,7 +99,7 @@
                             <a href="manifesto.html">
                                 <li
                                     class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                                    <span class="submenu-content">Manifesto</span>
+                                    <span class="submenu-content">Manifiesto</span>
                                 </li>
                             </a>
                             <a href="equipo.html">
@@ -86,19 +129,13 @@
                             <a href="diseno-de-marca.html">
                                 <li
                                     class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                                    <span class="submenu-content">Contenido y marca</span>
+                                    <span class="submenu-content">Diseño de marca y contenidos</span>
                                 </li>
                             </a>
                             <a href="gestion-de-redes.html">
                                 <li
                                     class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                                    <span class="submenu-content">Gestión de Redes Sociales</span>
-                                </li>
-                            </a>
-                            <a href="automatizacion-de-procesos.html">
-                                <li
-                                    class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                                    <span class="submenu-content">Automatización de Procesos & IA</span>
+                                    <span class="submenu-content">Gestión de redes sociales</span>
                                 </li>
                             </a>
                             <a href="email-marketing.html">
@@ -110,13 +147,13 @@
                             <a href="influencer-marketing.html">
                                 <li
                                     class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                                    <span class="submenu-content">Influencer Marketing</span>
+                                    <span class="submenu-content">Influencer marketing</span>
                                 </li>
                             </a>
                             <a href="posicionamiento-geo.html">
                                 <li
                                     class="py-3 px-5 border-b border-gray-300 w-full text-center hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
-                                    <span class="submenu-content">Posicionamiento y GEO</span>
+                                    <span class="submenu-content">Posicionamiento en buscadores y en IA</span>
                                 </li>
                             </a>
                             <a href="prospeccion-b2b.html">
@@ -141,14 +178,14 @@
                                     <li
                                         class="flex flex-col items-start gap-2 py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
                                         <img src="/imgs/Menues/logo-films.svg" alt="imfilms" class="h-7 w-auto">
-                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Publicidad para cine</span>
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Marketing de estreno para cine</span>
                                     </li>
                                 </a>
                                 <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
                                     <li
                                         class="flex flex-col items-start gap-2 py-4 px-5 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
                                         <img src="/imgs/Menues/logo-fashion.svg" alt="imfashion" class="h-7 w-auto">
-                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Brandformance para moda</span>
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Crecimiento para marcas de moda</span>
                                     </li>
                                 </a>
                             </ul>
@@ -220,7 +257,7 @@
                             <a href="manifesto.html">
                                 <li
                                     class="py-4 px-5 border-b border-gray-300 w-full hover:bg-blue-50 hover:text-blue-600 transition">
-                                    Manifesto</li>
+                                    Manifiesto</li>
                             </a>
                             <a href="equipo.html">
                                 <li
@@ -253,17 +290,12 @@
                             <a href="diseno-de-marca.html">
                                 <li
                                     class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                                    Contenido y marca</li>
+                                    Diseño de marca y contenidos</li>
                             </a>
                             <a href="gestion-de-redes.html">
                                 <li
                                     class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
                                     Gestión de redes sociales</li>
-                            </a>
-                            <a href="automatizacion-de-procesos.html">
-                                <li
-                                    class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                                    Automatización de procesos + IA</li>
                             </a>
                             <a href="email-marketing.html">
                                 <li
@@ -273,12 +305,12 @@
                             <a href="influencer-marketing.html">
                                 <li
                                     class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                                    Influencer Marketing</li>
+                                    Influencer marketing</li>
                             </a>
                             <a href="posicionamiento-geo.html">
                                 <li
                                     class="py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition">
-                                    Posicionamiento y GEO</li>
+                                    Posicionamiento en buscadores y en IA</li>
                             </a>
                             <a href="prospeccion-b2b.html">
                                 <li
@@ -308,13 +340,13 @@
                                 <li
                                     class="flex flex-col items-center py-4 px-5 border-b border-gray-300 hover:bg-blue-50 transition">
                                     <img src="/imgs/Menues/logo-films.svg" alt="imfilms" class="h-9 w-auto mx-auto">
-                                    <span class="mt-2 text-base font-light">Publicidad para cine</span>
+                                    <span class="mt-2 text-base font-light">Marketing de estreno para cine</span>
                                 </li>
                             </a>
                             <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
                                 <li class="flex flex-col items-center py-4 px-5 hover:bg-blue-50 transition">
                                     <img src="/imgs/Menues/logo-fashion.svg" alt="imfashion" class="h-9 w-auto mx-auto">
-                                    <span class="mt-2 text-base font-light">Brandformance para moda</span>
+                                    <span class="mt-2 text-base font-light">Crecimiento para marcas de moda</span>
                                 </li>
                             </a>
                         </ul>
@@ -773,6 +805,48 @@
             </div>
         </section>
 
+        <!-- FAQPage structured data -->
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Esto es legal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "La prospección B2B entre empresas es legal en España cumpliendo los requisitos de información, interés legítimo y derecho de oposición. Trabajamos con esos requisitos incorporados al proceso, no como un añadido posterior."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Enviáis desde nuestro dominio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Se usan dominios específicos de envío para no comprometer la entregabilidad del correo corporativo con el que tu empresa trabaja todos los días."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuánto tarda en dar reuniones?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Las primeras respuestas llegan en días, pero la primera oleada sirve sobre todo para aprender qué segmento responde y qué oferta funciona. La lectura seria del canal se hace después de varias oleadas."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Quién atiende a quien responde?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nosotros cualificamos y tu equipo comercial cierra. También podemos acompañar la primera conversación si el producto necesita explicación técnica."
+      }
+    }
+  ]
+}
+        </script>
+
         <!-- Section 6: Preguntas frecuentes (details/summary nativo) -->
         <section class="bg-black px-6 py-24 md:py-32 relative z-10 text-white">
             <div class="w-full xl:px-24 mx-auto max-w-3xl">
@@ -837,6 +911,14 @@
                     Solicita tu auditoría
                     <span>&rarr;</span>
                 </a>
+                <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-white/50">
+                    <span>También te puede interesar:</span>
+                    <a href="email-marketing.html" class="text-[#4889eb] hover:underline">Embudos, CRM y email</a>
+                    <span class="text-white/30">·</span>
+                    <a href="publicidad-en-medios.html" class="text-[#4889eb] hover:underline">Publicidad en medios</a>
+                    <span class="text-white/30">·</span>
+                    <a href="casos-de-exito.html" class="text-[#4889eb] hover:underline">Casos de éxito</a>
+                </div>
             </div>
         </section>
     </div>

@@ -88,7 +88,6 @@ const ORG_JSON_LD = `  <script type="application/ld+json">
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Immoral Group",
-  "alternateName": "Immoral Growth Group",
   "url": "https://immoral.es/",
   "logo": "https://immoral.es/imgs/Menues/logo-menu-oscuro.png",
   "sameAs": [
@@ -556,6 +555,25 @@ ${ORG_JSON_LD}
     "url": "https://immoral.es/"
   }
 }
+  </script>
+  <script type="application/ld+json">
+${JSON.stringify(
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `${cs.brand_name} — Caso de éxito`,
+    description: cs.description,
+    url: `https://immoral.es/caso-${cs.slug}`,
+    image: cs.logo_url,
+    // Solo se incluyen si Supabase trae la fecha real — nunca se inventa una.
+    ...(cs.created_at ? { datePublished: cs.created_at } : {}),
+    ...(cs.updated_at ? { dateModified: cs.updated_at } : {}),
+    author: { '@type': 'Organization', name: 'Immoral', url: 'https://immoral.es/' },
+    publisher: { '@type': 'Organization', name: 'Immoral', url: 'https://immoral.es/' },
+  },
+  null,
+  2
+)}
   </script>
 ${HEAD_BOTTOM}
 

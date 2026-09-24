@@ -96,7 +96,7 @@ function initContactForm() {
             const result = await response.json();
 
             if (response.ok) {
-                statusDiv.innerText = 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.';
+                statusDiv.innerText = 'Recibido. Te escribimos en menos de 24 horas laborables con nombre y apellidos, no desde un buzón automático.';
                 statusDiv.classList.add('text-green-500');
                 statusDiv.classList.remove('hidden');
                 form.reset();
@@ -105,7 +105,7 @@ function initContactForm() {
             }
         } catch (error) {
             console.error('Error:', error);
-            statusDiv.innerText = 'Hubo un error al enviar el mensaje. Por favor intenta de nuevo.';
+            statusDiv.innerText = 'No se ha enviado. Revisa el correo electrónico o escríbenos directamente a hola@immoral.es.';
             statusDiv.classList.add('text-red-500');
             statusDiv.classList.remove('hidden');
         } finally {

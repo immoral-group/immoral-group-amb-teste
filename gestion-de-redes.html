@@ -13,7 +13,6 @@
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Immoral Group",
-  "alternateName": "Immoral Growth Group",
   "url": "https://immoral.es/",
   "logo": "https://immoral.es/imgs/Menues/logo-menu-oscuro.png",
   "sameAs": [
@@ -24,7 +23,51 @@
   ]
 }
 </script>
-    <link rel="icon" type="image/svg+xml" href="imgs/favicon.svg">
+        <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Gestión de redes sociales",
+  "description": "Estrategia de contenido, publicación, community management y social listening para marcas.",
+  "url": "https://immoral.es/gestion-de-redes",
+  "provider": {
+    "@type": "Organization",
+    "name": "Immoral",
+    "url": "https://immoral.es/"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "España"
+  }
+}
+    </script>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://immoral.es/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Servicios",
+      "item": "https://immoral.es/#servicios"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Gestión de redes sociales",
+      "item": "https://immoral.es/gestion-de-redes"
+    }
+  ]
+}
+    </script>
+<link rel="icon" type="image/svg+xml" href="imgs/favicon.svg">
     <!-- Matter.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -41,7 +84,7 @@
             <div class="list-none flex flex-row items-center gap-12 text-white">
 
                 <div class="w-35 items-center flex flex-col relative" id="dropdownButton">
-                    <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes Somos
+                    <div class="uppercase flex flex-row gap-3 justify-center" id="button">Quiénes somos
                         <img src="/imgs/Menues/arrowDown.svg" alt="arrowDown" class="w-3">
                     </div>
                     <div class="mt-3 absolute left-0 top-full z-[100] w-50 hidden font-medium text-sm capitalize transition-all ease-out duration-300"
@@ -136,14 +179,14 @@
                                     <li
                                         class="flex flex-col items-start gap-2 py-4 px-5 border-b border-gray-300 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
                                         <img src="/imgs/Menues/logo-films.svg" alt="imfilms" class="h-7 w-auto">
-                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Publicidad para cine</span>
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Marketing de estreno para cine</span>
                                     </li>
                                 </a>
                                 <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
                                     <li
                                         class="flex flex-col items-start gap-2 py-4 px-5 hover:bg-blue-50 hover:text-blue-600 transition-all duration-200 cursor-pointer submenu-item">
                                         <img src="/imgs/Menues/logo-fashion.svg" alt="imfashion" class="h-7 w-auto">
-                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Brandformance para moda</span>
+                                        <span class="text-sm font-light whitespace-nowrap submenu-content">Crecimiento para marcas de moda</span>
                                     </li>
                                 </a>
                             </ul>
@@ -299,13 +342,13 @@
                                 <li
                                     class="flex flex-col items-center py-4 px-5 border-b border-gray-300 hover:bg-blue-50 transition">
                                     <img src="/imgs/Menues/logo-films.svg" alt="imfilms" class="h-9 w-auto mx-auto">
-                                    <span class="mt-2 text-base font-light">Publicidad para cine</span>
+                                    <span class="mt-2 text-base font-light">Marketing de estreno para cine</span>
                                 </li>
                             </a>
                             <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
                                 <li class="flex flex-col items-center py-4 px-5 hover:bg-blue-50 transition">
                                     <img src="/imgs/Menues/logo-fashion.svg" alt="imfashion" class="h-9 w-auto mx-auto">
-                                    <span class="mt-2 text-base font-light">Brandformance para moda</span>
+                                    <span class="mt-2 text-base font-light">Crecimiento para marcas de moda</span>
                                 </li>
                             </a>
                         </ul>
@@ -449,7 +492,6 @@
                 </div>
 
                 <div class="max-w-5xl relative z-10">
-                    <span class="block text-gray-500 text-sm md:text-base mb-6 tracking-wide">Gestión de Redes Sociales:</span>
                     <h1 class="text-3xl md:text-5xl font-black text-white leading-[0.9] tracking-tight mb-8">
                         Gestión de redes sociales
                     </h1>
@@ -962,6 +1004,48 @@
             </div>
         </div>
     </section>
+
+    <!-- FAQPage structured data -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Publicáis también en LinkedIn o solo en Instagram y TikTok?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Trabajamos el canal donde esté tu comprador. En marcas de consumo suele ser Instagram y TikTok; en B2B, LinkedIn. Si un canal no aporta, lo decimos y se retira."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Quién responde los comentarios y mensajes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Una persona del equipo, con tu tono documentado. Lo repetitivo —horarios, envíos, preguntas frecuentes— se automatiza para que el tiempo vaya a las conversaciones que importan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuántas publicaciones al mes incluye?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Se define por objetivo y canal, no por un número cerrado de piezas. Una cadencia que no se puede sostener con calidad es peor que una cadencia menor."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Se puede contratar solo la estrategia?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí. Hay clientes que producen internamente y contratan el criterio, el reparto de contenido y la medición."
+      }
+    }
+  ]
+}
+    </script>
 
     <!-- Section: Preguntas frecuentes -->
     <section class="bg-black py-24 px-6 md:px-12 relative z-10 invert">

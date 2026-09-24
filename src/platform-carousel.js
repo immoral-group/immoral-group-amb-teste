@@ -20,9 +20,10 @@ const PLATFORMS = [
         wig: [3.5, 3.6]
     },
     {
-        icon: '/imgs/publi-ico-6.svg', alt: 'YouTube', iconClass: 'h-7', color: '#FF0000',
-        desc: 'Diseñamos campañas para construir recuerdo, explicar propuestas de valor y acompañar al usuario a lo largo del funnel.',
-        wig: [2.5, 4.6]
+        icon: '/imgs/publi-ico-8.png', alt: 'ChatGPT', iconClass: 'h-28', color: '#10A37F',
+        label: 'ChatGPT',
+        desc: 'Un canal nuevo donde la mayoría de tu competencia todavía no está. Cuando alguien busca preguntando en lugar de buscando, el espacio publicitario es otro.',
+        wig: [2.8, 4]
     },
     {
         icon: '/imgs/publi-ico-3.svg', alt: 'LinkedIn', iconClass: 'h-10', color: '#0073B1',
@@ -40,10 +41,9 @@ const PLATFORMS = [
         wig: [2.2, 4.2]
     },
     {
-        icon: '/imgs/publi-ico-8.png', alt: 'ChatGPT', iconClass: 'h-20', color: '#10A37F',
-        label: 'ChatGPT',
-        desc: 'Un canal nuevo donde la mayoría de tu competencia todavía no está. Cuando alguien busca preguntando en lugar de buscando, el espacio publicitario es otro.',
-        wig: [2.8, 4]
+        icon: '/imgs/publi-ico-6.svg', alt: 'YouTube', iconClass: 'h-7', color: '#FF0000',
+        desc: 'Diseñamos campañas para construir recuerdo, explicar propuestas de valor y acompañar al usuario a lo largo del funnel.',
+        wig: [2.5, 4.6]
     },
 ];
 
