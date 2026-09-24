@@ -31,6 +31,43 @@ const FOOTER_HTML = `
             </div>
         </div>
 
+        <!-- Claim + Enlaces (Servicios / Sectores / Immoral) -->
+        <div class="grid lg:grid-cols-[1.2fr_1fr_1fr_1fr] gap-10 lg:gap-8 mb-16 pb-16 border-b border-[#2A2F36]">
+            <div>
+                <p class="text-2xl font-light text-white leading-snug">Somos tu equipo de marketing.</p>
+            </div>
+            <div class="space-y-4">
+                <h3 class="text-blue-500 text-sm uppercase tracking-wide">Servicios</h3>
+                <ul class="space-y-3 text-[#B9C0CA] text-sm">
+                    <li><a href="publicidad-en-medios.html" class="hover:text-white transition-colors duration-200">Publicidad en medios</a></li>
+                    <li><a href="diseno-de-marca.html" class="hover:text-white transition-colors duration-200">Diseño de marca y contenidos</a></li>
+                    <li><a href="gestion-de-redes.html" class="hover:text-white transition-colors duration-200">Gestión de redes sociales</a></li>
+                    <li><a href="influencer-marketing.html" class="hover:text-white transition-colors duration-200">Influencer marketing</a></li>
+                    <li><a href="email-marketing.html" class="hover:text-white transition-colors duration-200">Embudos, CRM y email</a></li>
+                    <li><a href="posicionamiento-geo.html" class="hover:text-white transition-colors duration-200">Posicionamiento en buscadores y en IA</a></li>
+                    <li><a href="prospeccion-b2b.html" class="hover:text-white transition-colors duration-200">Prospección B2B</a></li>
+                </ul>
+            </div>
+            <div class="space-y-4">
+                <h3 class="text-blue-500 text-sm uppercase tracking-wide">Sectores</h3>
+                <ul class="space-y-3 text-[#B9C0CA] text-sm">
+                    <li><a href="https://imfilms.es/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors duration-200">Marketing de estreno para cine</a></li>
+                    <li><a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors duration-200">Crecimiento para marcas de moda</a></li>
+                    <li><a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors duration-200">immoralia</a></li>
+                </ul>
+            </div>
+            <div class="space-y-4">
+                <h3 class="text-blue-500 text-sm uppercase tracking-wide">Immoral</h3>
+                <ul class="space-y-3 text-[#B9C0CA] text-sm">
+                    <li><a href="nuestra-historia.html" class="hover:text-white transition-colors duration-200">Nuestra historia</a></li>
+                    <li><a href="manifesto.html" class="hover:text-white transition-colors duration-200">Manifiesto</a></li>
+                    <li><a href="equipo.html" class="hover:text-white transition-colors duration-200">Equipo</a></li>
+                    <li><a href="casos-de-exito.html" class="hover:text-white transition-colors duration-200">Casos de éxito</a></li>
+                    <li><a href="contacto.html" class="hover:text-white transition-colors duration-200">Contacto</a></li>
+                </ul>
+            </div>
+        </div>
+
         <!-- Main Footer Content -->
         <div class="grid md:grid-cols-2 gap-12 lg:gap-16">
             <!-- Social -->

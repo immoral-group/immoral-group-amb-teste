@@ -23,6 +23,7 @@ Ejecutar en este orden, en **SQL Editor → New query**, pegando el contenido co
 15. `migrations/0016_qr_codes.sql` — tabla `qr_codes` para los códigos QR dinámicos gestionados desde `/qr-codes` (el QR impreso codifica `/qr/<slug>`, que `api/qr.js` resuelve contra el `target_url` actual — cambiar el destino no requiere reimprimir el código).
 16. `migrations/0017_partner_logos_clientes.sql` — reemplaza la barra de logos de la home (`partner_logos`): eran herramientas que usamos, pasan a ser las marcas de nuestros clientes (reutiliza los mismos archivos ya usados en `casos-de-exito.html`). Grupo Mimara queda fuera a propósito — no tiene logo propio subido, ver el comentario en la migración.
 17. `migrations/0018_partner_logos_size_multiplier.sql` — añade `size_multiplier` (1/2/2.5/3) a `partner_logos` para ajustar el tamaño de cada logo individualmente desde `/logos`.
+18. `migrations/0019_case_studies_relabel_sector_resultado.sql` — corrige en `case_studies` los valores de `sector`/`resultado` ("Moda & Lifestyle" → "Moda y lifestyle", "Awareness" → "Notoriedad", etc.) que la propuesta V4 solo había corregido en el HTML generado, no en la base de datos — sin esto, cualquier regeneración de `casos-de-exito.html`/`caso-*.html` revierte las etiquetas a las viejas.
 
 ## Pasos manuales en el Dashboard (no se pueden hacer por SQL)
 
