@@ -9,6 +9,7 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
+                'index-prisma': resolve(__dirname, 'index-prisma.html'),
                 equipo: resolve(__dirname, 'equipo.html'),
                 admin: resolve(__dirname, 'admin.html'),
                 roles: resolve(__dirname, 'roles.html'),
