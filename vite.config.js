@@ -9,6 +9,11 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
+                'index-color': resolve(__dirname, 'index-color.html'),
+                'index-bold': resolve(__dirname, 'index-bold.html'),
+                'index-universe': resolve(__dirname, 'index-universe.html'),
+                'index-spectrum': resolve(__dirname, 'index-spectrum.html'),
+                'index-prisma': resolve(__dirname, 'index-prisma.html'),
                 equipo: resolve(__dirname, 'equipo.html'),
                 admin: resolve(__dirname, 'admin.html'),
                 roles: resolve(__dirname, 'roles.html'),
