@@ -22,6 +22,8 @@ const ZERO = new THREE.Vector2(0, 0);
 const CAMERA_Z = 200;
 const BACKDROP_Z = -70;
 
+// Plain white wall with the ruled lines at the angle of the brand bar (glass
+// refracts them) and a soft coloured shadow of the glass.
 const backdropVertex = /* glsl */`
 varying vec2 vUv;
 void main() {
@@ -33,50 +35,21 @@ const backdropFragment = /* glsl */`
 precision highp float;
 varying vec2 vUv;
 uniform vec2 uSize;
-uniform float uTime;
 uniform vec2 uMouse;
 uniform vec2 uShadow;
-uniform vec2 uGlow;
-uniform float uGlowR;
 uniform float uShadowR;
 uniform float uProgress;
 uniform float uAngle;
 uniform vec3 uBase;
 uniform vec3 uLine;
-uniform vec3 uSky;
-uniform vec3 uBlue;
 uniform vec3 uShade;
-
-float blob(vec2 p, vec2 c, float r) {
-    vec2 d = p - c;
-    return exp(-dot(d, d) / (r * r));
-}
 
 void main() {
     vec2 p = (vUv - 0.5) * uSize;
-    float t = uTime;
     float H = uSize.y;
-
     vec3 col = uBase;
 
-    // Slow aurora of brand blues.
-    vec2 c1 = vec2(0.22 * uSize.x + 0.05 * H * sin(t * 0.21), 0.16 * H + 0.05 * H * cos(t * 0.17));
-    vec2 c2 = vec2(-0.32 * uSize.x + 0.06 * H * cos(t * 0.13), -0.22 * H + 0.04 * H * sin(t * 0.19));
-    vec2 c3 = vec2(0.05 * uSize.x + 0.08 * H * sin(t * 0.11 + 1.3), -0.42 * H + 0.06 * H * cos(t * 0.15));
-    float a1 = blob(p, c1, 0.34 * H);
-    float a2 = blob(p, c2, 0.30 * H);
-    float a3 = blob(p, c3, 0.26 * H);
-    float am = blob(p, uMouse, 0.20 * H);
-    float aur = clamp(a1 * 0.95 + a2 * 0.55 + a3 * 0.45 + am * 0.35 + uProgress * 0.25, 0.0, 1.0);
-    col = mix(col, uSky, aur);
-    col = mix(col, uBlue, a1 * a1 * 0.22 + am * am * 0.08);
-
-    // Deep blue light right behind the glass, so the refraction carries colour.
-    float g = blob(p, uGlow, uGlowR);
-    col = mix(col, uBlue, g * 0.55);
-    col = mix(col, vec3(0.06, 0.2, 0.95), g * g * 0.25);
-
-    // Ruled lines at the angle of the brand bar. Glass refracts them.
+    // Ruled lines at the angle of the brand bar.
     float ca = cos(uAngle), sa = sin(uAngle);
     vec2 q = vec2(ca * p.x + sa * p.y, -sa * p.x + ca * p.y);
     float md = length(p - uMouse);
@@ -93,16 +66,12 @@ void main() {
     vec2 n = p / uSize;
     float mask = smoothstep(-0.55, 0.15, n.x + n.y * 1.4);
     mask *= 1.0 - smoothstep(0.35, 0.62, length(n * vec2(1.0, 1.25)));
-    col = mix(col, uLine, ln * 0.42 * mask);
+    col = mix(col, uLine, ln * 0.65 * mask);
 
     // Soft coloured shadow of the glass on the wall.
     vec2 sd = (p - uShadow) / vec2(uShadowR * 1.25, uShadowR * 0.62);
     float sh = exp(-dot(sd, sd) * 1.6);
     col = mix(col, uShade, sh * 0.55);
-
-    // Very light vignette.
-    float v = smoothstep(0.95, 0.35, length(n * vec2(0.9, 1.1)));
-    col *= mix(0.965, 1.0, v);
 
     gl_FragColor = vec4(col, 1.0);
     #include <colorspace_fragment>
@@ -166,7 +135,7 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.toneMappingExposure = 1.0;
-    renderer.setClearColor(0xF4F6FB, 1);
+    renderer.setClearColor(0xFFFFFF, 1);
     if ('transmissionResolutionScale' in renderer) renderer.transmissionResolutionScale = isSmall() ? 0.6 : 1;
 
     const scene = new THREE.Scene();
@@ -183,18 +152,13 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
     // ---------- Backdrop ----------
     const uniforms = {
         uSize: { value: new THREE.Vector2(400, 250) },
-        uTime: { value: 0 },
         uMouse: { value: new THREE.Vector2(9999, 9999) },
         uShadow: { value: new THREE.Vector2(0, 0) },
         uShadowR: { value: 40 },
-        uGlow: { value: new THREE.Vector2(0, 0) },
-        uGlowR: { value: 30 },
         uProgress: { value: 0 },
         uAngle: { value: BAR_ANGLE },
-        uBase: { value: new THREE.Color('#F4F6FB') },
-        uLine: { value: new THREE.Color('#C9D7F2') },
-        uSky: { value: new THREE.Color('#DCE7FF') },
-        uBlue: { value: new THREE.Color('#5D8CFF') },
+        uBase: { value: new THREE.Color('#FFFFFF') },
+        uLine: { value: new THREE.Color('#BFCFF0') },
         uShade: { value: new THREE.Color('#C3D3F5') },
     };
     const backdrop = new THREE.Mesh(
@@ -298,7 +262,7 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
     const state = {
         width: 1, height: 1, visW: 1, visH: 1,
         layout: null,
-        progress: 0,           // scroll 0..1 (backdrop only)
+        progress: 0,           // scroll 0..1 (backdrop lines only)
         stage: 0,              // 0 = hero, 1 = manifesto (eased externally)
         intro: reduced ? 1 : 0, // 0..1
         barIntro: reduced ? 1 : 0,
@@ -339,6 +303,7 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
         const k = (CAMERA_Z - BACKDROP_Z) / CAMERA_Z;
         backdrop.scale.set(W * k * 1.25, H * k * 1.25, 1);
         uniforms.uSize.value.set(W * k * 1.25, H * k * 1.25);
+
     }
 
     function resize() {
@@ -399,7 +364,7 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
             state.dragAngle = lerp(state.dragAngle, Math.round(state.dragAngle / (Math.PI * 2)) * Math.PI * 2, Math.min(1, dt * 1.6));
         }
 
-        const p = smooth(clamp01(state.progress)); // drives the backdrop only
+        const p = smooth(clamp01(state.progress)); // drives the backdrop lines only
         const intro = state.intro;
         const ie = 1 - Math.pow(1 - intro, 3);
 
@@ -435,7 +400,6 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
 
         // Backdrop uniforms (in backdrop units).
         const k = (CAMERA_Z - BACKDROP_Z) / CAMERA_Z;
-        uniforms.uTime.value = t;
         uniforms.uProgress.value = p;
         if (state.hasPointer) {
             uniforms.uMouse.value.set(px * state.visW * 0.5 * k, py * state.visH * 0.5 * k);
@@ -444,8 +408,6 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
         }
         uniforms.uShadow.value.set(root.position.x * k + 0.04 * state.visW, root.position.y * k - 0.2 * state.visH * k);
         uniforms.uShadowR.value = MARK_W * s * 0.62 * k * lerp(0.4, 1, ie);
-        uniforms.uGlow.value.set(root.position.x * k + px * 6, root.position.y * k - 0.02 * state.visH + py * 4);
-        uniforms.uGlowR.value = MARK_W * s * 0.42 * k * lerp(0.2, 1, ie);
 
         if (scene.environmentRotation) scene.environmentRotation.set(py * 0.25, 0.6 + px * 0.5 + t * 0.02, 0);
 

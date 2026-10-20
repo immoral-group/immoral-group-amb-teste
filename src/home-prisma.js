@@ -66,6 +66,9 @@ document.addEventListener('click', e => {
     qs('.grain').style.backgroundImage = `url(${c.toDataURL('image/png')})`;
 })();
 
+// The hero is plain white: the grain overlay would grey it out.
+ScrollTrigger.create({ trigger: '.hero', start: 'top top', end: 'bottom 35%', toggleClass: { targets: '.grain', className: 'is-off' } });
+
 /* ------------------------------------------------------------------ */
 /* Navigation                                                          */
 /* ------------------------------------------------------------------ */
@@ -304,7 +307,7 @@ function initHeroScroll() {
             trigger: '.hero',
             start: 'top top',
             end: 'bottom bottom',
-            scrub: reduced ? true : 0.6,
+            scrub: reduced ? true : 0.4,
             onUpdate: self => {
                 hero?.setProgress(Math.min(1, self.progress / 0.42));
                 goStage(self.progress > 0.2 ? 1 : 0);
@@ -536,6 +539,47 @@ qsa('[data-accordion]').forEach(acc => {
 })();
 
 /* ------------------------------------------------------------------ */
+/* Cases: lead read by scroll, horizontal gallery while pinned           */
+/* (created before the sections below it so pin spacing stays in order)  */
+/* ------------------------------------------------------------------ */
+(function casesGallery() {
+    const section = qs('.casos');
+    if (!section) return;
+    const lead = qs('[data-scrub-read]', section);
+    if (lead && !reduced) {
+        fontsReady.then(() => {
+            const st = new SplitText(lead, { type: 'words', wordsClass: 'w' });
+            gsap.to(st.words, { opacity: 1, ease: 'none', stagger: 0.1, scrollTrigger: { trigger: lead, start: 'top 85%', end: 'bottom 45%', scrub: true } });
+        });
+    }
+
+    initCases();
+    if (reduced) return;
+
+    const mm = gsap.matchMedia();
+    mm.add('(min-width: 861px) and (min-height: 600px)', () => {
+        // Cases travel horizontally while the panel is pinned.
+        const pin = qs('.gallery__pin');
+        const track = qs('.gallery__track');
+        const vp = qs('.gallery__viewport');
+        const dist = () => Math.max(0, track.scrollWidth - vp.clientWidth);
+        const h = gsap.to(track, {
+            x: () => -dist(), ease: 'none',
+            scrollTrigger: {
+                trigger: pin, start: 'top top', end: () => `+=${dist() * 1.1}`,
+                pin: true, scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true,
+            },
+        });
+        qsa('.case', track).forEach(c => {
+            gsap.from(c, {
+                rotation: 7, yPercent: 16, ease: 'none',
+                scrollTrigger: { trigger: c, containerAnimation: h, start: 'left 105%', end: 'left 62%', scrub: true },
+            });
+        });
+    });
+})();
+
+/* ------------------------------------------------------------------ */
 /* Talk: the closing card rises over the previous section               */
 /* ------------------------------------------------------------------ */
 (function talkWipe() {
@@ -633,7 +677,7 @@ qsa('[data-accordion]').forEach(acc => {
 })();
 
 /* ------------------------------------------------------------------ */
-/* Results: title zoom, one figure at a time, horizontal case gallery    */
+/* Results: title zoom, one figure at a time                            */
 /* ------------------------------------------------------------------ */
 (function results() {
     const section = qs('.results');
@@ -668,15 +712,6 @@ qsa('[data-accordion]').forEach(acc => {
         });
     }
 
-    const lead = qs('[data-scrub-read]');
-    if (lead && !reduced) {
-        fontsReady.then(() => {
-            const st = new SplitText(lead, { type: 'words', wordsClass: 'w' });
-            gsap.to(st.words, { opacity: 1, ease: 'none', stagger: 0.1, scrollTrigger: { trigger: lead, start: 'top 85%', end: 'bottom 45%', scrub: true } });
-        });
-    }
-
-    initCases();
     if (reduced) return;
 
     const mm = gsap.matchMedia();
@@ -747,27 +782,8 @@ qsa('[data-accordion]').forEach(acc => {
                 .to(cut, { x: 0, y: 0, scale: 1, duration: 0.6, ease: 'power3.inOut' }, t0 + 0.9);
         });
         // Finally the row of three settles in the middle of the stage.
-        tl.to(cutsEl, { y: () => stageIn.clientHeight * 0.56 - (cutsEl.offsetTop + cutsEl.offsetHeight / 2), duration: 0.6, ease: 'power2.inOut' })
+        tl.to(cutsEl, { y: () => stageIn.clientHeight * 0.7 - (cutsEl.offsetTop + cutsEl.offsetHeight / 2), duration: 0.6, ease: 'power2.inOut' })
             .to({}, { duration: 0.6 });
-
-        // 3 · Cases travel horizontally while the panel is pinned.
-        const pin = qs('.gallery__pin');
-        const track = qs('.gallery__track');
-        const vp = qs('.gallery__viewport');
-        const dist = () => Math.max(0, track.scrollWidth - vp.clientWidth);
-        const h = gsap.to(track, {
-            x: () => -dist(), ease: 'none',
-            scrollTrigger: {
-                trigger: pin, start: 'top top', end: () => `+=${dist() * 1.1}`,
-                pin: true, scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true,
-            },
-        });
-        qsa('.case', track).forEach(c => {
-            gsap.from(c, {
-                rotation: 7, yPercent: 16, ease: 'none',
-                scrollTrigger: { trigger: c, containerAnimation: h, start: 'left 105%', end: 'left 62%', scrub: true },
-            });
-        });
     });
 
     mm.add('(max-width: 860px), (max-height: 599px)', () => {

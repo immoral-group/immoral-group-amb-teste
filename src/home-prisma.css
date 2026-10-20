@@ -184,7 +184,9 @@ ol, ul { padding: 0; list-style: none; }
     position: fixed; inset: -100px; z-index: 1200; pointer-events: none;
     opacity: .055; mix-blend-mode: multiply;
     animation: grain 1.2s steps(6) infinite;
+    transition: opacity .5s;
 }
+.grain.is-off { opacity: 0; }
 @keyframes grain {
     0% { transform: translate(0, 0); } 20% { transform: translate(-30px, 20px); } 40% { transform: translate(20px, -40px); }
     60% { transform: translate(-40px, -10px); } 80% { transform: translate(30px, 30px); } 100% { transform: translate(0, 0); }
@@ -292,14 +294,14 @@ ol, ul { padding: 0; list-style: none; }
 .mmenu__cta { margin-top: 32px; align-self: flex-start; }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; height: 340vh; }
-.hero__stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--bg); }
+.hero { position: relative; height: 240vh; }
+.hero__stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: #fff; }
 .hero__canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; }
 .hero__canvas.is-grabbing { cursor: grabbing; }
 .hero__fallback { display: none; }
 .no-webgl .hero__fallback {
     display: grid; place-items: center; position: absolute; inset: 0;
-    background: radial-gradient(60% 60% at 70% 35%, var(--sky), transparent 70%), var(--bg);
+    background: #fff;
 }
 .no-webgl .hero__fallback svg { width: min(46vw, 640px); transform: translate(12%, -14%); }
 
@@ -593,6 +595,7 @@ ol, ul { padding: 0; list-style: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .results { position: relative; z-index: 3; background: var(--bg); }
 .results--curtain { margin-top: -100vh; }
+.casos { position: relative; background: var(--bg); }
 
 /* Stage: figures arrive one at a time, then sit together. */
 .results__stage { height: 100vh; height: 100svh; overflow: clip; }
@@ -668,7 +671,7 @@ ol, ul { padding: 0; list-style: none; }
 .case:hover .case__go { transform: translateX(-6px); }
 
 /* ---------- Voices: a cloud around the title ---------- */
-.voices { background: var(--bg); overflow: clip; }
+.voices { background: var(--bg); overflow: clip; padding-top: clamp(56px, 6vw, 96px); }
 .cloud { position: relative; }
 .cloud__title { font-size: clamp(32px, 4vw, 70px); max-width: 15ch; }
 .cloud__field { display: grid; gap: 16px; margin-top: 40px; }

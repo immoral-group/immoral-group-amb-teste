@@ -46,3 +46,5 @@ v8 (2026-10-06): casos: al reproducirse el vídeo la portada se oculta del todo 
 v9 (2026-10-06): servicios en CSS puro: la parte tachada se ve siempre (tachada) y la frase real se abre a su lado solo en hover, foco o con la fila abierta (`inline-grid` 0fr → 1fr). Se elimina el JS de los intercambios. El nombre accesible sigue siendo la frase final (lo tachado es aria-hidden).
 
 v10 (2026-10-06): servicios: en reposo la frase inicial se lee limpia, sin tachar; en hover (foco o fila abierta) se dibuja el tachado y, 0,3 s después, se abre la frase real al lado.
+
+Orden de secciones (2026-10-20): hero, barra de logos, **casos de éxito** (galería horizontal fijada, `#casos`), puertas + servicios, bloque final, cinco razones, **resultados** (cifras, `#resultados`, entra como cortina sobre "Cinco razones"), testimonios, FAQ. Los casos y los resultados son secciones separadas; `casesGallery()` se crea antes que el resto de pins para respetar el orden del DOM.
