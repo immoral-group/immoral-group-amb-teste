@@ -751,6 +751,10 @@ ol, ul { padding: 0; list-style: none; }
 .foot__place address { display: flex; flex-direction: column; gap: 6px; max-width: 22em; font-style: normal; font-size: 15px; line-height: 1.45; color: var(--ink-2); }
 .foot__mark { display: block; color: var(--blue); margin-top: clamp(10px, 2vw, 30px); }
 .foot__mark svg { width: 100%; height: auto; }
+/* With motion, the animated wordmark (src/foot-mark.js) replaces the static one. */
+.foot__anim { display: none; width: 100%; height: auto; aspect-ratio: 1920 / 401; }
+.js-motion .foot__anim { display: block; }
+.js-motion .foot__mark svg { display: none; }
 .foot__bottom { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding-top: 26px; margin-top: clamp(20px, 2vw, 32px); border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
 .foot__bottom div { display: flex; gap: 24px; }
 .foot__bottom a:hover { color: var(--blue); }

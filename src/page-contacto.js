@@ -1,4 +1,4 @@
-import { gsap, qs, reduced, heroIn } from './prisma-site.js';
+import { gsap, qs, qsa, reduced, heroIn, fitCalendar } from './prisma-site.js';
 import { sendContactForm, CONTACT_FORM_MESSAGES } from './contactForm.js';
 
 // /contacto on the Prisma design. The form keeps the exact contract of the
@@ -10,6 +10,27 @@ heroIn(hero);
 // The hello drifts a little slower than the page as it scrolls away.
 if (!reduced) {
     gsap.to('.hero-contact__visual', { yPercent: 12, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true } });
+}
+
+// The two hero choices share a height at rest, the one of the tallest title
+// (one of them may wrap and the other not). See .choice in src/prisma-pages.css.
+const choices = qs('.choices');
+if (choices) {
+    const titles = qsa('.choice__title', choices);
+    const fit = () => choices.style.setProperty('--rest', `${Math.max(...titles.map(t => t.offsetHeight))}px`);
+    const ro = new ResizeObserver(fit);
+    titles.forEach(t => ro.observe(t));
+}
+
+fitCalendar(qs('.book__card iframe'));
+
+// "Barcelona · 10:42": the time at the office, for whoever thinks of coming by.
+const clock = qs('[data-clock] time');
+if (clock) {
+    const fmt = new Intl.DateTimeFormat('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+    const tick = () => { clock.textContent = fmt.format(new Date()); };
+    tick();
+    setInterval(tick, 15000);
 }
 
 const form = qs('#contactForm');
