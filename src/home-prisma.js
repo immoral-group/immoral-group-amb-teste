@@ -364,8 +364,14 @@ if (!reduced) {
         once: true,
         onEnter: els => gsap.fromTo(els, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: 0.08, ...vars }),
     });
-    gsap.set('.door, .svc__item, .faq__item, .foot__col, .foot__claim', { opacity: 0 });
-    batchIn('.door');
+    gsap.set('.svc__item, .faq__item, .foot__col, .foot__claim', { opacity: 0 });
+    // Entry cards are dealt in like a hand: they rise from below, over-rotated
+    // and slightly small, and settle into the resting fan set in CSS.
+    gsap.from('.path', {
+        y: 160, opacity: 0, scale: 0.92, rotation: i => (i % 2 ? 9 : -9), transformOrigin: '50% 100%',
+        stagger: 0.09, duration: 1.3, ease: 'expo.out', clearProps: 'transform,opacity,transformOrigin',
+        scrollTrigger: { trigger: '.paths__grid', start: 'top 85%' },
+    });
     batchIn('.svc__item', { stagger: 0.05 });
     batchIn('.faq__item', { stagger: 0.05 });
     batchIn('.foot__col, .foot__claim');
@@ -414,50 +420,6 @@ qsa('[data-accordion]').forEach(acc => {
         });
     });
 });
-
-/* ------------------------------------------------------------------ */
-/* Doors: images shuffle behind the open door, slow down, stop on last  */
-/* ------------------------------------------------------------------ */
-(function doorShuffle() {
-    qsa('.door').forEach(door => {
-        const imgs = qsa('.door__media img', door);
-        if (!imgs.length) return;
-        const last = imgs.length - 1;
-        // Two passes through the deck, then land on the last image.
-        const seq = [...imgs.keys()].slice(0, last).concat([...imgs.keys()].slice(0, last), [last]);
-        // Fast start, short braking: only the last few frames slow down.
-        const delay = k => 40 + 70 * Math.pow(k / (seq.length - 1), 3.4);
-        let timer = 0;
-        const show = (i, final) => {
-            imgs.forEach((im, k) => { im.classList.toggle('is-on', k === i); im.classList.remove('is-final'); });
-            if (final) { void imgs[i].offsetWidth; imgs[i].classList.add('is-final'); }
-        };
-        const play = () => {
-            clearTimeout(timer);
-            if (reduced) { show(last, false); return; }
-            let k = 0;
-            const step = () => {
-                show(seq[k], k === seq.length - 1);
-                if (++k < seq.length) timer = setTimeout(step, delay(k));
-            };
-            step();
-        };
-        const stop = () => clearTimeout(timer);
-
-        if (finePointer) {
-            door.addEventListener('pointerenter', play);
-            door.addEventListener('pointerleave', stop);
-        } else {
-            // Touch: the door opens while it sits in the middle of the screen.
-            new IntersectionObserver(([en]) => {
-                door.classList.toggle('is-active', en.isIntersecting);
-                if (en.isIntersecting) play(); else stop();
-            }, { rootMargin: '-35% 0px -35% 0px' }).observe(door);
-        }
-        door.addEventListener('focus', play);
-        door.addEventListener('blur', stop);
-    });
-})();
 
 /* ------------------------------------------------------------------ */
 /* Talk: field of short brand lines that turn toward the pointer        */
@@ -570,7 +532,7 @@ qsa('[data-accordion]').forEach(acc => {
                 pin: true, scrub: 0.8, anticipatePin: 1, invalidateOnRefresh: true,
             },
         });
-        qsa('.case', track).forEach(c => {
+        qsa('.case, .case-more', track).forEach(c => {
             gsap.from(c, {
                 rotation: 7, yPercent: 16, ease: 'none',
                 scrollTrigger: { trigger: c, containerAnimation: h, start: 'left 105%', end: 'left 62%', scrub: true },

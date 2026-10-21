@@ -83,7 +83,6 @@
                 <button class="nav__trigger" aria-expanded="false" aria-controls="nav-quienes">Quiénes somos<span class="nav__chev" aria-hidden="true"></span></button>
                 <div class="nav__panel" id="nav-quienes">
                     <a href="nuestra-historia.html">Nuestra historia</a>
-                    <a href="manifesto.html">Manifiesto</a>
                     <a href="equipo.html">Equipo</a>
                 </div>
             </div>
@@ -97,22 +96,9 @@
                     <a href="influencer-marketing.html">Influencer marketing</a>
                     <a href="posicionamiento-geo.html">Posicionamiento en buscadores y en IA</a>
                     <a href="prospeccion-b2b.html">Prospección B2B</a>
+                    <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">Immoralia</a>
                 </div>
             </div>
-            <div class="nav__group">
-                <button class="nav__trigger" aria-expanded="false" aria-controls="nav-sectores">Sectores<span class="nav__chev" aria-hidden="true"></span></button>
-                <div class="nav__panel nav__panel--brands" id="nav-sectores">
-                    <a href="https://imfilms.es/" target="_blank" rel="noopener noreferrer">
-                        <img src="/imgs/Menues/logo-films.svg" alt="imfilms" width="74" height="18">
-                        <span>Marketing de estreno para cine</span>
-                    </a>
-                    <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
-                        <img src="/imgs/Menues/logo-fashion.svg" alt="imfashion" width="98" height="18">
-                        <span>Crecimiento para marcas de moda</span>
-                    </a>
-                </div>
-            </div>
-            <a class="nav__link" href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">Immoralia</a>
             <a class="nav__link" href="casos-de-exito.html">Casos de éxito</a>
         </nav>
         <a class="nav__cta btn btn--blue btn--sm" href="contacto.html" data-magnetic><span>Contacto</span></a>
@@ -127,7 +113,6 @@
             <summary>Quiénes somos</summary>
             <div>
                 <a href="nuestra-historia.html">Nuestra historia</a>
-                <a href="manifesto.html">Manifiesto</a>
                 <a href="equipo.html">Equipo</a>
             </div>
         </details>
@@ -141,16 +126,9 @@
                 <a href="influencer-marketing.html">Influencer marketing</a>
                 <a href="posicionamiento-geo.html">Posicionamiento en buscadores y en IA</a>
                 <a href="prospeccion-b2b.html">Prospección B2B</a>
+                <a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">Immoralia</a>
             </div>
         </details>
-        <details class="mmenu__group">
-            <summary>Sectores</summary>
-            <div>
-                <a href="https://imfilms.es/" target="_blank" rel="noopener noreferrer">imfilms · Marketing de estreno para cine</a>
-                <a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">imfashion · Crecimiento para marcas de moda</a>
-            </div>
-        </details>
-        <a class="mmenu__link" href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">Immoralia</a>
         <a class="mmenu__link" href="casos-de-exito.html">Casos de éxito</a>
         <a class="btn btn--blue mmenu__cta" href="contacto.html"><span>Contacto</span></a>
     </div>
@@ -271,6 +249,17 @@
                                 <span class="case__foot"><span class="case__name">La Marca Well</span><span class="case__go">Ver caso →</span></span>
                             </span>
                         </a>
+                        <!-- Última tarjeta: invita a ver todos los casos. No lleva la clase .case a propósito:
+                             src/home-prisma.js rellena y limita las tarjetas .case desde Supabase. -->
+                        <a class="case-more" href="casos-de-exito.html" data-cursor="Ver todos">
+                            <span class="case-more__inner">
+                                <span class="case-more__text">
+                                    <span class="case-more__title">Y muchos más casos de éxito.</span>
+                                    <span class="case-more__sub">Moda, alimentación, salud y B2B, con sus resultados.</span>
+                                </span>
+                                <span class="case-more__go">Ver todos los casos<i class="eco__arrow" aria-hidden="true"></i></span>
+                            </span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -285,67 +274,26 @@
                 <p class="lede" data-reveal>Cuatro caminos. El tuyo empieza en una frase.</p>
             </header>
 
-            <div class="doors__grid">
-                <a class="door" href="#servicios" data-accent="blue">
-                    <span class="door__top"><span class="door__num">01</span><i class="door__arrow" aria-hidden="true"></i></span>
-                    <span class="door__phrase">Quiero vender más online</span>
-                    <span class="door__body">
-                        <span class="door__text">Publicidad, contenido, embudos y posicionamiento, con un solo interlocutor.</span>
-                        <span class="door__link">Ver servicios →</span>
-                    </span>
-                    <!-- Imágenes provisionales: barajan al hacer hover y se paran en la última. -->
-                    <span class="door__media" aria-hidden="true">
-                        <img src="/imgs/mun.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/travelperk.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/mail-col-1.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/img-como-hacemos-2.webp" alt="" loading="lazy" decoding="async">
-                    </span>
-                    <span class="door__glow" aria-hidden="true"></span>
+            <div class="paths__grid">
+                <a class="path path--blue" href="#servicios">
+                    <span class="path__label"><span>01</span><span aria-hidden="true">→</span></span>
+                    <span class="path__body"><h3>Quiero vender más online</h3><p>Publicidad, contenido, embudos y posicionamiento, con un solo interlocutor.</p></span>
+                    <img src="/imgs/cartoon-immoral.webp" alt="" loading="lazy" decoding="async">
                 </a>
-                <a class="door" href="https://imfashion.es" target="_blank" rel="noopener noreferrer" data-accent="fashion">
-                    <span class="door__top"><span class="door__num">02</span><i class="door__arrow" aria-hidden="true"></i></span>
-                    <span class="door__phrase">Tengo una marca de moda</span>
-                    <span class="door__body">
-                        <span class="door__text">Equipo especializado en moda. Sabemos qué palanca mover primero para que la próxima temporada venda más.</span>
-                        <span class="door__link">imfashion.es →</span>
-                    </span>
-                    <span class="door__media" aria-hidden="true">
-                        <img src="/imgs/calum.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/Accesories.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/crewel.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/calum-2.webp" alt="" loading="lazy" decoding="async">
-                    </span>
-                    <span class="door__glow" aria-hidden="true"></span>
+                <a class="path path--black" href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">
+                    <span class="path__label"><span>02</span><span aria-hidden="true">↗</span></span>
+                    <span class="path__body"><h3>Tengo una marca de moda</h3><p>Equipo especializado en moda. Sabemos qué palanca mover primero para que la próxima temporada venda más.</p></span>
+                    <img src="/imgs/cartoon-fashion.png" alt="" loading="lazy" decoding="async">
                 </a>
-                <a class="door" href="https://imfilms.es" target="_blank" rel="noopener noreferrer" data-accent="films">
-                    <span class="door__top"><span class="door__num">03</span><i class="door__arrow" aria-hidden="true"></i></span>
-                    <span class="door__phrase">Estreno una película</span>
-                    <span class="door__body">
-                        <span class="door__text">Campañas de estreno para distribuidoras y productoras. Más de 70 estrenos. Tu histórico y el nuestro, sumados.</span>
-                        <span class="door__link">imfilms.es →</span>
-                    </span>
-                    <span class="door__media" aria-hidden="true">
-                        <img src="/imgs/influ-bg-1.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/design-hover-7.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/gabriel.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/img-como-hacemos-3.webp" alt="" loading="lazy" decoding="async">
-                    </span>
-                    <span class="door__glow" aria-hidden="true"></span>
+                <a class="path path--cyan" href="https://imfilms.es/" target="_blank" rel="noopener noreferrer">
+                    <span class="path__label"><span>03</span><span aria-hidden="true">↗</span></span>
+                    <span class="path__body"><h3>Estreno una película</h3><p>Campañas de estreno para distribuidoras y productoras. Más de 70 estrenos.</p></span>
+                    <img src="/imgs/cartoon-films.png" alt="" loading="lazy" decoding="async">
                 </a>
-                <a class="door" href="https://immoralia.es" target="_blank" rel="noopener noreferrer" data-accent="ia">
-                    <span class="door__top"><span class="door__num">04</span><i class="door__arrow" aria-hidden="true"></i></span>
-                    <span class="door__phrase">Quiero automatizar mi operación</span>
-                    <span class="door__body">
-                        <span class="door__text">Eso lo lleva immoralia: automatiza la administración, los pedidos y los datos que hoy te comen horas.</span>
-                        <span class="door__link">immoralia.es →</span>
-                    </span>
-                    <span class="door__media" aria-hidden="true">
-                        <img src="/imgs/mail-col-2.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/circulo-equipo.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/mail-col-3.webp" alt="" loading="lazy" decoding="async">
-                        <img src="/imgs/img-como-hacemos-4.webp" alt="" loading="lazy" decoding="async">
-                    </span>
-                    <span class="door__glow" aria-hidden="true"></span>
+                <a class="path path--white" href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">
+                    <span class="path__label"><span>04</span><span aria-hidden="true">↗</span></span>
+                    <span class="path__body"><h3>Quiero automatizar mi operación</h3><p>Automatiza la administración, los pedidos y los datos que hoy te comen horas.</p></span>
+                    <img src="/imgs/cartoon-immoralia.png" alt="" loading="lazy" decoding="async">
                 </a>
             </div>
 
@@ -705,21 +653,13 @@
                     <li><a href="email-marketing.html">Embudos, CRM y email</a></li>
                     <li><a href="posicionamiento-geo.html">Posicionamiento en buscadores y en IA</a></li>
                     <li><a href="prospeccion-b2b.html">Prospección B2B</a></li>
-                </ul>
-            </div>
-            <div class="foot__col">
-                <h3>Sectores</h3>
-                <ul role="list">
-                    <li><a href="https://imfilms.es/" target="_blank" rel="noopener noreferrer">Marketing de estreno para cine</a></li>
-                    <li><a href="https://imfashion.es/" target="_blank" rel="noopener noreferrer">Crecimiento para marcas de moda</a></li>
-                    <li><a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">immoralia</a></li>
+                    <li><a href="https://immoralia.es/" target="_blank" rel="noopener noreferrer">Immoralia</a></li>
                 </ul>
             </div>
             <div class="foot__col">
                 <h3>Immoral</h3>
                 <ul role="list">
                     <li><a href="nuestra-historia.html">Nuestra historia</a></li>
-                    <li><a href="manifesto.html">Manifiesto</a></li>
                     <li><a href="equipo.html">Equipo</a></li>
                     <li><a href="casos-de-exito.html">Casos de éxito</a></li>
                     <li><a href="contacto.html">Contacto</a></li>
@@ -740,7 +680,21 @@
             </div>
             <div class="foot__where">
                 <h3>¿Dónde estamos?</h3>
-                <p>Paseo de Gràcia 12, 1º, 08007 Barcelona</p>
+                <div class="foot__places">
+                    <div class="foot__place">
+                        <h4>España</h4>
+                        <address>
+                            <span>Paseo de Gràcia 12, 1º, 08007 Barcelona</span>
+                            <span>P.º de la Castellana, 43, Chamberí, 28046 Madrid</span>
+                        </address>
+                    </div>
+                    <div class="foot__place">
+                        <h4>Argentina</h4>
+                        <address>
+                            <span>Av. de los Lagos 7008 Piso 1°, B1670 Tigre, Provincia de Buenos Aires</span>
+                        </address>
+                    </div>
+                </div>
             </div>
         </div>
 
