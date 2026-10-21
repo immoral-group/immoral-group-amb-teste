@@ -154,7 +154,7 @@
         <div class="hero-lines" data-hero-lines data-lines-x=".74" data-lines-y=".42" aria-hidden="true"></div>
         <div class="wrap hero-contact__grid">
             <div class="hero-contact__copy">
-                <h1 class="hero-title" id="page-title" data-hero-title><em class="mark">Hablemos<span class="mark__bar" aria-hidden="true"></span></em>. Una conversación honesta puede cambiarlo todo.</h1>
+                <h1 class="hero-title" id="page-title" data-hero-title><em class="mark">Hablemos</em>. Una conversación honesta puede cambiarlo todo.</h1>
                 <p class="hero-note" data-hero-fade>No te vamos a vender nada que no necesites. Queremos entender tu negocio, tus retos y tus objetivos. Si vemos que podemos ayudarte, te diremos cómo. Y si no, también.</p>
                 <div class="choices">
                     <a class="choice choice--blue" href="#llamada" data-hero-pop>
@@ -181,8 +181,16 @@
                 <h2 class="h2" id="llamada-title" data-split>Programa tu primera llamada</h2>
                 <p class="lede" data-reveal>Treinta minutos para ver si esto tiene sentido para ti y si somos el equipo que estabas buscando. Llega con tus números si los tienes a mano: la conversación sale mucho mejor.</p>
             </div>
-            <div class="book__card" data-reveal>
+            <!-- El calendario dentro de un iPhone: la página se escala entera (manteniendo la proporción). -->
+            <div class="book__phone" data-reveal>
+                <span class="book__key book__key--action" aria-hidden="true"></span>
+                <span class="book__key book__key--up" aria-hidden="true"></span>
+                <span class="book__key book__key--down" aria-hidden="true"></span>
+                <span class="book__key book__key--power" aria-hidden="true"></span>
+                <div class="book__card">
+                <span class="book__island" aria-hidden="true"></span>
                 <iframe src="https://discover.immoral.es/calendario-439741" title="Calendario para programar una llamada con Immoral" loading="lazy"></iframe>
+                </div>
             </div>
         </div>
     </section>
@@ -190,7 +198,8 @@
     <!-- ============ FORMULARIO ============ -->
     <!-- Envía a /api/contact con el token de "contacto-web-immoral" y reCAPTCHA v3 (src/contactForm.js).
          Ver docs/ARQUITECTURA-CONTACTO-CENTRALIZADO.md antes de tocar campos o nombres. -->
-    <section class="write section" id="escribenos" aria-labelledby="escribenos-title">
+    <!-- En azul: entra como una tarjeta que se abre a pantalla completa ([data-open], src/prisma-site.js). -->
+    <section class="write section" id="escribenos" data-open aria-labelledby="escribenos-title">
         <div class="wrap write__wrap">
             <div class="write__aside">
                 <h2 class="h2" id="escribenos-title" data-split>¿Prefieres escribirnos?</h2>
@@ -230,30 +239,32 @@
     </section>
 
     <!-- ============ VISÍTANOS ============ -->
-    <section class="visit section" aria-labelledby="cafe-title">
+    <!-- El mapa va a sangre y el texto flota encima, en una tarjeta de vidrio. El iframe se
+         recorta solo por arriba (la ficha del lugar); la atribución de Google, abajo, queda visible. -->
+    <section class="visit" aria-labelledby="cafe-title">
+        <div class="visit__map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2993.1196307896!2d2.1656879!3d41.3932636!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a4a2f5a6b8e8b7%3A0x9f8e7d6c5b4a3210!2sPasseig%20de%20Gr%C3%A0cia%2C%2012%2C%2008007%20Barcelona!5e0!3m2!1ses!2ses!4v1704200000000!5m2!1ses!2ses" title="Mapa: Paseo de Gràcia 12, Barcelona" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" aria-hidden="true"></iframe>
+        </div>
+        <div class="visit__toon" aria-hidden="true">
+            <video src="/imgs/calendario-cartoon.webm" autoplay muted loop playsinline disablepictureinpicture tabindex="-1"></video>
+        </div>
         <div class="wrap visit__wrap">
-            <div>
+            <div class="visit__card" data-reveal>
+                <p class="visit__clock" data-clock><span class="visit__dot" aria-hidden="true"></span>Barcelona · <time>--:--</time></p>
                 <h2 class="h2" id="cafe-title" data-split>¿Tomamos un café?</h2>
-                <p class="visit__text" data-reveal>Si estás en Barcelona o cerca, nos encantará recibirte en Paseo de Gràcia. Charlamos sobre tu negocio, tus objetivos y cómo podríamos ayudarte a escalar.</p>
-                <p class="visit__text" data-reveal>Todo con calma. Y con buen café.</p>
-                <div class="offices" data-batch>
+                <p class="visit__text">Si estás en Barcelona o cerca, nos encantará recibirte en Paseo de Gràcia. Charlamos sobre tu negocio, tus objetivos y cómo podríamos ayudarte a escalar.</p>
+                <p class="visit__text">Todo con calma. Y con buen café.</p>
+                <div class="offices">
                     <div class="office">
                         <h3>España</h3>
-                        <address><span>Paseo de Gràcia 12, 1º, 08007 Barcelona</span><span>P.º de la Castellana, 43, Chamberí, 28046 Madrid</span></address>
+                        <address><a href="https://www.google.com/maps/search/?api=1&amp;query=Passeig%20de%20Gr%C3%A0cia%2012%2C%2008007%20Barcelona" target="_blank" rel="noopener">Paseo de Gràcia 12, 1º, 08007 Barcelona</a><a href="https://www.google.com/maps/search/?api=1&amp;query=Paseo%20de%20la%20Castellana%2043%2C%2028046%20Madrid" target="_blank" rel="noopener">P.º de la Castellana, 43, Chamberí, 28046 Madrid</a></address>
                     </div>
                     <div class="office">
                         <h3>Argentina</h3>
-                        <address><span>Av. de los Lagos 7008 Piso 1°, B1670 Tigre, Provincia de Buenos Aires</span></address>
+                        <address><a href="https://www.google.com/maps/search/?api=1&amp;query=Av.%20de%20los%20Lagos%207008%2C%20B1670%20Tigre%2C%20Buenos%20Aires%2C%20Argentina" target="_blank" rel="noopener">Av. de los Lagos 7008 Piso 1°, B1670 Tigre, Provincia de Buenos Aires</a></address>
                     </div>
                 </div>
-            </div>
-            <div class="map-card" data-reveal>
-                <div class="map-card__toon" aria-hidden="true">
-                    <video src="/imgs/calendario-cartoon.webm" autoplay muted loop playsinline disablepictureinpicture tabindex="-1"></video>
-                </div>
-                <div class="map-card__frame">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2993.1196307896!2d2.1656879!3d41.3932636!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12a4a2f5a6b8e8b7%3A0x9f8e7d6c5b4a3210!2sPasseig%20de%20Gr%C3%A0cia%2C%2012%2C%2008007%20Barcelona!5e0!3m2!1ses!2ses!4v1704200000000!5m2!1ses!2ses" title="Mapa: Paseo de Gràcia 12, Barcelona" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-                </div>
+                <a class="btn btn--lg visit__go" href="https://www.google.com/maps/dir/?api=1&amp;destination=Passeig%20de%20Gr%C3%A0cia%2012%2C%2008007%20Barcelona" target="_blank" rel="noopener" data-magnetic><span>Cómo llegar</span><i class="btn__arrow" aria-hidden="true"></i></a>
             </div>
         </div>
     </section>
@@ -287,14 +298,14 @@
 </main>
 
 <!-- ============ FOOTER ============ -->
-<footer class="foot foot--plain" aria-labelledby="foot-title">
+<footer class="foot" aria-labelledby="foot-title">
     <div class="wrap">
         <div class="foot__cta">
             <div>
                 <h2 class="foot__title" id="foot-title" data-split>El crecimiento real empieza con una conversación.</h2>
                 <p class="foot__text">No necesitas más ruido. Necesitas una estrategia que funcione, procesos que fluyan y un equipo que piense como tú.</p>
             </div>
-            <a class="btn btn--blue btn--lg" href="contacto.html" data-magnetic><span>Hablemos</span><i class="btn__arrow" aria-hidden="true"></i></a>
+            <a class="btn btn--blue btn--lg" href="#escribenos" data-magnetic><span>Hablemos</span><i class="btn__arrow" aria-hidden="true"></i></a>
         </div>
 
         <div class="foot__grid">
@@ -355,6 +366,7 @@
         </div>
 
         <a class="foot__mark" href="/" aria-label="Immoral — volver al inicio">
+            <video class="foot__anim" src="/imgs/logo-footer.webm" muted playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true"></video>
             <svg viewBox="0 0 118.43 21.42" aria-hidden="true"><path fill="currentColor" d="M118.43,10.46l-5.12.21V.12h-3.8v10.71l-3.01.12v-4.75h-3.68l-.1,1.76c-.9-1.28-2.69-2.11-4.6-2.11-3.49,0-6.05,1.71-7.11,4.56-.09.24-.17.49-.23.74-.04.14-.06.3-.09.45l-5.19.21c.59-1.940,2.44-2.19,3.32-2.19.17,0,.32,0,.47.02v-3.83c-1.43,0-2.9.23-4.04,1.87l-.23-1.49h-3.55v5.78l-2.53.1c-.65-3.65-3.64-6.17-7.59-6.17s-7.19,2.81-7.59,6.79l-2.45.1c-.07-4.45-2.23-6.81-6.28-6.81-2.150,0-3.7.8-4.85,2.53-1.03-2.25-3.14-2.59-4.33-2.59-.64,0-2.71.13-3.77,1.78l-.23-1.54h-3.55v7.57l-3.01.12v-.85c0-4.59-2.17-7.02-6.28-7.02-2.15,0-3.7.8-4.85,2.53-1.03-2.25-3.14-2.59-4.33-2.59-.64,0-2.71.13-3.77,1.78l-.23-1.54h-3.55v8.63l-3.01.12V6.14h-3.83v8.94l-5.44.22v2.75l5.44-.22v3.15h3.83v-3.31l3.01-.12v3.43h3.83v-3.59l5.85-.24v3.83h3.830v-3.98l5.67-.23v4.21h3.83v-4.37l3.01-.12v4.49h3.83v-4.65l5.85-.24v4.89h3.83v-5.05l5.67-.23v5.28h3.83v-5.43l2.58-.11c.74,3.53,3.6,5.86,7.48,5.86,4.11,0,7.09-2.61,7.61-6.48l2.48-.1v6.26h3.83v-6.41l5.2-.21c.3,4.38,3.12,7.07,7.53,7.07,1.64,0,3.76-.8,4.7-2.29l.15,1.85h3.62v-7.28l3.01-.12v7.4h3.8v-7.56l5.12-.21v-2.750ZM16.12,14.65v-1.57c0-1.76,1.02-3.54,2.98-3.54s2.87,1.78,2.87,3.540v1.33l-5.85.24ZM25.8,14.25v-1.18c0-2.29,1.53-3.49,3.04-3.49,1.65,0,2.63,1.28,2.63,3.43v1l-5.67.23ZM71.39,9.41c1.87,0,3.14,1.29,3.62,2.83l-7.35.3c.43-2.14,2.13-3.13,3.73-3.13ZM42.14,13.58v-.51c0-1.76,1.02-3.54,2.98-3.54s2.87,1.78,2.87,3.54v.27l-5.85.24ZM51.82,13.07c0-2.29,1.53-3.49,3.04-3.49,1.63,0,2.61,1.26,2.63,3.37l-5.67.23v-.11ZM71.39,17.77c-1.49,0-2.97-.79-3.56-2.49l7.21-.29c-.52,1.9-2.08,2.78-3.65,2.780ZM98.51,9.29c1.32,0,2.68.6,3.47,1.84l-7.17.29c.67-1.32,1.98-2.14,3.7-2.14ZM98.51,17.89c-2.26,0-3.88-1.49-4.14-3.69l8.25-.34c-.11,1.99-1.4,4.03-4.11,4.03Z"/><path fill="currentColor" d="M7.36,4.42c1.11,0,2.24-.76,2.24-2.21s-1.16-2.21-2.24-2.21-2.24.69-2.24,2.21,1.13,2.21,2.24,2.21Z"/></svg>
         </a>
 

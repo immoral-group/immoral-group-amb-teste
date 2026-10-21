@@ -19,7 +19,7 @@
 // fallo de red puntual.
 
 import { readFileSync, writeFileSync, readdirSync, existsSync, unlinkSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 
@@ -649,31 +649,22 @@ ${FOOTER_AND_CLOSE}
 // Grid + filtros de casos-de-exito.html
 // ---------------------------------------------------------------------------
 
-function caseCardHtml(cs) {
+// Prisma design (src/prisma-pages.css, "Casos de éxito"). The cover shows at
+// rest and the clip plays on hover (src/page-casos.js); data-logo feeds the
+// glass bubbles of the hero (src/casos-hero.js).
+export function caseCardHtml(cs) {
   const sectorSlug = slugifyValue(cs.sector);
   const resultadoSlug = slugifyValue(cs.resultado);
-  return `                <a href="caso-${cs.slug}.html" class="case-card group cursor-pointer" data-sector="${sectorSlug}"
-                    data-resultado="${resultadoSlug}" data-logo="${escapeHtml(cs.logo_url)}">
-                    <article class="relative overflow-hidden rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 h-80 xl:h-96 bg-black">
-                        <img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                            src="${escapeHtml(cs.cover_image_url)}"
-                            alt="${escapeHtml(cs.cover_image_alt)}"
-                            loading="lazy" />
-                        <video class="case-card-video absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                            src="/videos/casos/${cs.slug}.mp4" muted loop playsinline preload="none"></video>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent">
-                            <div class="absolute top-4 left-4 right-4 flex items-start justify-between gap-2">
-                                <span class="case-tag">${escapeHtml(cs.sector)}</span>
-                                <span class="case-tag case-tag--result">${escapeHtml(cs.resultado)}</span>
-                            </div>
-                            <div class="absolute bottom-4 left-4 right-4">
-                                <h3 class="text-white text-3xl xl:text-4xl font-bold leading-tight [text-shadow:_0px_0px_20px_rgb(0_0_0_/_0.8)]">
-                                    ${escapeHtml(cs.brand_name.toUpperCase())}
-                                </h3>
-                            </div>
-                        </div>
-                        <div class="case-card-dim"></div>
-                    </article>
+  return `                <a href="caso-${cs.slug}.html" class="case-card" data-sector="${sectorSlug}"
+                    data-resultado="${resultadoSlug}" data-logo="${escapeHtml(cs.logo_url)}" data-cursor="Ver caso">
+                    <span class="case-card__inner">
+                        <span class="case-card__media">
+                            <img src="${escapeHtml(cs.cover_image_url)}" alt="${escapeHtml(cs.cover_image_alt)}" loading="lazy" decoding="async">
+                            <video class="case-card__video" src="/videos/casos/${cs.slug}.mp4" muted loop playsinline preload="none"></video>
+                        </span>
+                        <span class="case-card__tags"><span class="case-card__tag">${escapeHtml(cs.sector)}</span><span class="case-card__tag case-card__tag--result">${escapeHtml(cs.resultado)}</span></span>
+                        <span class="case-card__foot"><span class="case-card__name">${escapeHtml(cs.brand_name)}</span><span class="case-card__go">Ver caso →</span></span>
+                    </span>
                 </a>`;
 }
 
@@ -689,27 +680,20 @@ function uniqueInOrder(values) {
   return out;
 }
 
-function filterPillsHtml(cases) {
+export function filterPillsHtml(cases) {
   const sectors = uniqueInOrder(cases.map((c) => c.sector));
   const resultados = uniqueInOrder(cases.map((c) => c.resultado));
 
-  const sectorPills = sectors.map((s) => `                        <button type="button" class="filter-pill" data-filter-group="sector"
-                            data-filter-value="${slugifyValue(s)}">${escapeHtml(s)}</button>`).join('\n');
-  const resultadoPills = resultados.map((r) => `                        <button type="button" class="filter-pill" data-filter-group="resultado"
-                            data-filter-value="${slugifyValue(r)}">${escapeHtml(r)}</button>`).join('\n');
-
-  return `                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-xs font-black uppercase tracking-wide text-black/40 mr-1">Sector</span>
-                        <button type="button" class="filter-pill is-active" data-filter-group="sector"
-                            data-filter-value="todos">Todos</button>
-${sectorPills}
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-xs font-black uppercase tracking-wide text-black/40 mr-1">Resultado</span>
-                        <button type="button" class="filter-pill is-active" data-filter-group="resultado"
-                            data-filter-value="todos">Todos</button>
-${resultadoPills}
+  const pill = (group, value, label, active = false) => `                        <button type="button" class="filter-pill${active ? ' is-active' : ''}" data-filter-group="${group}"
+                            data-filter-value="${value}" aria-pressed="${active}">${label}</button>`;
+  const group = (name, label, values) => `                    <div class="filters__group" role="group" aria-label="Filtrar por ${label.toLowerCase()}">
+                        <span class="filters__label">${label}</span>
+${pill(name, 'todos', 'Todos', true)}
+${values.map((v) => pill(name, slugifyValue(v), escapeHtml(v))).join('\n')}
                     </div>`;
+
+  return `${group('sector', 'Sector', sectors)}
+${group('resultado', 'Resultado', resultados)}`;
 }
 
 function replaceBetweenMarkers(html, startMarker, endMarker, content) {
@@ -787,6 +771,10 @@ async function main() {
   console.log(`[generate-case-studies] ${cases.length} caso(s) generado(s).`);
 }
 
-main().catch((err) => {
-  console.error('[generate-case-studies] Error inesperado, se dejan los ficheros existentes sin tocar:', err);
-});
+// Only when run as a script (npm predev/prebuild): the card and filter
+// templates above can also be imported without touching any file.
+if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
+  main().catch((err) => {
+    console.error('[generate-case-studies] Error inesperado, se dejan los ficheros existentes sin tocar:', err);
+  });
+}

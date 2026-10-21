@@ -18,6 +18,16 @@
       "source": "/manifesto.html",
       "destination": "/nuestra-historia",
       "statusCode": 301
+    },
+    {
+      "source": "/index-prisma",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/index-prisma.html",
+      "destination": "/",
+      "statusCode": 301
     }
   ]
 }

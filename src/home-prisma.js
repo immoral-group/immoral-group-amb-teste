@@ -2,6 +2,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
+import { footMark } from './foot-mark.js';
 
 // Exploration page: deliberately does not import main.js / style.css.
 gsap.registerPlugin(ScrollTrigger, SplitText);
@@ -856,12 +857,7 @@ function initCases() {
     })();
 }
 
-if (!reduced) {
-    gsap.fromTo('.foot__mark svg', { clipPath: 'inset(0 100% 0 0)' }, {
-        clipPath: 'inset(0 0% 0 0)', ease: 'none',
-        scrollTrigger: { trigger: '.foot__mark', start: 'top bottom', end: 'bottom bottom', scrub: 0.4 },
-    });
-}
+if (!reduced) footMark();
 
 /* ------------------------------------------------------------------ */
 /* Testimonials: an invisible 3D globe of bubbles around the title       */

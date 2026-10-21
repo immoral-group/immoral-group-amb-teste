@@ -2,9 +2,10 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import Lenis from 'lenis';
+import { footMark } from './foot-mark.js';
 
 // Shared chrome for the inner pages built on the Prisma design (the approved
-// home, index-prisma.html): smooth scroll, grain, nav + mobile menu, scroll
+// home, index.html): smooth scroll, grain, nav + mobile menu, scroll
 // progress, cursor label, magnetic buttons, section reveals, accordions and
 // the blue closing card. Page-specific behaviour lives in src/page-*.js.
 // Same behaviour as src/home-prisma.js; the home keeps its own copy for now.
@@ -231,7 +232,9 @@ export function heroIn(hero = qs('[data-hero]')) {
         const fades = qsa('[data-hero-fade]', hero);
         if (fades.length) tl.to(fades, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', stagger: 0.08 }, 0.5);
         const pops = qsa('[data-hero-pop]', hero);
-        if (pops.length) tl.from(pops, { opacity: 0, yPercent: 30, scale: 0.9, duration: 1.4, ease: 'expo.out', stagger: 0.07 }, 0.3);
+        // clearProps: GSAP leaves translate/rotate/scale as "none" inline, which
+        // would override the CSS of the popped elements (e.g. a tilt on hover).
+        if (pops.length) tl.from(pops, { opacity: 0, yPercent: 30, scale: 0.9, duration: 1.4, ease: 'expo.out', stagger: 0.07, clearProps: 'opacity,transform,translate,rotate,scale' }, 0.3);
         return tl;
     });
 }
@@ -302,6 +305,60 @@ qsa('[data-accordion]').forEach(acc => {
     });
 });
 
+// The booking calendar inside the iPhone (.book__card, /contacto and
+// /casos-de-exito). The booking page (discover.immoral.es) runs the child side
+// of iframe-resizer: answering its handshake, it reports its real height as it
+// loads, so the iframe grows to fit and never scrolls inside. Only messages
+// from that origin and for this frame are trusted.
+export function fitCalendar(cal) {
+    if (!cal) return;
+    const ORIGIN = new URL(cal.src).origin;
+    const ID = 'immoral-calendario';
+    cal.id = ID;
+    cal.setAttribute('scrolling', 'no');
+    const init = () => cal.contentWindow?.postMessage(`[iFrameSizer]${ID}:8:false:false:32:true:true:null:max:null:null:0:false:parent:scroll:true`, ORIGIN);
+    window.addEventListener('message', e => {
+        if (e.origin !== ORIGIN || typeof e.data !== 'string') return;
+        if (e.data === '[iFrameResizerChild]Ready') { init(); return; }
+        if (!e.data.startsWith(`[iFrameSizer]${ID}:`)) return;
+        const [height, , type = ''] = e.data.slice(`[iFrameSizer]${ID}:`.length).split(':');
+        const px = parseInt(height, 10);
+        // Only size reports; the protocol also carries scroll and page-info
+        // requests. "reset" carries a stale height and would make it bounce.
+        // The phone (.book__card) scales the page down, so the height goes in a
+        // variable that sizes both the frame and the iframe (src/prisma-pages.css).
+        if (px > 0 && !/^(scroll|pageInfo|inPageLink|message|close|reset|mouse)/.test(type)) cal.parentElement.style.setProperty('--h', `${px}px`);
+    });
+    cal.addEventListener('load', init);
+}
+
+// While a coloured section opens, what shows around the card is the page
+// (--bg), not the section above it. Laying that section's colour underneath
+// keeps the background change to one: from it to the colour that opens.
+export function openUnder(section) {
+    const prev = section.previousElementSibling;
+    const bg = prev && getComputedStyle(prev).backgroundColor;
+    if (!bg || bg === 'transparent' || bg === 'rgba(0, 0, 0, 0)') return;
+    const under = document.createElement('div');
+    under.style.backgroundColor = bg;
+    section.before(under);
+    under.append(section);
+}
+
+/* [data-open]: a coloured section arrives as a card and opens to full --- */
+/* bleed with the scroll (marks the change of background).               */
+if (!reduced) {
+    // The bottom edge goes 2px past the box: a clip that ends exactly on a
+    // fractional pixel leaves a hairline of the page against the next section.
+    qsa('[data-open]').forEach(section => {
+        openUnder(section);
+        gsap.fromTo(section, { clipPath: 'inset(8% 5% -2px 5% round 56px 56px 0px 0px)' }, {
+            clipPath: 'inset(0% 0% -2px 0% round 0px 0px 0px 0px)', ease: 'none',
+            scrollTrigger: { trigger: section, start: 'top bottom', end: 'top 20%', scrub: true },
+        });
+    });
+}
+
 /* Closing card: field of brand lines that turn toward the pointer ------ */
 qsa('.talk__field').forEach(canvas => {
     const ctx = canvas.getContext('2d');
@@ -311,7 +368,10 @@ qsa('.talk__field').forEach(canvas => {
     const m = { x: -9999, y: -9999, tx: -9999, ty: -9999, active: false };
     const wrap = a => Math.atan2(Math.sin(a), Math.cos(a));
 
+    // The lines take the canvas' CSS color (white on the blue card, blue on a white one).
+    let rgb = '255,255,255';
     function resize() {
+        rgb = (getComputedStyle(canvas).color.match(/\d+/g) || [255, 255, 255]).slice(0, 3).join(',');
         const r = canvas.getBoundingClientRect();
         const dpr = Math.min(2, window.devicePixelRatio || 1);
         w = r.width; h = r.height;
@@ -343,7 +403,7 @@ qsa('.talk__field').forEach(canvas => {
             p.a += wrap(target - p.a) * 0.14;
             const len = 6 + infl * 18;
             const cx = Math.cos(p.a) * len * 0.5, cy = Math.sin(p.a) * len * 0.5;
-            ctx.strokeStyle = `rgba(255,255,255,${0.16 + infl * 0.62})`;
+            ctx.strokeStyle = `rgba(${rgb},${0.16 + infl * 0.62})`;
             ctx.lineWidth = 1.3 + infl * 1.4;
             ctx.beginPath();
             ctx.moveTo(p.x - cx, p.y - cy);
@@ -373,14 +433,37 @@ qsa('.talk__field').forEach(canvas => {
     new ResizeObserver(resize).observe(canvas);
 });
 
-// The closing card opens from the bottom with a rounded edge as it enters.
-if (!reduced) {
-    qsa('.talk__card').forEach(card => {
-        gsap.timeline({ scrollTrigger: { trigger: card, start: 'top bottom', end: 'top 25%', scrub: true } })
-            .fromTo(card, { clipPath: 'inset(18% 4% 0% 4% round 80px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', ease: 'power1.inOut' }, 0)
-            .fromTo(qs('.talk__content', card), { y: 80 }, { y: 0, ease: 'power1.out' }, 0);
+// The closing card enters exactly like in the home (talkWipe of
+// home-prisma.js): the previous section stays put while the card slides over
+// it, held in the viewport and revealed from the bottom with a rounded edge.
+// The section underneath is the last visible one: a page that shows a section
+// later (equipo, when its job openings arrive) calls talkWipe() again.
+const talkWipes = [];
+export function talkWipe() {
+    if (reduced) return;
+    talkWipes.splice(0).forEach(fn => fn());
+    qsa('.talk-entry').forEach(entry => {
+        const talk = qs('.talk', entry);
+        // Hold as many visible sections as it takes to fill the screen: a short
+        // one alone would let the page show above it while the card enters.
+        const unders = [];
+        let held = 0;
+        for (let el = entry.previousElementSibling; el && held < innerHeight; el = el.previousElementSibling) {
+            if (el.hidden || getComputedStyle(el).display === 'none') continue;
+            unders.push(el);
+            held += el.offsetHeight;
+        }
+        if (!talk || !unders.length || innerHeight < 600) return;
+        const bounds = { trigger: entry, start: 'top bottom', end: 'top top', invalidateOnRefresh: true };
+        const pins = unders.map(under => ScrollTrigger.create({ ...bounds, pin: under, pinSpacing: false, anticipatePin: 1 }));
+        const tl = gsap.timeline({ scrollTrigger: { ...bounds, scrub: true } })
+            .fromTo(talk, { y: () => -innerHeight }, { y: 0, duration: 1, ease: 'none' }, 0)
+            .fromTo(talk, { clipPath: 'inset(100% 0% 0% 0% round 80px 80px 0px 0px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px 0px 0px 0px)', duration: 1, ease: 'power1.inOut' }, 0)
+            .fromTo(qs('.talk__content', talk), { y: 75 }, { y: 0, duration: 1, ease: 'power1.inOut' }, 0);
+        talkWipes.push(() => { tl.revert(); pins.forEach(p => p.kill(true)); });
     });
 }
+talkWipe();
 
 /* Hero lines: the ruled lines of the home hero, bent by a loupe under the pointer */
 // <div class="hero-lines" data-hero-lines data-lines-x=".78" data-lines-y=".32">
@@ -466,10 +549,14 @@ qsa('[data-hero-lines]').forEach(box => {
 /* Cards dealt like a hand: rise over-rotated and settle into the fan --- */
 if (!reduced) {
     qsa('[data-deal]').forEach(group => {
-        gsap.from([...group.children], {
-            y: 160, opacity: 0, scale: 0.92, rotation: i => (i % 2 ? 9 : -9), transformOrigin: '50% 100%',
+        // Hidden up front (not on trigger), so the cards never show in place
+        // and then jump back to the start of the deal.
+        const cards = [...group.children];
+        gsap.set(cards, { y: 160, opacity: 0, scale: 0.92, rotation: i => (i % 2 ? 9 : -9), transformOrigin: '50% 100%' });
+        gsap.to(cards, {
+            y: 0, opacity: 1, scale: 1, rotation: 0,
             stagger: 0.09, duration: 1.3, ease: 'expo.out', clearProps: 'transform,opacity,transformOrigin',
-            scrollTrigger: { trigger: group, start: 'top 85%' },
+            scrollTrigger: { trigger: group, start: 'top 85%', once: true },
         });
     });
 }
@@ -516,12 +603,7 @@ if (!reduced) {
             onEnter: els => gsap.fromTo(els, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: 0.06 }),
         });
     }
-    if (qs('.foot__mark svg')) {
-        gsap.fromTo('.foot__mark svg', { clipPath: 'inset(0 100% 0 0)' }, {
-            clipPath: 'inset(0 0% 0 0)', ease: 'none',
-            scrollTrigger: { trigger: '.foot__mark', start: 'top bottom', end: 'bottom bottom', scrub: 0.4 },
-        });
-    }
+    footMark();
 }
 
 window.addEventListener('load', () => ScrollTrigger.refresh());

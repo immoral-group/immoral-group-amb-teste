@@ -110,19 +110,18 @@
 <main id="contenido">
 
     <!-- ============ HERO ============ -->
-    <!-- La barra de la marca cruza la pantalla por detrás del personaje (el gesto del hero de la home). -->
-    <section class="hero-story" data-hero data-grain-off aria-labelledby="page-title">
-        <div class="hero-lines" data-hero-lines data-lines-x=".62" data-lines-y=".36" aria-hidden="true"></div>
-        <div class="hero-story__stage" aria-hidden="true">
-            <span class="hero-story__halo"></span>
-            <span class="hero-story__bar-wrap"><span class="hero-story__bar"><span class="hero-story__glint"></span></span></span>
-            <img class="hero-story__toon" src="/imgs/cartoon-immoral.webp" alt="" decoding="async" data-hero-pop>
-        </div>
-        <div class="wrap hero-story__copy">
-            <h1 class="hero-title" id="page-title" data-hero-title>De hacer marketing a <em class="mark">repensarlo<span class="mark__bar" aria-hidden="true"></span></em> por completo</h1>
-            <div class="hero-story__aside" data-hero-fade>
-                <p class="hero-note">Immoral no nació de un business plan. Nació de una incomodidad.</p>
-                <a class="hero-cue" href="#origen"><span class="hero-cue__line" aria-hidden="true"></span>El origen</a>
+    <!-- "De hacer marketing" dentro de una burbuja del mismo vidrio que el "im" de la home;
+         con el scroll revienta y queda "a repensarlo por completo" (src/bubble-hero.js). -->
+    <section class="hero-bubble" data-hero data-grain-off aria-labelledby="page-title">
+        <div class="hero-bubble__stage">
+            <canvas class="hero-bubble__canvas" aria-hidden="true"></canvas>
+            <div class="hero-bubble__fallback" aria-hidden="true"></div>
+            <div class="hero-bubble__center">
+                <h1 class="hero-bubble__title" id="page-title">
+                    <span class="hero-bubble__t1">De hacer marketing…</span>
+                    <span class="hero-bubble__t2">a <em>repensarlo</em> por completo</span>
+                </h1>
+                <p class="hero-note hero-bubble__note">Immoral no nació de un business plan. Nació de una incomodidad.</p>
             </div>
         </div>
     </section>
@@ -132,6 +131,12 @@
         <div class="wrap origin__wrap">
             <div class="origin__aside">
                 <h2 class="h2" id="origen-title" data-split>El origen</h2>
+                <figure class="origin__figure" data-reveal>
+                    <div class="origin__frame">
+                        <video src="/imgs/nt-bg-2.mp4" muted loop playsinline preload="metadata" disablepictureinpicture aria-label="Marco Sapiña, fundador de Immoral"></video>
+                    </div>
+                    <figcaption><strong>Marco Sapiña</strong><span>Fundador</span></figcaption>
+                </figure>
             </div>
             <div class="origin__body">
                 <p data-scrub-words>Marco, nuestro fundador, había trabajado con muchas agencias, y en todas encontró lo mismo: promesas vacías, tácticas sin estrategia y transparencia solo cuando convenía.</p>
@@ -142,10 +147,17 @@
     </section>
 
     <!-- ============ EL NOMBRE ============ -->
-    <section class="statement section" aria-labelledby="nombre-title">
-        <div class="wrap">
-            <h2 class="statement__title" id="nombre-title" data-scrub-words>Immoral: un nombre que <span class="nowrap"><em class="mark">incomoda<span class="mark__bar" aria-hidden="true"></span></em>.</span> Por eso funciona.</h2>
-            <p class="statement__text" data-reveal>Es nuestro statement. El marketing no tiene por qué ser tramposo ni vacío. Puede ser honesto, estratégico y transformador.</p>
+    <!-- Fondo: campo de puntos que se aparta del cursor. El logo sustituye a la palabra "Immoral":
+         su animación ("i'm moral" → "immoral", LOGO IMMORAL FONDO NEGRO.mov) avanza con el scroll,
+         fotograma a fotograma (/imgs/logo-anim/f_00…f_32.webp). Sin movimiento, queda el SVG. -->
+    <section class="statement statement--blue section" data-statement data-logo-frames="33" aria-labelledby="nombre-title">
+        <canvas class="statement__field" aria-hidden="true"></canvas>
+        <div class="wrap statement__inner">
+            <h2 class="statement__title" id="nombre-title" aria-label="Immoral: un nombre que incomoda. Por eso funciona.">
+                <span class="statement__logo" aria-hidden="true"><canvas class="statement__anim" width="1200" height="261"></canvas><svg viewBox="0 0 118.43 21.42" aria-hidden="true"><path fill="currentColor" d="M118.43,10.46l-5.12.21V.12h-3.8v10.71l-3.01.12v-4.75h-3.68l-.1,1.76c-.9-1.28-2.69-2.11-4.6-2.11-3.49,0-6.05,1.71-7.11,4.56-.09.24-.17.49-.23.74-.04.14-.06.3-.09.45l-5.19.21c.59-1.940,2.44-2.19,3.32-2.19.17,0,.32,0,.47.02v-3.83c-1.43,0-2.9.23-4.04,1.87l-.23-1.49h-3.55v5.78l-2.53.1c-.65-3.65-3.64-6.17-7.59-6.17s-7.19,2.81-7.59,6.79l-2.45.1c-.07-4.45-2.23-6.81-6.28-6.81-2.150,0-3.7.8-4.85,2.53-1.03-2.25-3.14-2.59-4.33-2.59-.64,0-2.71.13-3.77,1.78l-.23-1.54h-3.55v7.57l-3.01.12v-.85c0-4.59-2.17-7.02-6.28-7.02-2.15,0-3.7.8-4.85,2.53-1.03-2.25-3.14-2.59-4.33-2.59-.64,0-2.71.13-3.77,1.78l-.23-1.54h-3.55v8.63l-3.01.12V6.14h-3.83v8.94l-5.44.22v2.75l5.44-.22v3.15h3.83v-3.31l3.01-.12v3.43h3.83v-3.59l5.85-.24v3.83h3.830v-3.98l5.67-.23v4.21h3.83v-4.37l3.01-.12v4.49h3.83v-4.65l5.85-.24v4.89h3.83v-5.05l5.67-.23v5.28h3.83v-5.43l2.58-.11c.74,3.53,3.6,5.86,7.48,5.86,4.11,0,7.09-2.61,7.61-6.48l2.48-.1v6.26h3.83v-6.41l5.2-.21c.3,4.38,3.12,7.07,7.53,7.07,1.64,0,3.76-.8,4.7-2.29l.15,1.85h3.62v-7.28l3.01-.12v7.4h3.8v-7.56l5.12-.21v-2.750ZM16.12,14.65v-1.57c0-1.76,1.02-3.54,2.98-3.54s2.87,1.78,2.87,3.540v1.33l-5.85.24ZM25.8,14.25v-1.18c0-2.29,1.53-3.49,3.04-3.49,1.65,0,2.63,1.28,2.63,3.43v1l-5.67.23ZM71.39,9.41c1.87,0,3.14,1.29,3.62,2.83l-7.35.3c.43-2.14,2.13-3.13,3.73-3.13ZM42.14,13.58v-.51c0-1.76,1.02-3.54,2.98-3.54s2.87,1.78,2.87,3.54v.27l-5.85.24ZM51.82,13.07c0-2.29,1.53-3.49,3.04-3.49,1.63,0,2.61,1.26,2.63,3.37l-5.67.23v-.11ZM71.39,17.77c-1.49,0-2.97-.79-3.56-2.49l7.21-.29c-.52,1.9-2.08,2.78-3.65,2.780ZM98.51,9.29c1.32,0,2.68.6,3.47,1.84l-7.17.29c.67-1.32,1.98-2.14,3.7-2.14ZM98.51,17.89c-2.26,0-3.88-1.49-4.14-3.69l8.25-.34c-.11,1.99-1.4,4.03-4.11,4.03Z"/><path fill="currentColor" d="M7.36,4.42c1.11,0,2.24-.76,2.24-2.21s-1.16-2.21-2.24-2.21-2.24.69-2.24,2.21,1.13,2.21,2.24,2.21Z"/></svg></span>
+                <span class="statement__line" aria-hidden="true">un nombre que <em>incomoda.</em> Por eso funciona.</span>
+            </h2>
+            <p class="statement__text">Es nuestro statement. El marketing no tiene por qué ser tramposo ni vacío. Puede ser honesto, estratégico y transformador.</p>
         </div>
     </section>
 
@@ -157,76 +169,75 @@
                 <p class="lede" data-reveal>Queremos ser el socio que empuja, cuestiona y hace que las cosas pasen. Nos integramos en tu equipo y pensamos como negocio:</p>
             </header>
             <ul class="pillars__grid" role="list" data-deal>
-                <li class="pillar pillar--black">
+                <li class="pillar-slot"><div class="pillar pillar--black">
                     <span class="pillar__top"><svg class="pillar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3.5" width="6.5" height="5" rx="1.2"/><rect x="14.5" y="3.5" width="6.5" height="5" rx="1.2"/><rect x="8.75" y="15.5" width="6.5" height="5" rx="1.2"/><path d="M6.25 8.5v2.5a1.5 1.5 0 0 0 1.5 1.5h8.5a1.5 1.5 0 0 0 1.5-1.5V8.5M12 12.5v3"/></svg><span aria-hidden="true">01</span></span>
                     <p>Nos metemos en tus procesos.</p>
-                </li>
-                <li class="pillar pillar--paper">
+                </div></li>
+                <li class="pillar-slot"><div class="pillar pillar--paper">
                     <span class="pillar__top"><svg class="pillar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 4.5h17l-6.5 7.6v5.9l-4 2v-7.9z"/><path d="M8 8h8"/></svg><span aria-hidden="true">02</span></span>
                     <p>Encontramos los cuellos de botella.</p>
-                </li>
-                <li class="pillar pillar--blue">
+                </div></li>
+                <li class="pillar-slot"><div class="pillar pillar--blue">
                     <span class="pillar__top"><svg class="pillar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M13.2 6.5 8.8 12.7h3.6l-1.6 4.8 4.4-6.2h-3.6z"/></svg><span aria-hidden="true">03</span></span>
                     <p>Automatizamos lo que frena.</p>
-                </li>
-                <li class="pillar pillar--cyan">
+                </div></li>
+                <li class="pillar-slot"><div class="pillar pillar--cyan">
                     <span class="pillar__top"><svg class="pillar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5h16"/><path d="M5 15.5 9.5 11l3.5 3 6-6.5"/><path d="M14.5 7.5H19V12"/></svg><span aria-hidden="true">04</span></span>
                     <p>Donde otros ven leads, construimos una marca con resultados reales.</p>
-                </li>
+                </div></li>
             </ul>
         </div>
     </section>
 
-    <!-- ============ VALORES (pila fijada, como "Cinco razones" de la home) ============ -->
-    <section class="reasons section" id="valores" aria-labelledby="valores-title" data-stack>
-        <div class="wrap reasons__wrap">
-            <div class="reasons__aside">
-                <h2 class="h2 reasons__title" id="valores-title" data-split>Valores que no se negocian</h2>
-                <div class="reasons__counter" aria-hidden="true">
-                    <span class="reasons__current"><span>1</span><span>2</span><span>3</span><span>4</span></span>
-                    <span class="reasons__total">/4</span>
+    <!-- ============ VALORES (tarjetas de vidrio, una a una con el scroll) ============ -->
+    <section class="vals" id="valores" aria-labelledby="valores-title">
+        <div class="vals__track">
+            <div class="vals__sticky">
+                <span class="vals__orb vals__orb--b" aria-hidden="true"></span>
+                <span class="vals__orb vals__orb--c" aria-hidden="true"></span>
+                <div class="wrap vals__inner">
+                    <div class="vals__aside">
+                        <h2 class="h2" id="valores-title" data-split>Valores que no se negocian</h2>
+                        <p class="vals__counter" aria-hidden="true"><span class="vals__current"><span>1</span><span>2</span><span>3</span><span>4</span></span><span class="vals__total">/4</span></p>
+                        <div class="vals__dots" aria-hidden="true"><span class="vals__dot is-active"></span><span class="vals__dot"></span><span class="vals__dot"></span><span class="vals__dot"></span></div>
+                    </div>
+                    <ol class="vals__stage" role="list">
+                        <li class="vals__slide is-active">
+                            <div class="glass-card">
+                                <div class="glass-card__top"><span class="glass-card__n">01</span><svg class="glass-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.1 4.1 0 0 1 12 8a4.1 4.1 0 0 1 7 2.4C19 15.6 12 20 12 20z"/></svg></div>
+                                <h3>Servicio</h3>
+                                <p>No cumplimos tareas: nos involucramos y vamos más allá de lo que esperas.</p>
+                            </div>
+                        </li>
+                        <li class="vals__slide">
+                            <div class="glass-card">
+                                <div class="glass-card__top"><span class="glass-card__n">02</span><svg class="glass-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+                                <h3>Transparencia</h3>
+                                <p>Sin letra pequeña. Hablamos claro y construimos confianza con hechos.</p>
+                            </div>
+                        </li>
+                        <li class="vals__slide">
+                            <div class="glass-card">
+                                <div class="glass-card__top"><span class="glass-card__n">03</span><svg class="glass-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.5 2.5M15.2 15.2l2.5 2.5M6.3 17.7l2.5-2.5M15.2 8.8l2.5-2.5"/><circle cx="12" cy="12" r="2"/></svg></div>
+                                <h3>Innovación</h3>
+                                <p>No seguimos tendencias: las analizamos y aplicamos solo lo que funciona.</p>
+                            </div>
+                        </li>
+                        <li class="vals__slide">
+                            <div class="glass-card">
+                                <div class="glass-card__top"><span class="glass-card__n">04</span><svg class="glass-card__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg></div>
+                                <h3>Resultados</h3>
+                                <p>Ni premios ni likes. Si no suma, no sirve.</p>
+                            </div>
+                        </li>
+                    </ol>
                 </div>
-                <div class="reasons__bar" aria-hidden="true"><span></span></div>
             </div>
-
-            <ol class="reasons__stack" role="list">
-                <li class="reason">
-                    <div class="reason__card">
-                        <span class="reason__num" aria-hidden="true">01</span>
-                        <svg class="reason__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-9.6A4.1 4.1 0 0 1 12 8a4.1 4.1 0 0 1 7 2.4C19 15.6 12 20 12 20z"/></svg>
-                        <h3>Servicio</h3>
-                        <p>No cumplimos tareas: nos involucramos y vamos más allá de lo que esperas.</p>
-                    </div>
-                </li>
-                <li class="reason">
-                    <div class="reason__card">
-                        <span class="reason__num" aria-hidden="true">02</span>
-                        <svg class="reason__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                        <h3>Transparencia</h3>
-                        <p>Sin letra pequeña. Hablamos claro y construimos confianza con hechos.</p>
-                    </div>
-                </li>
-                <li class="reason">
-                    <div class="reason__card">
-                        <span class="reason__num" aria-hidden="true">03</span>
-                        <svg class="reason__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.5 2.5M15.2 15.2l2.5 2.5M6.3 17.7l2.5-2.5M15.2 8.8l2.5-2.5"/><circle cx="12" cy="12" r="2"/></svg>
-                        <h3>Innovación</h3>
-                        <p>No seguimos tendencias: las analizamos y aplicamos solo lo que funciona.</p>
-                    </div>
-                </li>
-                <li class="reason">
-                    <div class="reason__card">
-                        <span class="reason__num" aria-hidden="true">04</span>
-                        <svg class="reason__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg>
-                        <h3>Resultados</h3>
-                        <p>Ni premios ni likes. Si no suma, no sirve.</p>
-                    </div>
-                </li>
-            </ol>
         </div>
     </section>
 
     <!-- ============ CIERRE ============ -->
+    <div class="talk-entry">
     <section class="talk" aria-labelledby="talk-title">
         <div class="talk__card">
             <canvas class="talk__field" aria-hidden="true"></canvas>
@@ -236,6 +247,7 @@
             </div>
         </div>
     </section>
+    </div>
 </main>
 
 <!-- ============ FOOTER ============ -->
@@ -307,6 +319,7 @@
         </div>
 
         <a class="foot__mark" href="/" aria-label="Immoral — volver al inicio">
+            <video class="foot__anim" src="/imgs/logo-footer.webm" muted playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true"></video>
             <svg viewBox="0 0 118.43 21.42" aria-hidden="true"><path fill="currentColor" d="M118.43,10.46l-5.12.21V.12h-3.8v10.71l-3.01.12v-4.75h-3.68l-.1,1.76c-.9-1.28-2.69-2.11-4.6-2.11-3.49,0-6.05,1.71-7.11,4.56-.09.24-.17.49-.23.74-.04.14-.06.3-.09.45l-5.19.21c.59-1.940,2.44-2.19,3.32-2.19.17,0,.32,0,.47.02v-3.83c-1.43,0-2.9.23-4.04,1.87l-.23-1.49h-3.55v5.78l-2.53.1c-.65-3.65-3.64-6.17-7.59-6.17s-7.19,2.81-7.59,6.79l-2.45.1c-.07-4.45-2.23-6.81-6.28-6.81-2.150,0-3.7.8-4.85,2.53-1.03-2.25-3.14-2.59-4.33-2.59-.64,0-2.71.13-3.77,1.78l-.23-1.54h-3.55v7.57l-3.01.12v-.85c0-4.59-2.17-7.02-6.28-7.02-2.15,0-3.7.8-4.85,2.53-1.03-2.25-3.14-2.59-4.33-2.59-.64,0-2.71.13-3.77,1.78l-.23-1.54h-3.55v8.63l-3.01.12V6.14h-3.83v8.94l-5.44.22v2.75l5.44-.22v3.15h3.83v-3.31l3.01-.12v3.43h3.83v-3.59l5.85-.24v3.83h3.830v-3.98l5.67-.23v4.21h3.83v-4.37l3.01-.12v4.49h3.83v-4.65l5.85-.24v4.89h3.83v-5.05l5.67-.23v5.28h3.83v-5.43l2.58-.11c.74,3.53,3.6,5.86,7.48,5.86,4.11,0,7.09-2.61,7.61-6.48l2.48-.1v6.26h3.83v-6.41l5.2-.21c.3,4.38,3.12,7.07,7.53,7.07,1.64,0,3.76-.8,4.7-2.29l.15,1.85h3.62v-7.28l3.01-.12v7.4h3.8v-7.56l5.12-.21v-2.750ZM16.12,14.65v-1.57c0-1.76,1.02-3.54,2.98-3.54s2.87,1.78,2.87,3.540v1.33l-5.85.24ZM25.8,14.25v-1.18c0-2.29,1.53-3.49,3.04-3.49,1.65,0,2.63,1.28,2.63,3.43v1l-5.67.23ZM71.39,9.41c1.87,0,3.14,1.29,3.62,2.83l-7.35.3c.43-2.14,2.13-3.13,3.73-3.13ZM42.14,13.58v-.51c0-1.76,1.02-3.54,2.98-3.54s2.87,1.78,2.87,3.54v.27l-5.85.24ZM51.82,13.07c0-2.29,1.53-3.49,3.04-3.49,1.63,0,2.61,1.26,2.63,3.37l-5.67.23v-.11ZM71.39,17.77c-1.49,0-2.97-.79-3.56-2.49l7.21-.29c-.52,1.9-2.08,2.78-3.65,2.780ZM98.51,9.29c1.32,0,2.68.6,3.47,1.84l-7.17.29c.67-1.32,1.98-2.14,3.7-2.14ZM98.51,17.89c-2.26,0-3.88-1.49-4.14-3.69l8.25-.34c-.11,1.99-1.4,4.03-4.11,4.03Z"/><path fill="currentColor" d="M7.36,4.42c1.11,0,2.24-.76,2.24-2.21s-1.16-2.21-2.24-2.21-2.24.69-2.24,2.21,1.13,2.21,2.24,2.21Z"/></svg>
         </a>
 

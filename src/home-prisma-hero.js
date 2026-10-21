@@ -12,7 +12,7 @@ const I_PATH = 'M6.48,7.11c-1.27,0-2.26-.31-2.97-.94-.71-.63-1.07-1.5-1.07-2.64,
 const M_PATH = 'M14.05,36.31V12.06h6.36l.14,4.63-.97.18c.34-.79.8-1.51,1.37-2.15.57-.64,1.23-1.19,1.97-1.65s1.53-.82,2.37-1.08c.84-.26,1.67-.39,2.51-.39,1.27,0,2.41.2,3.44.6,1.02.4,1.89,1.02,2.6,1.86.71.84,1.27,1.95,1.67,3.32l-1.02-.09.33-.73c.4-.73.91-1.41,1.53-2.02.62-.61,1.32-1.13,2.09-1.56.77-.43,1.58-.76,2.41-1.01.84-.24,1.66-.37,2.46-.37,1.92,0,3.51.37,4.78,1.12,1.27.75,2.22,1.87,2.85,3.37.63,1.5.95,3.33.95,5.5v14.72h-6.59v-14.26c0-1.1-.16-2-.46-2.7-.31-.7-.76-1.23-1.35-1.58-.59-.35-1.35-.53-2.27-.53-.71,0-1.37.11-1.97.34s-1.13.55-1.58.96c-.45.41-.8.9-1.04,1.47-.25.57-.37,1.17-.37,1.81v14.49h-6.64v-14.3c0-1.01-.16-1.87-.46-2.59-.31-.72-.76-1.26-1.35-1.63-.59-.37-1.32-.55-2.18-.55-.71,0-1.37.11-1.97.34s-1.12.55-1.56.96c-.43.41-.77.89-1.02,1.44-.25.55-.37,1.15-.37,1.79v14.53h-6.64Z';
 
 // Bar of the logo: polygon 54.95,23.78 → 0,30.52 (rises ~2.45° to the right).
-const BAR_ANGLE = Math.atan2(2.35, 54.92);
+export const BAR_ANGLE = Math.atan2(2.35, 54.92);
 const BAR_THICK = 4.1;
 const BAR_LEN = 200; // mark units; stretched per frame to reach both screen edges
 const MARK_W = 54.95;
@@ -24,14 +24,14 @@ const BACKDROP_Z = -70;
 
 // Plain white wall with the ruled lines at the angle of the brand bar (glass
 // refracts them) and a soft coloured shadow of the glass.
-const backdropVertex = /* glsl */`
+export const backdropVertex = /* glsl */`
 varying vec2 vUv;
 void main() {
     vUv = uv;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }`;
 
-const backdropFragment = /* glsl */`
+export const backdropFragment = /* glsl */`
 precision highp float;
 varying vec2 vUv;
 uniform vec2 uSize;
@@ -79,7 +79,30 @@ void main() {
 
 // Studio environment in brand tones: white dome fading to periwinkle, two
 // softboxes and a blue panel, so reflections read as clean light + brand blue.
-function buildStudio() {
+// The glass of the monogram. Shared with the bubble of /nuestra-historia.
+export function glassParams() {
+    return {
+        color: 0xffffff,
+        metalness: 0,
+        roughness: 0.015,
+        transmission: 1,
+        thickness: 16,
+        ior: 1.62,
+        dispersion: 12,
+        attenuationColor: new THREE.Color('#B4C9FF'),
+        attenuationDistance: 64,
+        clearcoat: 1,
+        clearcoatRoughness: 0.03,
+        specularIntensity: 1,
+        specularColor: new THREE.Color('#ffffff'),
+        iridescence: 0.55,
+        iridescenceIOR: 1.25,
+        iridescenceThicknessRange: [180, 520],
+        envMapIntensity: 1.55,
+    };
+}
+
+export function buildStudio() {
     const env = new THREE.Scene();
     const dome = new THREE.Mesh(
         new THREE.SphereGeometry(50, 48, 24),
@@ -170,25 +193,7 @@ export function createPrismaHero(canvas, { reduced = false } = {}) {
     scene.add(backdrop);
 
     // ---------- Monogram ----------
-    const glass = new THREE.MeshPhysicalMaterial({
-        color: 0xffffff,
-        metalness: 0,
-        roughness: 0.015,
-        transmission: 1,
-        thickness: 16,
-        ior: 1.62,
-        dispersion: 12,
-        attenuationColor: new THREE.Color('#B4C9FF'),
-        attenuationDistance: 64,
-        clearcoat: 1,
-        clearcoatRoughness: 0.03,
-        specularIntensity: 1,
-        specularColor: new THREE.Color('#ffffff'),
-        iridescence: 0.55,
-        iridescenceIOR: 1.25,
-        iridescenceThicknessRange: [180, 520],
-        envMapIntensity: 1.55,
-    });
+    const glass = new THREE.MeshPhysicalMaterial(glassParams());
 
     const extrude = { depth: 5.6, bevelEnabled: true, bevelThickness: 2.6, bevelSize: 1.15, bevelOffset: -0.2, bevelSegments: 12, curveSegments: 32 };
     const iGeo = new THREE.ExtrudeGeometry(shapesFromPath(I_PATH), extrude);
