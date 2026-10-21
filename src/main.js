@@ -49,10 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Identifica ante /api/contact.js de qué formulario viene el mensaje (tabla
-// tokens_validos, etiqueta "contacto-web-immoral" en Supabase). No es un
-// secreto profundo — viaja en el bundle público, igual que la clave anon de
-// Supabase; la validación real la hace el servidor con la service_role key.
-const CONTACT_FORM_TOKEN = '723d7c6ffc60a2e785227136401be8a46a6c89bf637e3f4e';
+// tokens_validos, etiqueta "contacto-web-immoral" en Supabase). Vive en
+// src/contactForm.js, compartido con el /contacto del diseño Prisma.
+import { CONTACT_FORM_TOKEN } from './contactForm.js';
 
 function initContactForm() {
     const existingForm = document.getElementById('contactForm');

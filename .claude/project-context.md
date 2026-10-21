@@ -22,7 +22,7 @@ URLs are listed below grouped by section, with recommended sitemap priority and 
 
 - `/nuestra-historia` ← `nuestra-historia.html`
 - `/equipo` ← `equipo.html`
-- `/manifesto` ← `manifesto.html`
+- `/manifesto` — eliminada (2026-10-20): Historia y Manifiesto se unificaron en `/nuestra-historia`. `vercel.json` redirige `/manifesto` y `/manifesto.html` con 301. Ver `.brianspec/paginas-prisma.md`.
 - `/contacto` ← `contacto.html`
 
 ### Services (priority 0.8, changefreq: monthly)

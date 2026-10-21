@@ -3,6 +3,21 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/qr/:code", "destination": "/api/qr?code=:code" }
+    {
+      "source": "/qr/:code",
+      "destination": "/api/qr?code=:code"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/manifesto",
+      "destination": "/nuestra-historia",
+      "statusCode": 301
+    },
+    {
+      "source": "/manifesto.html",
+      "destination": "/nuestra-historia",
+      "statusCode": 301
+    }
   ]
 }

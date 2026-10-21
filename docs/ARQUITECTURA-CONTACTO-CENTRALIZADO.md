@@ -137,6 +137,7 @@ El badge flotante de reCAPTCHA (esquina inferior) se deja visible por defecto �
 ### `immoral-group-amb-teste` (este repo) — "web madre"
 - `api/contact.js`: endpoint centralizado completo (CORS + reCAPTCHA + tokens + insert).
 - `src/main.js`: `initContactForm()` corregido (bug SPA) + cliente de reCAPTCHA. Su propio `/contacto` usa el token `contacto-web-immoral`.
+- **Actualización 2026-10-20:** el token, el endpoint, los textos de respuesta y el envío viven ahora en `src/contactForm.js` (`CONTACT_FORM_TOKEN`, `sendContactForm()`), que importan tanto `src/main.js` como el nuevo `/contacto` con el diseño Prisma (`src/page-contacto.js`). El contrato no cambia: mismos campos (`nombre`, `email`, `empresa`, `mensaje`), mismo token, acción de reCAPTCHA `contact_form` y POST a `/api/contact`.
 - `src/tokens.js` + `tokens.html`: panel nuevo `/tokens` (alta/copiar/borrar tokens), solo admin.
 - `src/mensajes.js` + `mensajes.html`: panel `/mensajes` (ya existía de un paso anterior) — lee, marca leído, borra mensajes.
 - `src/dashboardShell.js`: nav del panel con los links a `/mensajes` y `/tokens`.
