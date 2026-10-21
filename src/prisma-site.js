@@ -454,7 +454,10 @@ export function talkWipe() {
             held += el.offsetHeight;
         }
         if (!talk || !unders.length || innerHeight < 600) return;
-        const bounds = { trigger: entry, start: 'top bottom', end: 'top top', invalidateOnRefresh: true };
+        // Refreshed after every other trigger: a pinned stack higher up the page
+        // ([data-stack], created later in this file) adds scroll this one must
+        // already count, or the card would arrive too early, over the held sections.
+        const bounds = { trigger: entry, start: 'top bottom', end: 'top top', invalidateOnRefresh: true, refreshPriority: -1 };
         const pins = unders.map(under => ScrollTrigger.create({ ...bounds, pin: under, pinSpacing: false, anticipatePin: 1 }));
         const tl = gsap.timeline({ scrollTrigger: { ...bounds, scrub: true } })
             .fromTo(talk, { y: () => -innerHeight }, { y: 0, duration: 1, ease: 'none' }, 0)
@@ -581,7 +584,9 @@ qsa('[data-stack]').forEach(section => {
         defaults: { ease: 'none' },
         scrollTrigger: {
             trigger: wrap, start: 'top top', end: () => `+=${innerHeight * 0.8 * (n - 1)}`,
-            pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true,
+            // Refreshed first: triggers below it created earlier ([data-open]…)
+            // must count the scroll this pin adds.
+            pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true, refreshPriority: 1,
             onUpdate: self => setIndex(Math.min(n - 1, Math.floor(self.progress * (n - 1) + 0.5))),
         },
     });
@@ -595,7 +600,7 @@ qsa('[data-stack]').forEach(section => {
 
 /* Footer: columns enter in sequence, the wordmark draws itself --------- */
 if (!reduced) {
-    const cols = qsa('.foot__col, .foot__claim, .faq__item');
+    const cols = qsa('.foot__where, .foot__col, .foot__social, .faq__item');
     if (cols.length) {
         gsap.set(cols, { opacity: 0 });
         ScrollTrigger.batch(cols, {
