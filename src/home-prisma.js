@@ -365,7 +365,7 @@ if (!reduced) {
         once: true,
         onEnter: els => gsap.fromTo(els, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, ease: 'expo.out', stagger: 0.08, ...vars }),
     });
-    gsap.set('.svc__item, .faq__item, .foot__col, .foot__claim', { opacity: 0 });
+    gsap.set('.svc__item, .faq__item, .foot__col, .foot__where, .foot__social', { opacity: 0 });
     // Entry cards are dealt in like a hand: they rise from below, over-rotated
     // and slightly small, and settle into the resting fan set in CSS.
     gsap.from('.path', {
@@ -375,7 +375,7 @@ if (!reduced) {
     });
     batchIn('.svc__item', { stagger: 0.05 });
     batchIn('.faq__item', { stagger: 0.05 });
-    batchIn('.foot__col, .foot__claim');
+    batchIn('.foot__where, .foot__col, .foot__social');
 }
 
 /* ------------------------------------------------------------------ */
