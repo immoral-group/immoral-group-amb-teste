@@ -650,7 +650,7 @@ ${FOOTER_AND_CLOSE}
 // ---------------------------------------------------------------------------
 // Los casos que ya están en el diseño Prisma. El resto sigue con la plantilla
 // de arriba hasta que se revisen uno a uno (docs/casos-prisma.md).
-export const PRISMA_CASES = new Set(['munkombucha', 'nutfruit', 'velites', 'amlul', 'bobo', 'lamanso', 'marcawell']);
+export const PRISMA_CASES = new Set(['munkombucha', 'nutfruit', 'velites', 'amlul', 'bobo', 'lamanso', 'marcawell', 'angelanavarro']);
 
 // Nav, menú móvil y footer: los mismos de las páginas Prisma, leídos de
 // casos-de-exito.html en cada build para que nunca se desincronicen.
