@@ -208,13 +208,12 @@ let introDone = false;
 function showFinalState() {
     if (introDone) return;
     introDone = true;
-    gsap.killTweensOf(['.intro__line', '.intro__half', titleChars, '.mark__bar', '.nav__bar', '[data-hero-fade]']);
+    gsap.killTweensOf(['.intro__line', '.intro__half', titleChars, '.nav__bar', '[data-hero-fade]']);
     qs('.intro')?.remove();
     body.classList.remove('is-loading');
     lenis?.start();
     titleLines.forEach(l => (l.style.visibility = 'visible'));
     gsap.set(titleChars, { yPercent: 0 });
-    gsap.set('.mark__bar', { scaleX: 1 });
     gsap.set('[data-hero-fade]', { opacity: 1, y: 0 });
     gsap.set('.nav__bar', { yPercent: 0 });
     heroReady.then(() => { hero?.setIntro(1); hero?.setBarIntro(1); });
@@ -224,7 +223,6 @@ function showFinalState() {
 async function runIntro() {
     await fontsReady;
     splitTitle();
-    gsap.set('.mark__bar', { rotation: -2.45, scaleX: 0, transformOrigin: 'left center' });
 
     // Reduced motion, or a tab opened in the background (rAF is frozen there):
     // go straight to the composed hero.
@@ -267,7 +265,6 @@ async function runIntro() {
         .to(iv, { bar: 1, duration: 1.3, ease: 'expo.inOut', onUpdate: () => hero?.setBarIntro(iv.bar) }, 0.1)
         .to(iv, { intro: 1, duration: 2, ease: 'expo.out', onUpdate: () => hero?.setIntro(iv.intro) }, 0.25)
         .to(titleChars, { yPercent: 0, duration: 1.15, ease: 'expo.out', stagger: 0.022 }, 0.4)
-        .to('.mark__bar', { scaleX: 1, duration: 1, ease: 'expo.inOut' }, 1)
         .to('.nav__bar', { yPercent: 0, duration: 1, ease: 'expo.out' }, 0.6)
         .to('[data-hero-fade]', { opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: 0.08 }, 0.8);
 
@@ -327,7 +324,6 @@ function initHeroScroll() {
     // comes in) · .48 → .86: the words, at the pace that already worked.
     tl.to(titleChars, { yPercent: -175, duration: 0.24, stagger: 0.004, ease: 'power1.in' }, 0.02)
         .to('.hero__title', { opacity: 0, duration: 0.04 }, 0.34)
-        .to('.mark__bar', { scaleX: 0, transformOrigin: 'right center', duration: 0.16 }, 0.04)
         .to('.hero__badge', { opacity: 0, y: -24, duration: 0.18 }, 0)
         .set('.hero__manifesto', { visibility: 'visible' }, 0.36)
         .fromTo('.hero__manifesto', { y: 140, opacity: 0 }, { y: 0, opacity: 1, duration: 0.14, ease: 'power2.out' }, 0.36)
@@ -839,12 +835,14 @@ function initCases() {
             cards.forEach((c, i) => {
                 const cs = data[i];
                 if (!cs) { c.hidden = true; return; }
+                // Same case in this slot: keep the clip of the static markup
+                // (it may point to a .webm); a different one gets its .mp4.
+                if (c.dataset.slug !== cs.slug) qs('.case__video', c).src = `/videos/casos/${cs.slug}.mp4`;
                 c.href = `caso-${cs.slug}.html`;
                 c.dataset.slug = cs.slug;
                 const img = qs('.case__duo', c);
                 img.src = src(cs.cover_image_url);
                 img.alt = cs.cover_image_alt || `Caso de éxito ${cs.brand_name}`;
-                qs('.case__video', c).src = `/videos/casos/${cs.slug}.mp4`;
                 qs('.case__name', c).textContent = cs.brand_name;
                 const [sector, result] = qsa('.case__tag', c);
                 sector.textContent = cs.sector;

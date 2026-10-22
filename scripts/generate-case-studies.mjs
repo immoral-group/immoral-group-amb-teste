@@ -91,9 +91,9 @@ const ORG_JSON_LD = `  <script type="application/ld+json">
   "url": "https://immoral.es/",
   "logo": "https://immoral.es/imgs/Menues/logo-menu-oscuro.png",
   "sameAs": [
-    "https://www.instagram.com/immoral.group/",
+    "https://www.instagram.com/immoral.growth/",
     "https://www.linkedin.com/company/immoral-group/",
-    "https://www.tiktok.com/@immoral.group",
+    "https://www.tiktok.com/@immoral.growth",
     "https://www.youtube.com/@immoralmarketing"
   ]
 }
@@ -652,6 +652,13 @@ ${FOOTER_AND_CLOSE}
 // Prisma design (src/prisma-pages.css, "Casos de éxito"). The cover shows at
 // rest and the clip plays on hover (src/page-casos.js); data-logo feeds the
 // glass bubbles of the hero (src/casos-hero.js).
+// The hover clip is public/videos/casos/<slug>.mp4, or <slug>.webm when that
+// file exists (a lighter version of the clip takes precedence).
+function caseClipUrl(slug) {
+  const webm = join(ROOT, 'public', 'videos', 'casos', `${slug}.webm`);
+  return `/videos/casos/${slug}.${existsSync(webm) ? 'webm' : 'mp4'}`;
+}
+
 export function caseCardHtml(cs) {
   const sectorSlug = slugifyValue(cs.sector);
   const resultadoSlug = slugifyValue(cs.resultado);
@@ -660,7 +667,7 @@ export function caseCardHtml(cs) {
                     <span class="case-card__inner">
                         <span class="case-card__media">
                             <img src="${escapeHtml(cs.cover_image_url)}" alt="${escapeHtml(cs.cover_image_alt)}" loading="lazy" decoding="async">
-                            <video class="case-card__video" src="/videos/casos/${cs.slug}.mp4" muted loop playsinline preload="none"></video>
+                            <video class="case-card__video" src="${caseClipUrl(cs.slug)}" muted loop playsinline preload="none"></video>
                         </span>
                         <span class="case-card__tags"><span class="case-card__tag">${escapeHtml(cs.sector)}</span><span class="case-card__tag case-card__tag--result">${escapeHtml(cs.resultado)}</span></span>
                         <span class="case-card__foot"><span class="case-card__name">${escapeHtml(cs.brand_name)}</span><span class="case-card__go">Ver caso →</span></span>

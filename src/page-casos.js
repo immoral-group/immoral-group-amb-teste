@@ -151,4 +151,76 @@ cards.forEach(card => {
     });
 });
 
+/* ------------------------------------------------------------------ */
+/* Testimonials: three in front, like the grid they were, and the     */
+/* rest on a 3D ring behind them that the buttons turn                */
+/* ------------------------------------------------------------------ */
+const ring = qs('.quotes__grid');
+const ringNav = qs('.quotes__nav');
+const ringSlots = qsa('.quote-slot', ring || document);
+if (ring && ringNav && ringSlots.length > 3) {
+    const n = ringSlots.length;
+    const step = (Math.PI * 2) / n;
+    const now = qs('.quotes__now', ringNav);
+    const pad = i => String(i + 1).padStart(2, '0');
+    let cur = 0;
+
+    const layout = () => {
+        // Three abreast on desktop, one below that; the neighbours of the
+        // front ones sit exactly where the grid columns were.
+        const wide = innerWidth > 1024;
+        const W = ring.clientWidth;
+        const gap = wide ? Math.min(22, Math.max(12, innerWidth * 0.014)) : 20;
+        const w = wide ? (W - gap * 2) / 3 : Math.min(W, 560);
+        const rx = (w + gap) / Math.sin(step);
+        const rz = w * 0.9;
+        const flat = wide ? Math.cos(step) : 1; // the front row stays on one plane
+        ring.style.setProperty('--w', `${w}px`);
+        ringSlots.forEach(s => (s.style.height = 'auto'));
+        ring.style.setProperty('--h', `${Math.max(...ringSlots.map(s => s.offsetHeight))}px`);
+        ringSlots.forEach(s => s.style.removeProperty('height'));
+        ringSlots.forEach((s, i) => {
+            let d = (((i - cur) % n) + n) % n;
+            if (d > n / 2) d -= n;
+            const a = d * step;
+            const front = wide ? Math.abs(d) <= 1 : d === 0;
+            const z = Math.min(0, Math.cos(a) - flat) * rz;
+            const seat = s.firstElementChild;
+            seat.style.translate = `${Math.sin(a) * rx}px 0 ${z}px`;
+            seat.style.rotate = `y ${-Math.sin(a) * (1 - Math.cos(a)) * 35}deg`;
+            seat.style.setProperty('--o', front ? 1 : (0.2 + Math.cos(a) * 0.1).toFixed(2));
+            s.inert = !front;
+        });
+        now.textContent = pad(cur);
+    };
+
+    const turn = dir => {
+        ring.classList.add('is-live'); // animate the turns, not the first layout
+        cur = (cur + dir + n) % n;
+        layout();
+    };
+
+    qs('.quotes__all', ringNav).textContent = String(n).padStart(2, '0');
+    ring.classList.add('is-ring');
+    ringNav.hidden = false;
+    qs('.quotes__btn--prev', ringNav).addEventListener('click', () => turn(-1));
+    qs('.quotes__btn--next', ringNav).addEventListener('click', () => turn(1));
+
+    // A swipe turns it too, on touch screens.
+    let x0 = null;
+    ring.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') x0 = e.clientX; });
+    ring.addEventListener('pointerup', e => {
+        if (x0 === null) return;
+        const dx = e.clientX - x0;
+        x0 = null;
+        if (Math.abs(dx) > 40) turn(dx < 0 ? 1 : -1);
+    });
+
+    let raf = 0;
+    addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layout); });
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(layout);
+    addEventListener('load', () => { layout(); ScrollTrigger.refresh(); });
+    layout();
+}
+
 fitCalendar(qs('.book__card iframe'));

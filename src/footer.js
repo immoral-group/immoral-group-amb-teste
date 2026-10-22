@@ -85,7 +85,7 @@ const FOOTER_HTML = `
                         </svg>
                     </a>
                     <!-- Instagram -->
-                    <a href="https://www.instagram.com/immoral.group/" target="_blank" rel="noopener noreferrer"
+                    <a href="https://www.instagram.com/immoral.growth/" target="_blank" rel="noopener noreferrer"
                         class="p-3 border border-[#2A2F36] rounded-full text-[#B9C0CA] hover:text-[#1E63FF] hover:border-[#1E63FF] transition-all duration-200 group"
                         aria-label="Instagram">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -114,7 +114,7 @@ const FOOTER_HTML = `
                         </svg>
                     </a>
                     <!-- TikTok -->
-                    <a href="https://www.tiktok.com/@immoral.group" target="_blank" rel="noopener noreferrer"
+                    <a href="https://www.tiktok.com/@immoral.growth" target="_blank" rel="noopener noreferrer"
                         class="p-3 border border-[#2A2F36] rounded-full text-[#B9C0CA] hover:text-[#1E63FF] hover:border-[#1E63FF] transition-all duration-200 group"
                         aria-label="TikTok">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
