@@ -363,7 +363,7 @@
 .offer:hover, .offer:focus-visible { color: var(--ink); }
 
 /* ---------- Contacto: book a call ---------- */
-.book { background: #fff; }
+.book { background: #fff; overflow-x: clip; } /* the cartoon peeks to the screen edge, never past it */
 .book__wrap { display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: clamp(32px, 5vw, 96px); align-items: start; }
 .book__aside { position: sticky; top: 130px; }
 .book__aside .lede { margin-top: clamp(20px, 2.4vw, 32px); }
@@ -539,8 +539,8 @@
 .filter-pill.is-active { background: #fff; color: var(--blue); box-shadow: none; }
 .filter-pill:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 
-.cases__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(14px, 1.4vw, 24px); margin-top: clamp(28px, 3vw, 48px); }
-.case-card { position: relative; display: block; aspect-ratio: 3 / 4; }
+.cases__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 1.4vw, 24px); margin-top: clamp(28px, 3vw, 48px); }
+.case-card { position: relative; display: block; aspect-ratio: 16 / 9; /* landscape, like the cover images */ }
 .case-card[hidden] { display: none; }
 .case-card__inner {
     position: absolute; inset: 0; overflow: hidden; isolation: isolate; border-radius: var(--radius);
@@ -577,9 +577,9 @@
 
 /* ---------- Casos de éxito: testimonials, laid out like the home's bubbles (open)
    and coloured like the pillars of /nuestra-historia ---------- */
-.quotes { background: #fff; }
+.quotes { background: #fff; overflow-x: clip; }
 .quotes__title { max-width: 22ch; }
-.quotes__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 22px); margin-top: clamp(48px, 6vw, 90px); padding: 14px 0; }
+.quotes__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 22px); padding: 14px 0; }
 .quote-slot { display: flex; }
 .quote-slot:hover { position: relative; z-index: 2; }
 .quote {
@@ -596,6 +596,9 @@
 .quote--cyan { background: #3FE0F5; color: #0B0B0C; --accent: var(--blue); --soft: rgba(11, 11, 12, .72); }
 .quote__head { display: flex; align-items: center; gap: 12px; }
 .quote__avatar { width: 46px; height: 46px; flex: none; border-radius: 50%; object-fit: contain; padding: 4px; background: #fff; }
+/* No portrait yet: the initials stand in for the photo. */
+.quote__avatar--initials { display: grid; place-items: center; padding: 0; color: #0B0B0C; font-size: 15px; font-weight: 700; letter-spacing: .02em; }
+.quote--paper .quote__avatar--initials { background: var(--blue); color: #fff; }
 .quote__who { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
 .quote__who strong { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 .quote__who small { font-size: 13px; color: var(--soft); }
@@ -612,6 +615,27 @@
 .quote--cyan .quote__logo, .quote--paper .quote__logo { filter: brightness(0); }
 /* A square file with a lot of air around the mark: it needs more room to read the same. */
 .quote__logo--square { height: 64px; margin: -19px -12px; }
+.quote-seat { flex: 1; display: flex; }
+/* With JS, three in front and the rest on a 3D ring behind them (src/page-casos.js
+   sets --w, --h and each seat's translate, rotate and --o). The ring moves the
+   seat and the card deal moves the slot, so neither undoes the other. */
+.quotes__stage { margin-top: clamp(48px, 6vw, 90px); perspective: 2200px; perspective-origin: 50% 30%; }
+.quotes__grid.is-ring { display: block; position: relative; max-width: none; height: calc(var(--h, 520px) + 28px); transform-style: preserve-3d; }
+.is-ring .quote-slot { position: absolute; top: 14px; left: 50%; width: var(--w); height: var(--h); margin-left: calc(var(--w) / -2); transform-style: preserve-3d; }
+.is-ring .quote-seat { opacity: var(--o, 1); }
+.is-ring.is-live .quote-seat { transition: translate 1s var(--ease), rotate 1s var(--ease), opacity .8s var(--ease); }
+.is-ring .quote-slot[inert] .quote { box-shadow: none; }
+.quotes__nav { display: flex; justify-content: center; align-items: center; gap: clamp(16px, 2vw, 28px); margin-top: clamp(24px, 3vw, 44px); }
+.quotes__nav[hidden] { display: none; }
+.quotes__btn {
+    width: 54px; height: 54px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; color: var(--ink);
+    box-shadow: inset 0 0 0 1.5px var(--line-strong); transition: background .3s, color .3s, box-shadow .3s, transform .5s var(--ease);
+}
+.quotes__btn:hover, .quotes__btn:focus-visible { background: var(--blue); color: #fff; box-shadow: none; }
+.quotes__btn--prev:hover { transform: translateX(-4px); }
+.quotes__btn--next:hover { transform: translateX(4px); }
+.quotes__count { margin: 0; min-width: 5.5em; text-align: center; font-size: 13px; font-weight: 600; letter-spacing: .16em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.quotes__now { color: var(--blue); }
 
 /* ---------- Casos de éxito: book a call, the phone on the left ---------- */
 .book--flip { background: var(--bg); }
@@ -665,6 +689,8 @@
 .platforms__orb--b { width: 40vw; aspect-ratio: 1; right: -10vw; bottom: -14%; background: radial-gradient(circle, rgba(63, 224, 245, .26), transparent 68%); animation: orb-b 20s ease-in-out infinite alternate; }
 .platforms__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 1.4vw, 22px); margin-top: clamp(48px, 6vw, 90px); }
 .platform { display: flex; }
+/* Under the grid, centred: we work with more platforms than the ones listed. */
+.platforms__more { margin-top: clamp(28px, 3vw, 44px); text-align: center; font-size: clamp(30px, 2.6vw, 44px); font-weight: 700; line-height: 1; letter-spacing: .08em; color: var(--blue); }
 /* At rest only the logo, large and centred (most of them already carry the
    name); on hover the card takes the platform's colour and the text opens. */
 .platform__card {
@@ -981,7 +1007,7 @@
     /* The map is on top here: the cartoon rises from behind the card, at the right. */
     .visit__toon { top: calc(max(62vh, 380px) - 110px); bottom: auto; right: 12px; height: clamp(160px, 30vw, 260px); translate: 0 -100%; }
     .book__aside { position: static; }
-    .cases__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cases__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .quotes__grid { grid-template-columns: 1fr; max-width: 640px; }
     .book--flip .book__wrap { grid-template-columns: 1fr; }
     .book--flip .book__aside { order: -1; }
@@ -1032,6 +1058,7 @@
     .hero-cases__copy { top: 34%; }
 }
 @media (max-width: 560px) {
+    .cases__grid { grid-template-columns: 1fr; }
     .hero-bubble__t2 { font-size: 9.4vw; }
     .book__phone { --s: .6; }
     .pillars__grid { grid-template-columns: 1fr; }

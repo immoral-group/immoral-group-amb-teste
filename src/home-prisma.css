@@ -398,6 +398,8 @@ ol, ul { padding: 0; list-style: none; }
 
 /* ---------- Services ---------- */
 .doors__services { margin-top: clamp(90px, 10vw, 170px); }
+/* With the entry cards hidden (index.html), the services open the section. */
+.doors__entry[hidden] + .doors__services { margin-top: 0; }
 .svc { margin-top: clamp(36px, 4.4vw, 72px); border-top: 1px solid var(--line); }
 .svc__item { border-bottom: 1px solid var(--line); }
 .svc__h { font: inherit; }
@@ -419,36 +421,6 @@ ol, ul { padding: 0; list-style: none; }
     color: var(--ink);
     transition: color .45s;
 }
-/* Word swaps: the initial phrase reads clean; on hover (focus, or when the
-   row is open) its part gets struck through, folds away, and the real words
-   open in its place. Leaving runs it in reverse. */
-.sw__old, .sw__new { display: inline-grid; vertical-align: bottom; }
-.sw__old > span, .sw__new > span { min-width: 0; overflow: hidden; white-space: nowrap; padding-bottom: .12em; margin-bottom: -.12em; }
-.sw__old {
-    grid-template-columns: 1fr;
-    transition: grid-template-columns .55s var(--ease) .15s, opacity .3s .15s, color .4s;
-}
-.sw__word { position: relative; display: inline-block; }
-.sw__word::after {
-    content: ''; position: absolute; left: 0; right: 0; top: 55%; height: .085em; border-radius: .03em;
-    background: var(--blue); transform: rotate(var(--tilt)) scaleX(0); transform-origin: left center;
-    transition: transform .35s var(--ease) .4s, background .4s;
-}
-.sw__new {
-    grid-template-columns: 0fr; opacity: 0; color: var(--blue);
-    transition: grid-template-columns .55s var(--ease), opacity .35s, color .4s;
-}
-.svc__head:hover .sw__old, .svc__head:focus-visible .sw__old, .svc__item.is-open .sw__old {
-    grid-template-columns: 0fr; opacity: 0; color: var(--ink-3);
-    transition-delay: .4s, .45s, 0s; /* strike first, then the struck word folds away */
-}
-.svc__head:hover .sw__word::after, .svc__head:focus-visible .sw__word::after, .svc__item.is-open .sw__word::after {
-    transform: rotate(var(--tilt)) scaleX(1); transition-delay: 0s;
-}
-.svc__head:hover .sw__new, .svc__head:focus-visible .sw__new, .svc__item.is-open .sw__new {
-    grid-template-columns: 1fr; opacity: 1;
-    transition-delay: .45s; /* and the real words take its place */
-}
 .svc__tag { font-size: 12px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); transition: color .4s, transform .8s var(--ease); }
 .svc__plus, .faq__plus {
     position: relative; width: 50px; height: 50px; border-radius: 50%; box-shadow: inset 0 0 0 1.5px var(--line-strong);
@@ -464,13 +436,10 @@ ol, ul { padding: 0; list-style: none; }
 .svc__item.is-open .svc__plus, .faq__item.is-open .faq__plus { background: var(--blue); box-shadow: none; transform: rotate(135deg); }
 .svc__item.is-open .svc__plus::before, .svc__item.is-open .svc__plus::after,
 .faq__item.is-open .faq__plus::before, .faq__item.is-open .faq__plus::after { background: #fff; }
-/* On the blue fill the row turns white; the new words go light blue. */
+/* On the blue fill the row turns white and the number light blue. */
 .svc__head:hover .svc__title-in, .svc__head:focus-visible .svc__title-in,
 .svc__head:hover .svc__tag, .svc__head:focus-visible .svc__tag { color: #fff; }
-.svc__head:hover .svc__num, .svc__head:focus-visible .svc__num,
-.svc__head:hover .sw__new, .svc__head:focus-visible .sw__new { color: #B9CDFF; }
-.svc__head:hover .sw__old, .svc__head:focus-visible .sw__old { color: rgba(255, 255, 255, .6); }
-.svc__head:hover .sw__word::after, .svc__head:focus-visible .sw__word::after { background: #fff; }
+.svc__head:hover .svc__num, .svc__head:focus-visible .svc__num { color: #B9CDFF; }
 .svc__head:hover .svc__title, .svc__head:focus-visible .svc__title { transform: translateX(10px); }
 .svc__head:hover .svc__plus, .svc__head:focus-visible .svc__plus { box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .7); }
 .svc__head:hover .svc__plus::before, .svc__head:hover .svc__plus::after,
@@ -694,6 +663,8 @@ ol, ul { padding: 0; list-style: none; }
 }
 .bubble__head { display: flex; align-items: center; gap: 10px; }
 .bubble__avatar { width: 34px; height: 34px; flex: none; border-radius: 50%; object-fit: contain; background: var(--mist); padding: 3px; }
+/* No portrait yet: the initials stand in for the photo. */
+.bubble__avatar--initials { display: grid; place-items: center; padding: 0; background: var(--blue); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
 .bubble__who { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
 .bubble__who strong { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
 .bubble__who small { font-size: 11.5px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
