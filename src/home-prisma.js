@@ -1012,3 +1012,12 @@ if (!reduced) footMark();
 })();
 
 window.addEventListener('load', () => ScrollTrigger.refresh());
+
+/* Cookie notice on a first visit, once the intro is out of the way ----- */
+(function cookieNotice() {
+    const show = () => import('./bottom-panel.js').then(({ initBottomPanel }) => initBottomPanel()).catch(() => {});
+    if (!qs('.intro')) return show();
+    // Shown when the intro is gone, or after 8 s whatever happens to it.
+    const start = Date.now();
+    const wait = setInterval(() => { if (!qs('.intro') || Date.now() - start > 8000) { clearInterval(wait); show(); } }, 300);
+})();
