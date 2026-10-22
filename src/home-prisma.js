@@ -189,9 +189,11 @@ const heroReady = (async () => {
     }
 })();
 
-// Title split: chars rise inside each line (lines clip, descenders included).
+// Title split: chars rise inside each line. Lines clip, so the clip reaches
+// past the tight line-height on both sides (the dot of the i, the tail of the
+// g); the negative margins keep the title where it was.
 const titleLines = qsa('.hero__line');
-qsa('.hero__line').forEach(l => { l.style.overflow = 'clip'; l.style.paddingBottom = '.14em'; l.style.marginBottom = '-.14em'; });
+qsa('.hero__line').forEach(l => { Object.assign(l.style, { overflow: 'clip', paddingTop: '.24em', marginTop: '-.24em', paddingBottom: '.26em', marginBottom: '-.26em' }); });
 let titleChars = [];
 
 function splitTitle() {
