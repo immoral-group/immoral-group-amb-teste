@@ -28,6 +28,10 @@ function renderDenied() {
 // chico que es el snippet.
 function previewLogoHTML(logo) {
   const multiplier = Number(logo.size_multiplier) || 1;
+  if (!logo.image_url) {
+    return `<span class="whitespace-nowrap font-bold text-white opacity-50"
+    style="font-size: calc(1.15rem * ${multiplier})">${escapeHtml(logo.name)}</span>`;
+  }
   return `<img src="${escapeHtml(logo.image_url)}" alt="${escapeHtml(logo.name)}"
     style="height: calc(1.5rem * ${multiplier})"
     class="w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />`;
@@ -54,8 +58,8 @@ function logoRow(logo, isAdmin) {
   return `
     <div class="flex items-center gap-4 ${T.surface} ${T.radiusCard} p-3" data-id="${logo.id}">
       <div class="w-10 h-10 flex items-center justify-center bg-white/5 ${T.radiusSm} p-1 flex-shrink-0">
-        <img src="${escapeHtml(logo.image_url)}" alt="${escapeHtml(logo.name)}"
-          class="max-w-full max-h-full object-contain brightness-0 invert" />
+        ${logo.image_url ? `<img src="${escapeHtml(logo.image_url)}" alt="${escapeHtml(logo.name)}"
+          class="max-w-full max-h-full object-contain brightness-0 invert" />` : `<span class="text-[10px] font-bold text-white/60" title="Sin logo: se muestra el nombre">Aa</span>`}
       </div>
       <div class="flex-1 min-w-0">
         <p class="${T.textPrimary} text-sm font-medium truncate">${escapeHtml(logo.name)}</p>
