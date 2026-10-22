@@ -646,6 +646,286 @@ ${FOOTER_AND_CLOSE}
 }
 
 // ---------------------------------------------------------------------------
+// Plantilla Prisma de una página de detalle (diseño nuevo)
+// ---------------------------------------------------------------------------
+// Los casos que ya están en el diseño Prisma. El resto sigue con la plantilla
+// de arriba hasta que se revisen uno a uno (docs/casos-prisma.md).
+export const PRISMA_CASES = new Set(['munkombucha']);
+
+// Nav, menú móvil y footer: los mismos de las páginas Prisma, leídos de
+// casos-de-exito.html en cada build para que nunca se desincronicen.
+let prismaChrome = null;
+function getPrismaChrome() {
+  if (prismaChrome) return prismaChrome;
+  const html = readFileSync(GRID_PAGE, 'utf-8');
+  const slice = (from, to, inclusive) => {
+    const a = html.indexOf(from);
+    const b = html.indexOf(to, a);
+    if (a === -1 || b === -1) throw new Error(`No se encontró "${from}" … "${to}" en casos-de-exito.html`);
+    return html.slice(a, inclusive ? b + to.length : b).trimEnd();
+  };
+  prismaChrome = {
+    top: slice('<body class="prisma prisma-page">', '<main id="contenido">', false),
+    footer: slice('<footer class="foot"', '</footer>', true),
+  };
+  return prismaChrome;
+}
+
+// Párrafos de un campo de texto largo (línea en blanco = párrafo nuevo). Si
+// falta el espacio tras un punto ("honorarios.Cuentan"), se añade.
+function paragraphsOf(text) {
+  return String(text ?? '')
+    .replace(/\r\n/g, '\n')
+    .split(/\n\s*\n/)
+    .map((p) => p.trim().replace(/([a-záéíóúñ])\.([A-ZÁÉÍÓÚÑ])/g, '$1. $2'))
+    .filter(Boolean);
+}
+
+// Ruta absoluta para los recursos guardados como "imgs/..." en Supabase.
+const assetUrl = (url) => (/^(https?:)?\//.test(url || '') ? url : `/${url}`);
+// URL completa (Open Graph, JSON-LD): las de Supabase Storage ya lo son.
+const absoluteUrl = (url) => (/^https?:/.test(url || '') ? url : `https://immoral.es${assetUrl(url)}`);
+// Un recurso del repo que Supabase nombra pero que no está en public/ (p. ej.
+// un logo que se renombró) no se pinta: mejor sin él que una imagen rota.
+const assetExists = (url) => !!url && (/^https?:/.test(url) || existsSync(join(ROOT, 'public', url.replace(/^\//, ''))));
+const initialsOf = (name) => String(name || '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+
+// Una cifra como "+51%": el número cuenta al aparecer (src/page-service.js);
+// lo que no es un entero ("x3,5") se muestra tal cual.
+function cutHtml(r, i) {
+  const value = String(r.value ?? '').trim();
+  const m = value.match(/^([^\d]*?)(\d+)([^\d]*)$/);
+  const half = m
+    ? `${escapeHtml(m[1])}<span data-count="${m[2]}">${m[2]}</span>${escapeHtml(m[3])}`
+    : escapeHtml(value);
+  return `                <li class="cut">
+                    <p class="cut__num">
+                        <span class="sr-only">${escapeHtml(value)}</span>
+                        <span class="cut__half cut__half--a" aria-hidden="true">${half}</span>
+                        <span class="cut__half cut__half--b" aria-hidden="true">${half}</span>
+                    </p>
+                    <p class="cut__label"><span class="cut__idx" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>${escapeHtml(r.label)}</p>
+                </li>`;
+}
+
+function prismaHeroHtml(cs) {
+  return `    <!-- ============ HERO ============ -->
+    <!-- La portada del caso, con su clip en bucle encima; el logo, en una burbuja de vidrio. -->
+    <section class="hero-case" data-hero data-grain-off aria-labelledby="page-title">
+        <div class="wrap hero-case__wrap">
+            <div class="hero-case__copy">
+                <a class="hero-case__back" href="casos-de-exito.html" data-hero-fade><span aria-hidden="true">←</span> Casos de éxito</a>
+                <p class="hero-case__tags" data-hero-fade><span class="case-card__tag">${escapeHtml(cs.sector)}</span><span class="case-card__tag case-card__tag--result">${escapeHtml(cs.resultado)}</span></p>
+                <h1 class="hero-title hero-case__title" id="page-title" data-hero-title>${escapeHtml(cs.brand_name)}</h1>
+${paragraphsOf(cs.description).map((p) => `                <p class="hero-note" data-hero-fade>${escapeHtml(p)}</p>`).join('\n')}
+            </div>
+            <figure class="hero-case__media" data-hero-pop data-play-visible>
+                <img src="${escapeHtml(assetUrl(cs.cover_image_url))}" alt="${escapeHtml(cs.cover_image_alt)}" fetchpriority="high" decoding="async">
+                <video src="${caseClipUrl(cs.slug)}" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+${assetExists(cs.logo_url) ? `                <span class="hero-case__logo"><img src="${escapeHtml(assetUrl(cs.logo_url))}" alt="Logo de ${escapeHtml(cs.brand_name)}"></span>` : ''}
+            </figure>
+        </div>
+    </section>`;
+}
+
+function prismaChallengeHtml(cs) {
+  const ps = paragraphsOf(cs.challenge_text);
+  if (!ps.length) return '';
+  return `
+
+    <!-- ============ EL RETO ============ -->
+    <!-- El título se queda; el texto se enciende palabra a palabra con el scroll. -->
+    <section class="about-svc case-challenge section" aria-labelledby="reto-title">
+        <div class="wrap about-svc__wrap">
+            <h2 class="h2 about-svc__title" id="reto-title" data-split>El reto</h2>
+            <div class="about-svc__body">
+${ps.map((p) => `                <p class="about-svc__text" data-scrub-words>${escapeHtml(p)}</p>`).join('\n')}
+            </div>
+        </div>
+    </section>`;
+}
+
+function prismaShotHtml(cs) {
+  if (!cs.mid_image_url) return '';
+  return `
+
+    <!-- ============ IMAGEN ============ -->
+    <div class="case-shot">
+        <div class="wrap">
+            <figure class="case-shot__frame"><img src="${escapeHtml(assetUrl(cs.mid_image_url))}" alt="${escapeHtml(cs.mid_image_alt)}" loading="lazy" decoding="async" data-speed="0.35"></figure>
+        </div>
+    </div>`;
+}
+
+function prismaSolutionHtml(cs) {
+  const ps = paragraphsOf(cs.solution_text);
+  if (!ps.length) return '';
+  return `
+
+    <!-- ============ LA SOLUCIÓN ============ -->
+    <!-- Un paso por párrafo, en la lista editorial de las páginas de servicio (el azul barre cada fila). -->
+    <section class="rows-svc case-solution section" aria-labelledby="solucion-title">
+        <div class="wrap">
+            <h2 class="h2" id="solucion-title" data-split>La solución</h2>
+            <ol class="rows-svc__list" role="list" data-batch>
+${ps.map((p, i) => `                <li class="row-svc row-svc--text">
+                    <span class="row-svc__fill" aria-hidden="true"></span>
+                    <span class="row-svc__n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+                    <p class="row-svc__text">${escapeHtml(p)}</p>
+                </li>`).join('\n')}
+            </ol>
+        </div>
+    </section>`;
+}
+
+function prismaResultsHtml(cs) {
+  const results = cs.case_study_results || [];
+  if (!results.length) return '';
+  return `
+
+    <!-- ============ RESULTADOS ============ -->
+    <!-- Las cifras, partidas por la línea del logo: las dos mitades se juntan y el número cuenta. -->
+    <section class="kpis section" aria-labelledby="kpis-title">
+        <div class="wrap">
+            <h2 class="h2 kpis__title" id="kpis-title" data-split>Lo que cambió</h2>
+            <ol class="cuts kpis__cuts" role="list" style="--n: ${Math.min(results.length, 4)}">
+${results.map(cutHtml).join('\n')}
+            </ol>
+        </div>
+    </section>`;
+}
+
+function prismaVoiceHtml(cs) {
+  const ts = cs.case_study_testimonials || [];
+  if (!ts.length) return '';
+  const card = (t, i) => `                <article class="quote ${i % 2 ? 'quote--black' : 'quote--blue'} case-voice__quote">
+                    <div class="quote__head">
+                        ${assetExists(cs.logo_url)
+                          ? `<span class="quote__avatar case-voice__avatar"><img src="${escapeHtml(assetUrl(cs.logo_url))}" alt="" loading="lazy"></span>`
+                          : `<span class="quote__avatar quote__avatar--initials" aria-hidden="true">${escapeHtml(initialsOf(t.author_name))}</span>`}
+                        <span class="quote__who"><strong>${escapeHtml(t.author_name)}</strong>${t.author_role ? `<small>${escapeHtml(t.author_role)}</small>` : ''}</span>
+                    </div>
+                    ${t.highlight ? `<h3 class="quote__title">${escapeHtml(t.highlight)}</h3>` : ''}
+${paragraphsOf(t.quote).map((p) => `                    <p class="quote__text">${escapeHtml(p)}</p>`).join('\n')}
+                </article>`;
+  return `
+
+    <!-- ============ TESTIMONIO ============ -->
+    <section class="case-voice section" aria-labelledby="voz-title">
+        <div class="wrap case-voice__wrap">
+            <h2 class="h2 case-voice__title" id="voz-title" data-split>En palabras de ${escapeHtml(cs.brand_name)}</h2>
+            <div class="case-voice__list" data-reveal>
+${ts.map(card).join('\n')}
+            </div>
+        </div>
+    </section>`;
+}
+
+// Los tres casos que siguen en el orden de /casos-de-exito (vuelve al principio al final).
+function prismaMoreHtml(cs, cases) {
+  const others = cases.filter((c) => c.slug !== cs.slug);
+  if (!others.length) return '';
+  const at = Math.max(0, cases.findIndex((c) => c.slug === cs.slug));
+  const next = [...cases.slice(at + 1), ...cases.slice(0, at)].slice(0, 3);
+  return `
+
+    <!-- ============ MÁS CASOS ============ -->
+    <section class="case-next section" aria-labelledby="mas-title">
+        <div class="wrap">
+            <header class="case-next__head">
+                <h2 class="h2" id="mas-title" data-split>Más casos de éxito</h2>
+                <a class="btn btn--lg" href="casos-de-exito.html" data-magnetic><span>Ver todos los casos</span><i class="btn__arrow" aria-hidden="true"></i></a>
+            </header>
+            <div class="cases__grid case-next__grid" data-deal>
+${next.map(caseCardHtml).join('\n\n')}
+            </div>
+        </div>
+    </section>`;
+}
+
+function renderPrismaDetailPage(cs, cases) {
+  const { top, footer } = getPrismaChrome();
+  const url = `https://immoral.es/caso-${cs.slug}`;
+  const title = `${cs.brand_name} — Caso de éxito | Immoral`;
+  const description = paragraphsOf(cs.description).join(' ').slice(0, 300);
+  const jsonLd = (obj) => `<script type="application/ld+json">\n${JSON.stringify(obj, null, 2)}\n</script>`;
+
+  return `${GENERATED_MARKER}
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>${escapeHtml(title)}</title>
+<meta name="description" content="${escapeHtml(description)}">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="canonical" href="${url}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="${url}">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:image" content="${escapeHtml(absoluteUrl(cs.cover_image_url))}">
+<link rel="icon" type="image/svg+xml" href="/imgs/favicon.svg">
+<link rel="preload" href="/fonts/Lexend-VariableFont_wght.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/src/home-prisma.css">
+<link rel="stylesheet" href="/src/prisma-pages.css">
+${ORG_JSON_LD.trim()}
+${jsonLd({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: `${cs.brand_name} — Caso de éxito`,
+  description: paragraphsOf(cs.description).join(' '),
+  url,
+  image: absoluteUrl(cs.cover_image_url),
+  // Solo se incluyen si Supabase trae la fecha real — nunca se inventa una.
+  ...(cs.created_at ? { datePublished: cs.created_at } : {}),
+  ...(cs.updated_at ? { dateModified: cs.updated_at } : {}),
+  author: { '@type': 'Organization', name: 'Immoral', url: 'https://immoral.es/' },
+  publisher: { '@type': 'Organization', name: 'Immoral', url: 'https://immoral.es/' },
+})}
+${jsonLd({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://immoral.es/' },
+    { '@type': 'ListItem', position: 2, name: 'Casos de éxito', item: 'https://immoral.es/casos-de-exito' },
+    { '@type': 'ListItem', position: 3, name: cs.brand_name, item: url },
+  ],
+})}
+</head>
+
+${top}
+
+<main id="contenido">
+
+${prismaHeroHtml(cs)}${prismaChallengeHtml(cs)}${prismaShotHtml(cs)}${prismaSolutionHtml(cs)}${prismaResultsHtml(cs)}${prismaVoiceHtml(cs)}${prismaMoreHtml(cs, cases)}
+
+    <!-- ============ CIERRE ============ -->
+    <div class="talk-entry">
+    <section class="talk" aria-labelledby="talk-title">
+        <div class="talk__card">
+            <canvas class="talk__field" aria-hidden="true"></canvas>
+            <div class="talk__content">
+                <h2 class="talk__title" id="talk-title">¿Hablamos de tu caso?</h2>
+                <p class="talk__text">Empezamos por una auditoría de lo que ya tienes en marcha. Te decimos qué cambiaríamos y por qué, con números.</p>
+                <a class="btn btn--white btn--lg" href="contacto.html" data-magnetic><span>Solicita tu auditoría</span><i class="btn__arrow" aria-hidden="true"></i></a>
+            </div>
+        </div>
+    </section>
+    </div>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+${footer}
+
+<script type="module" src="/src/page-caso.js"></script>
+</body>
+</html>
+`;
+}
+
+// ---------------------------------------------------------------------------
 // Grid + filtros de casos-de-exito.html
 // ---------------------------------------------------------------------------
 
@@ -723,7 +1003,8 @@ function writeGridPage(cases) {
 
 function writeDetailPages(cases) {
   for (const cs of cases) {
-    writeFileSync(join(ROOT, `caso-${cs.slug}.html`), renderDetailPage(cs));
+    const html = PRISMA_CASES.has(cs.slug) ? renderPrismaDetailPage(cs, cases) : renderDetailPage(cs);
+    writeFileSync(join(ROOT, `caso-${cs.slug}.html`), html);
   }
 }
 
