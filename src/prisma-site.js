@@ -612,3 +612,7 @@ if (!reduced) {
 }
 
 window.addEventListener('load', () => ScrollTrigger.refresh());
+
+/* Cookie notice on a first visit, once the page intro is done ---------- */
+// (or after 8 s, whatever happens to the intro)
+Promise.race([introDone, new Promise(r => setTimeout(r, 8000))]).then(() => import('./bottom-panel.js')).then(({ initBottomPanel }) => initBottomPanel()).catch(() => {});

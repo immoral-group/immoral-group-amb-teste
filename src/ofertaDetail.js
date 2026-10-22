@@ -3,6 +3,10 @@ import { supabase } from './supabaseClient.js';
 // ver la misma nota en api/job-application.js. Volver a importar
 // getRecaptchaToken de './recaptcha.js' y mandar el token al reactivarlo.
 
+// /oferta.html?slug=… on the Prisma design: the job opening comes from
+// Supabase (job_openings, managed in /ofertas) and is drawn into
+// #oferta-detail-root. Styles: "Oferta" in src/prisma-pages.css.
+
 const MAX_CV_BYTES = 3 * 1024 * 1024;
 const ALLOWED_CV_TYPES = [
     'application/pdf',
@@ -16,6 +20,17 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+// Blank line = new paragraph; a single line break stays as it is.
+function paragraphs(text) {
+    return String(text ?? '')
+        .replace(/\r\n/g, '\n')
+        .split(/\n\s*\n/)
+        .map(p => p.trim())
+        .filter(Boolean)
+        .map(p => `<p>${escapeHtml(p).replace(/\n/g, '<br>')}</p>`)
+        .join('');
+}
+
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -26,75 +41,77 @@ function fileToBase64(file) {
 }
 
 function renderNotFound(root) {
+    document.title = 'Oferta no disponible · Immoral';
     root.innerHTML = `
-        <section class="w-full bg-black min-h-[70vh] flex items-center pt-32 pb-20 px-6 sm:px-12 xl:px-24">
-            <div class="max-w-2xl mx-auto text-center">
-                <h1 class="text-3xl sm:text-4xl font-black text-white mb-4">Oferta no encontrada</h1>
-                <p class="text-gray-400 font-light mb-8">Esta oferta ya no está disponible o el enlace no es correcto.</p>
-                <a href="/equipo.html" class="inline-flex items-center gap-2 bg-blue-500 text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest hover:bg-blue-600 transition-all duration-300">Ver ofertas activas</a>
+        <section class="hero-offer hero-offer--empty" data-hero data-grain-off aria-labelledby="page-title">
+            <div class="wrap hero-offer__wrap">
+                <a class="hero-case__back" href="/equipo.html#ofertas" data-hero-fade><span aria-hidden="true">←</span> Ofertas activas</a>
+                <h1 class="hero-title hero-offer__title" id="page-title" data-hero-title>Esta oferta ya no está disponible</h1>
+                <p class="hero-note" data-hero-fade>Puede que se haya cerrado o que el enlace no sea correcto. Mira las que tenemos abiertas ahora.</p>
+                <a class="btn btn--blue btn--lg" href="/equipo.html#ofertas" data-hero-fade data-magnetic><span>Ver ofertas activas</span><i class="btn__arrow" aria-hidden="true"></i></a>
             </div>
         </section>
     `;
 }
 
 function renderOffer(root, offer) {
+    document.title = `${offer.title} · Trabaja en Immoral`;
     root.innerHTML = `
-        <section class="w-full bg-black pt-40 pb-20 px-6 sm:px-12 xl:px-24">
-            <div class="max-w-4xl">
-                <a href="/equipo.html" class="text-blue-500 text-sm font-bold uppercase tracking-widest mb-4 inline-flex items-center gap-2 hover:text-blue-400 transition-colors">
-                    ← Ofertas activas
-                </a>
-                <h1 class="mt-4 text-4xl sm:text-5xl xl:text-6xl font-black text-white leading-tight">${escapeHtml(offer.title)}</h1>
+        <section class="hero-offer" data-hero data-grain-off aria-labelledby="page-title">
+            <div class="wrap hero-offer__wrap">
+                <a class="hero-case__back" href="/equipo.html#ofertas" data-hero-fade><span aria-hidden="true">←</span> Ofertas activas</a>
+                <p class="hero-offer__eyebrow" data-hero-fade>Trabaja en Immoral</p>
+                <h1 class="hero-title hero-offer__title" id="page-title" data-hero-title>${escapeHtml(offer.title)}</h1>
             </div>
         </section>
 
-        <section class="w-full bg-white py-20 px-6 sm:px-12 xl:px-24">
-            <div class="max-w-4xl mx-auto">
-                <div class="w-16 h-1 bg-gradient-to-r from-blue-400 to-blue-600 mb-16 rounded-full"></div>
-
-                <div class="space-y-16 text-gray-700 leading-relaxed">
-                    <div>
-                        <h2 class="text-2xl font-black text-black mb-6">Sobre el puesto</h2>
-                        <p class="whitespace-pre-line">${escapeHtml(offer.description)}</p>
-                    </div>
-
-                    <div>
-                        <div class="bg-black rounded-2xl p-8 text-white">
-                            <h3 class="font-black text-lg mb-3">Postúlate a esta oferta</h3>
-                            <p class="text-gray-400 text-sm mb-6">Cuéntanos quién eres y sube tu CV en PDF o Word (máx. 3MB).</p>
-
-                            <form id="application-form" class="space-y-4">
-                                <input type="text" id="app-name" placeholder="Nombre completo" required
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
-                                <input type="email" id="app-email" placeholder="Email" required
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
-                                <input type="tel" id="app-phone" placeholder="Teléfono (opcional)"
-                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
-                                <input type="file" id="app-cv" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required
-                                    class="w-full text-gray-400 text-sm cursor-pointer file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-blue-500 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-blue-600 file:transition-colors" />
-                                <button type="submit" id="app-submit" class="w-full bg-blue-500 text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                                    Enviar candidatura
-                                </button>
-                                <p id="app-status" class="hidden text-sm"></p>
-                            </form>
-                        </div>
-                    </div>
-
+        <section class="offer-body section" aria-labelledby="puesto-title">
+            <div class="wrap offer-body__wrap">
+                <div class="offer-body__text">
+                    <h2 class="h2" id="puesto-title">Sobre el puesto</h2>
+                    <div class="offer-body__desc">${paragraphs(offer.description)}</div>
                     ${offer.survey_url ? `
-                    <div>
-                        <div class="border border-gray-200 rounded-2xl p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 justify-between">
-                            <div>
-                                <h3 class="font-black text-lg text-black mb-1">¿Quieres contarnos algo más?</h3>
-                                <p class="text-gray-500 text-sm">Si quieres, puedes responder una breve encuesta adicional.</p>
-                            </div>
-                            <a href="${escapeHtml(offer.survey_url)}" target="_blank" rel="noopener noreferrer"
-                                class="shrink-0 inline-flex items-center gap-2 bg-black text-white px-6 py-3 rounded-full text-sm font-bold uppercase tracking-widest hover:bg-gray-800 transition-all duration-300">
-                                Responder encuesta
-                            </a>
+                    <aside class="offer-body__survey">
+                        <div>
+                            <p class="offer-body__survey-title">¿Quieres contarnos algo más?</p>
+                            <p class="offer-body__survey-text">Si quieres, puedes responder una breve encuesta adicional.</p>
                         </div>
-                    </div>
-                    ` : ''}
+                        <a class="btn" href="${escapeHtml(offer.survey_url)}" target="_blank" rel="noopener noreferrer"><span>Responder encuesta</span><i class="btn__arrow" aria-hidden="true"></i></a>
+                    </aside>` : ''}
                 </div>
+
+                <form class="cform offer-form" id="application-form" aria-labelledby="form-title" novalidate>
+                    <div>
+                        <h2 class="offer-form__title" id="form-title">Postúlate a esta oferta</h2>
+                        <p class="offer-form__lede">Cuéntanos quién eres y sube tu CV en PDF o Word (máx. 3 MB).</p>
+                    </div>
+                    <div class="field">
+                        <input type="text" id="app-name" name="name" placeholder="Cómo te llamas" autocomplete="name" required>
+                        <label for="app-name">Nombre completo</label>
+                    </div>
+                    <div class="field">
+                        <input type="email" id="app-email" name="email" placeholder="Donde te respondemos" autocomplete="email" required>
+                        <label for="app-email">Correo electrónico</label>
+                    </div>
+                    <div class="field">
+                        <input type="tel" id="app-phone" name="phone" placeholder="Por si es más rápido llamarte" autocomplete="tel">
+                        <label for="app-phone">Teléfono <span class="field__opt">(opcional)</span></label>
+                    </div>
+                    <label class="file-field" for="app-cv">
+                        <input type="file" id="app-cv" name="cv" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required>
+                        <span class="file-field__btn">Subir CV</span>
+                        <span class="file-field__name" id="app-cv-name">PDF o Word, hasta 3 MB</span>
+                    </label>
+                    <div class="cform__foot">
+                        <label class="check">
+                            <input type="checkbox" id="app-consent" required>
+                            <span class="check__box" aria-hidden="true"></span>
+                            <span>Acepto la <a href="/privacidad.html">política de privacidad</a></span>
+                        </label>
+                        <button class="btn btn--blue btn--lg" type="submit" id="app-submit" data-magnetic><span>Enviar candidatura</span><i class="btn__arrow" aria-hidden="true"></i></button>
+                    </div>
+                    <p class="cform__status" id="app-status" role="status" aria-live="polite"></p>
+                </form>
             </div>
         </section>
     `;
@@ -102,30 +119,47 @@ function renderOffer(root, offer) {
     const form = document.getElementById('application-form');
     const statusEl = document.getElementById('app-status');
     const submitBtn = document.getElementById('app-submit');
+    const submitLabel = submitBtn.querySelector('span');
+    const cvInput = document.getElementById('app-cv');
+    const cvName = document.getElementById('app-cv-name');
+
+    const setStatus = (text, kind) => {
+        statusEl.textContent = text;
+        statusEl.classList.toggle('is-ok', kind === 'ok');
+        statusEl.classList.toggle('is-error', kind === 'error');
+    };
+
+    cvInput.addEventListener('change', () => {
+        const file = cvInput.files[0];
+        cvName.textContent = file ? file.name : 'PDF o Word, hasta 3 MB';
+        cvInput.closest('.file-field').classList.toggle('is-filled', !!file);
+    });
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        statusEl.classList.add('hidden');
-        statusEl.classList.remove('text-red-400', 'text-green-400');
+        setStatus('', null);
 
-        const file = document.getElementById('app-cv').files[0];
-        if (!file) return;
+        if (!form.checkValidity()) {
+            const firstInvalid = form.querySelector(':invalid');
+            setStatus(firstInvalid?.id === 'app-consent'
+                ? 'Para enviar la candidatura tienes que aceptar la política de privacidad.'
+                : firstInvalid?.id === 'app-cv' ? 'Falta adjuntar tu CV.' : 'Revisa los campos marcados: falta alguno o no es válido.', 'error');
+            firstInvalid?.focus();
+            return;
+        }
 
+        const file = cvInput.files[0];
         if (!ALLOWED_CV_TYPES.includes(file.type)) {
-            statusEl.textContent = 'El CV debe ser un PDF o un documento de Word (.doc/.docx).';
-            statusEl.classList.remove('hidden');
-            statusEl.classList.add('text-red-400');
+            setStatus('El CV debe ser un PDF o un documento de Word (.doc/.docx).', 'error');
             return;
         }
         if (file.size > MAX_CV_BYTES) {
-            statusEl.textContent = 'El CV no puede superar 3MB.';
-            statusEl.classList.remove('hidden');
-            statusEl.classList.add('text-red-400');
+            setStatus('El CV no puede superar 3 MB.', 'error');
             return;
         }
 
         submitBtn.disabled = true;
-        submitBtn.textContent = 'ENVIANDO...';
+        submitLabel.textContent = 'Enviando…';
 
         try {
             const cvBase64 = await fileToBase64(file);
@@ -157,31 +191,28 @@ function renderOffer(root, offer) {
                 throw new Error(result.message || 'Error al enviar la candidatura');
             }
 
-            statusEl.textContent = 'Candidatura enviada correctamente. ¡Gracias por tu interés!';
-            statusEl.classList.remove('hidden');
-            statusEl.classList.add('text-green-400');
+            setStatus('Candidatura enviada correctamente. ¡Gracias por tu interés!', 'ok');
             form.reset();
-            submitBtn.textContent = 'Enviar candidatura';
+            cvInput.dispatchEvent(new Event('change'));
         } catch (error) {
             console.error('Error:', error);
-            statusEl.textContent = error.message || 'Hubo un error al enviar la candidatura. Intenta de nuevo.';
-            statusEl.classList.remove('hidden');
-            statusEl.classList.add('text-red-400');
-            submitBtn.textContent = 'Enviar candidatura';
+            setStatus(error.message || 'Hubo un error al enviar la candidatura. Intenta de nuevo.', 'error');
         } finally {
             submitBtn.disabled = false;
+            submitLabel.textContent = 'Enviar candidatura';
         }
     });
 }
 
+// Draws the offer (or the "not available" state) and says which one it was.
 export async function initOfertaDetail() {
     const root = document.getElementById('oferta-detail-root');
-    if (!root) return;
+    if (!root) return null;
 
     const slug = new URLSearchParams(window.location.search).get('slug');
     if (!slug) {
         renderNotFound(root);
-        return;
+        return 'not-found';
     }
 
     const { data, error } = await supabase
@@ -191,15 +222,12 @@ export async function initOfertaDetail() {
         .eq('is_active', true)
         .maybeSingle();
 
-    if (error) {
-        console.error('Error cargando la oferta:', error);
+    if (error) console.error('Error cargando la oferta:', error);
+    if (error || !data) {
         renderNotFound(root);
-        return;
-    }
-    if (!data) {
-        renderNotFound(root);
-        return;
+        return 'not-found';
     }
 
     renderOffer(root, data);
+    return 'offer';
 }

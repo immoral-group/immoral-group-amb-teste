@@ -316,7 +316,7 @@
                     <p class="mb-6">Tienes varias formas de controlar el uso de cookies:</p>
 
                     <!-- Panel de preferencias -->
-                    <div class="bg-black rounded-2xl p-8 mb-8 text-white">
+                    <div class="bg-black rounded-2xl p-8 mb-8 text-white scroll-mt-28" id="preferencias">
                         <h3 class="font-black text-lg mb-3">Panel de preferencias de cookies</h3>
                         <p class="text-gray-400 text-sm mb-6">Puedes actualizar tus preferencias en cualquier momento desde aquí:</p>
                         <div class="space-y-4">
@@ -459,6 +459,7 @@
             localStorage.setItem('cookie_analytics', analytics);
             localStorage.setItem('cookie_marketing', marketing);
             localStorage.setItem('cookie_consent', 'true');
+            localStorage.setItem('cookie_consent_date', String(Date.now()));
             setToggle(analyticsToggle, analytics);
             setToggle(marketingToggle, marketing);
             savedMsg.classList.remove('hidden');

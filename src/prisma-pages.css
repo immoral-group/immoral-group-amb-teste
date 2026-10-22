@@ -1060,6 +1060,66 @@
     .case-next__grid > :nth-child(3) { display: block; }
 }
 
+/* ---------- Oferta (oferta.html?slug=…, drawn by src/ofertaDetail.js) ---------- */
+.hero-offer { background: var(--bg); padding: clamp(150px, 15vw, 230px) 0 clamp(60px, 7vw, 110px); }
+.hero-offer__wrap { display: flex; flex-direction: column; align-items: flex-start; gap: clamp(14px, 1.4vw, 22px); }
+.hero-offer__eyebrow { margin-top: clamp(6px, 1vw, 14px); font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--blue); }
+.hero-offer__title { font-size: clamp(36px, 4.6vw, 80px); max-width: 16ch; }
+.hero-offer__title--loading { color: var(--ink-3); }
+.hero-offer--empty { display: flex; align-items: center; min-height: 80vh; min-height: 80svh; }
+.hero-offer--empty .hero-note { max-width: 34em; }
+.hero-offer--empty .btn { margin-top: clamp(8px, 1vw, 16px); }
+.offer-body { background: #fff; }
+.offer-body__wrap { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(36px, 5vw, 100px); align-items: start; }
+.offer-body__desc { display: grid; gap: 1em; max-width: 40em; margin-top: clamp(24px, 3vw, 40px); font-size: var(--t-body); font-weight: 300; line-height: 1.6; color: var(--ink-2); }
+.offer-body__survey {
+    display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 18px 24px;
+    margin-top: clamp(36px, 4vw, 56px); padding: clamp(22px, 2.4vw, 32px); border-radius: 24px; background: var(--bg);
+}
+.offer-body__survey-title { font-size: 18px; font-weight: 600; letter-spacing: -0.02em; }
+.offer-body__survey-text { margin-top: 4px; font-size: 14px; color: var(--ink-2); }
+/* The application form: the contact form of /contacto, held beside the description. */
+.offer-form { position: sticky; top: 120px; }
+.offer-form__title { font-size: clamp(22px, 1.8vw, 30px); font-weight: 700; letter-spacing: -0.035em; line-height: 1.1; }
+.offer-form__lede { margin-top: 8px; font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.file-field { position: relative; display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1.5px solid var(--line-strong); cursor: pointer; }
+.file-field input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.file-field__btn { flex: none; padding: 11px 18px; border-radius: 999px; background: var(--mist); color: var(--blue); font-size: 14px; font-weight: 600; transition: background .3s, color .3s; }
+.file-field:hover .file-field__btn, .file-field.is-filled .file-field__btn { background: var(--blue); color: #fff; }
+.file-field input:focus-visible + .file-field__btn { outline: 2px solid var(--blue); outline-offset: 3px; }
+.file-field__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; color: var(--ink-2); }
+.file-field.is-filled .file-field__name { color: var(--ink); }
+
+/* ---------- 404: the Immoral guy in front of a huge 404 ---------- */
+.lost { display: flex; align-items: center; min-height: 100vh; min-height: 100svh; padding: clamp(120px, 12vw, 180px) 0 clamp(70px, 8vw, 120px); background: var(--bg); overflow: hidden; }
+.lost__wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(36px, 5vw, 100px); align-items: center; }
+.lost__stage { position: relative; display: grid; place-items: center; }
+.lost__digits {
+    grid-area: 1 / 1; display: flex; justify-content: center; gap: .02em; margin: 0;
+    font-size: clamp(150px, 21vw, 380px); font-weight: 800; letter-spacing: -0.07em; line-height: .8; color: var(--blue);
+    user-select: none;
+}
+.lost__guy {
+    /* The clip is a wide frame with the guy in the middle: wider than the column
+       by a quarter each side, so it stays centred over the digits. */
+    grid-area: 1 / 1; position: relative; z-index: 1; width: 150%; height: auto; max-width: none; margin: 0 -25%; pointer-events: none;
+    /* The clip ends at his hands: fade it out instead of a hard edge. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 96%); mask-image: linear-gradient(to bottom, #000 72%, transparent 96%);
+}
+.lost__title { font-size: clamp(34px, 3.8vw, 66px); max-width: 12ch; }
+.lost__copy { display: flex; flex-direction: column; align-items: flex-start; gap: clamp(14px, 1.4vw, 22px); }
+.lost__actions { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; margin-top: clamp(6px, 1vw, 14px); }
+.lost__links { display: flex; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 1024px) {
+    .offer-body__wrap, .lost__wrap { grid-template-columns: minmax(0, 1fr); }
+    .offer-form { position: static; }
+}
+@media (max-width: 560px) {
+    .lost__digits { font-size: 30vw; gap: .3em; }
+    .lost__guy { width: 120%; margin: 0 -10%; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
     .bento-svc__wrap { grid-template-columns: 1fr; }
