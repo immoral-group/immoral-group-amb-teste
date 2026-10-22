@@ -5,7 +5,7 @@ import gsap from 'gsap';
 // public/imgs/logo-footer.webm has a keyframe on every frame, so any of them
 // seeks at once. Without motion the static SVG next to it stays (.js-motion).
 // Shared by the home (src/home-prisma.js) and the inner pages (src/prisma-site.js).
-const FRAMES = 33;
+const FRAMES = 28;
 const FPS = 25;
 
 export function footMark() {
