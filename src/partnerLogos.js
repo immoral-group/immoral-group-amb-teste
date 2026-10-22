@@ -8,6 +8,12 @@ function escapeHtml(str) {
 
 function logoImgHTML(logo) {
     const multiplier = Number(logo.size_multiplier) || 1;
+    // A brand without a logo file (image_url empty) shows its name, set in
+    // the site's typeface, at the same height as the logos.
+    if (!logo.image_url) {
+        return `<span class="logos__word whitespace-nowrap font-bold text-white opacity-50"
+        style="font-size: calc(1.15rem * ${multiplier})">${escapeHtml(logo.name)}</span>`;
+    }
     return `<img src="${escapeHtml(logo.image_url)}" alt="${escapeHtml(logo.name)}"
         style="height: calc(1.5rem * ${multiplier})"
         class="w-auto brightness-0 invert opacity-50 hover:opacity-100 transition-opacity" />`;
